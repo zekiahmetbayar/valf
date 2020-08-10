@@ -16,10 +16,12 @@ class MyWindow(Gtk.Window):
         self.add(table)
         self.add(listbox)
 
-        array = ["Bu","Bir","Array","Merhaba"]
-        for i in array:
+        two_d_array = {'Hello' : 'Hi', 'Example' : 'Merhaba'}
+        for i in two_d_array.keys():
             items = Gtk.Label(i)
             listbox.add(items)
+
+     
 
         table.attach(listbox,0,1,0,3)
 
@@ -38,8 +40,10 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.page2, Gtk.Label(label="Page2"))
 
         table.attach(self.notebook,1,3,0,3)
- 
 
+    def on_button_clicked(listbox_widget): 
+        windows= Gtk.Window() 
+        windows.show()
  
 
 window = MyWindow()
