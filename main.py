@@ -7,19 +7,23 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self)
         self.set_default_size(750, 500)
         self.connect("destroy", Gtk.main_quit)
+        self.list_view()
+        
 
-        grid = Gtk.Grid()
-        self.add(grid)
-
+    def list_view(self):
+        table = Gtk.Table(n_rows=3, n_columns=3, homogeneous=True)
+        self.add(table)
         listbox = Gtk.ListBox()
         self.add(listbox)
-        array = ["Bu","Bir","Array"]
+        array = ["Bu","Bir","Array","Merhaba"]
+
         for i in array:
-            label = Gtk.Label(i)
-            listbox.add(label)
-        
-        grid.add(listbox)
-        #grid.attach(listbox, 10, 20, 20, 10)
+            items = Gtk.Label(i)
+            listbox.add(items)
+
+        table.attach(listbox,0,1,0,3)
+ 
+
  
 
 window = MyWindow()
