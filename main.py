@@ -1,5 +1,3 @@
-
-
 from gi.repository import Gdk
 
 import gi
@@ -20,24 +18,13 @@ class MyWindow(Gtk.Window):
         self.add(table)
         self.add(listbox)
 
-        two_d_array = {'Hello' : 'Hi', 'Example' : 'Merhaba'}
-        for i in two_d_array.keys():
+        self.two_d_array = {'Hello' : 'Hi', 'Example' : 'Merhaba'}
+        for i in self.two_d_array.keys():
             ## label yerine buton oluşturduk
             items = Gtk.Button.new_with_label(i)
             items.connect("button-press-event",self.button_clicked)
             listbox.add(items)
 
-
-        menu = Gtk.Menu()
-        acts = two_d_array.values()
-        for i in acts:
-            menuitem = Gtk.MenuItem(i)
-            menu.append(menuitem)
-            menuitem.show()
-        
-        
-
-        # listbox.connect_object('button-press-event', self.on_pop_menu, menu)
         table.attach(listbox,0,1,0,3)
 
         self.notebook = Gtk.Notebook()
@@ -61,7 +48,10 @@ class MyWindow(Gtk.Window):
         menu = Gtk.Menu()
         menu_item = Gtk.MenuItem("New")
         menu.append(menu_item)
+        menu_item.connect("activate", self.on_click_popup)
         menu.show_all()
+
+        
         return menu
 
     ##  Buton sağ click ise context menu açtı
@@ -70,6 +60,7 @@ class MyWindow(Gtk.Window):
             menu = self.context_menu()
             ## Tıklanan objenin labelini print ediyor
             print(listbox_widget.get_label())
+            self.labelmenu = listbox_widget.get_label()
             menu.popup( None, None, None,None, event.button, event.get_time()) 
             return True
 
@@ -77,12 +68,17 @@ class MyWindow(Gtk.Window):
         if event.button == 3:
             widget.popup(None, None, None, None, event.button, event.time)
         
-
-    def on_button_clicked(self,listbox_widget): 
-        windows= Gtk.Window() 
-        windows.show()
+    def on_click_popup(self, action):
+        about_dialog = Gtk.Window()
+        about_dialog.set_title("New Window")
+        screen_label = Gtk.Label(label = self.two_d_array[self.labelmenu])
+        about_dialog.add(screen_label)
+        about_dialog.present()
+        about_dialog.show_all()
  
 
+        
+        
 window = MyWindow()
 window.show_all()
 
