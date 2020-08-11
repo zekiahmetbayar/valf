@@ -1,3 +1,7 @@
+
+
+from gi.repository import Gdk
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -18,7 +22,9 @@ class MyWindow(Gtk.Window):
 
         two_d_array = {'Hello' : 'Hi', 'Example' : 'Merhaba'}
         for i in two_d_array.keys():
-            items = Gtk.Label(i)
+            ## label yerine buton oluşturduk
+            items = Gtk.Button.new_with_label(i)
+            items.connect("button-press-event",self.button_clicked)
             listbox.add(items)
 
 
@@ -31,7 +37,7 @@ class MyWindow(Gtk.Window):
         
         
 
-        listbox.connect_object('button-press-event', self.on_pop_menu, menu)
+        # listbox.connect_object('button-press-event', self.on_pop_menu, menu)
         table.attach(listbox,0,1,0,3)
 
         self.notebook = Gtk.Notebook()
@@ -50,6 +56,23 @@ class MyWindow(Gtk.Window):
 
         table.attach(self.notebook,1,3,0,3)
     
+
+    def context_menu(self):
+        menu = Gtk.Menu()
+        menu_item = Gtk.MenuItem("New")
+        menu.append(menu_item)
+        menu.show_all()
+        return menu
+
+    ##  Buton sağ click ise context menu açtı
+    def button_clicked(self,listbox_widget,event): 
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
+            menu = self.context_menu()
+            ## Tıklanan objenin labelini print ediyor
+            print(listbox_widget.get_label())
+            menu.popup( None, None, None,None, event.button, event.get_time()) 
+            return True
+
     def on_pop_menu(self, widget, event):
         if event.button == 3:
             widget.popup(None, None, None, None, event.button, event.time)
