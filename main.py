@@ -21,8 +21,17 @@ class MyWindow(Gtk.Window):
             items = Gtk.Label(i)
             listbox.add(items)
 
-     
 
+        menu = Gtk.Menu()
+        acts = two_d_array.values()
+        for i in acts:
+            menuitem = Gtk.MenuItem(i)
+            menu.append(menuitem)
+            menuitem.show()
+        
+        
+
+        listbox.connect_object('button-press-event', self.on_pop_menu, menu)
         table.attach(listbox,0,1,0,3)
 
         self.notebook = Gtk.Notebook()
@@ -40,8 +49,13 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.page2, Gtk.Label(label="Page2"))
 
         table.attach(self.notebook,1,3,0,3)
+    
+    def on_pop_menu(self, widget, event):
+        if event.button == 3:
+            widget.popup(None, None, None, None, event.button, event.time)
+        
 
-    def on_button_clicked(listbox_widget): 
+    def on_button_clicked(self,listbox_widget): 
         windows= Gtk.Window() 
         windows.show()
  
