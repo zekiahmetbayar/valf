@@ -2,10 +2,12 @@ from gi.repository import Gdk
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from pathlib import Path
 
 
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
+    home = str(Path.home())
 
     def __init__(self):
         Gtk.Window.__init__(self)
@@ -24,11 +26,18 @@ class MyWindow(Gtk.Window):
         for i in range(0,len(hosts)):
             self.two_d_array[hosts[i]] = "new" # Host isimlerinin two_d_array dizisine aktarılması
         
+        
         for i in self.two_d_array.keys():
             ## label yerine buton oluşturduk
             items = Gtk.Button.new_with_label(i)
             items.connect("button-press-event",self.button_clicked)
             listbox.add(items)
+        
+        new_window_button = Gtk.Button("Yeni Bağlantı Ekle")
+        new_window_button.connect('clicked',self.insert_config_file)
+        listbox.add(new_window_button)
+        
+
         self.table.attach(listbox,0,1,0,3)
         
         self.add(self.notebook)
@@ -42,7 +51,7 @@ class MyWindow(Gtk.Window):
 
     def context_menu(self):
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("New Page")
+        menu_item = Gtk.MenuItem("New")
         menu.append(menu_item)
         menu_item.connect("activate", self.on_click_popup)
         menu.show_all()
@@ -69,6 +78,8 @@ class MyWindow(Gtk.Window):
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
         self.new_page.add(Gtk.Label(label=self.two_d_array[self.labelmenu]))
+        self.notebook.append_page(self.new_page, Gtk.Label(label="New Page"))
+        self.notebook.show_all()
 
         #header = Gtk.HBox()
         #image = Gtk.Image()
@@ -83,21 +94,59 @@ class MyWindow(Gtk.Window):
         #                expand=False, fill=False, padding=0)
         #header.show_all()
         
-
-        self.notebook.append_page(self.new_page, Gtk.Label(label="New Page"))
-        self.notebook.set_tab_reorderable(self.new_page, True)
-        window.connect('delete-event', Gtk.main_quit)
-        self.notebook.show_all()
     
     def open_config_file(self):
         y = list()
-        with open('/home/zeki/.ssh/config') as myFile:
+        with open(self.home + '/.ssh/config') as myFile:
             for num, line in enumerate(myFile, 1):
                 if 'Host ' in line:
                     x = line.split()
                     y.append(x[1])
                         
         return y
+    
+    def insert_config_file(self,widget):
+        
+        input_window = Gtk.Window()
+        input_window.set_title("New Window")
+        input_window.set_border_width(10)
+        self.table2 = Gtk.Table(n_rows=10, n_columns=0, homogeneous=True)
+        input_window.add(self.table2)
+        self.host = Gtk.Entry()
+        self.host_name = Gtk.Entry()
+        self.user = Gtk.Entry()
+        self.port = Gtk.Entry()
+        self.submit_button = Gtk.Button("Gönder")
+  
+        self.host.set_placeholder_text("Host")
+        self.host_name.set_placeholder_text("HostName")
+        self.user.set_placeholder_text("User")
+        self.port.set_placeholder_text("Port")
+
+        input_window.add(self.host)
+        input_window.add(self.host_name)
+        input_window.add(self.user)
+        input_window.add(self.port)
+        input_window.add(self.submit_button)
+        self.submit_button.connect('clicked',self.on_click_submit)
+
+        self.table2.attach(self.host,0,1,0,1)
+        self.table2.attach(self.host_name,0,1,2,3)
+        self.table2.attach(self.user,0,1,4,5)
+        self.table2.attach(self.port,0,1,6,7)
+        self.table2.attach(self.submit_button,0,1,8,9)
+
+        input_window.present()
+        input_window.show_all()
+
+        
+
+    def on_click_submit(self,widget):
+        
+        with open(self.home + '/.ssh/config','a') as myFile:
+            myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),self.port.get_text()))
+    
+
 
 
 
