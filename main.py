@@ -19,15 +19,14 @@ class MyWindow(Gtk.Window):
         
     def list_view(self):
         self.table = Gtk.Table(n_rows=3, n_columns=3, homogeneous=True)
-        self.listbox = Gtk.ListBox()
         self.add(self.table)
+        self.listbox = Gtk.ListBox()
         self.add(self.listbox)
 
         self.listbox_add_items()
         new_window_button = Gtk.Button("Yeni Bağlantı Ekle")
         new_window_button.connect('clicked',self.insert_config_file)
         self.listbox.add(new_window_button)
-        
         self.table.attach(self.listbox,0,1,0,3)
         
         self.add(self.notebook)
@@ -72,19 +71,6 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.new_page, Gtk.Label(label="New Page"))
         self.notebook.show_all()
 
-        #header = Gtk.HBox()
-        #image = Gtk.Image()
-        #image.set_from_stock(Gtk.STOCK_CLOSE,Gtk.ICON_SIZE_MENU)
-        #close_button = Gtk.Button()
-        #close_button.set_image(image)
-        #close_button.set_relief(Gtk.RELIEF_NONE)
-        #self.connect(close_button, 'clicked', self.close_cb)
-        #header.pack_start(new_page,
-        #                  expand=True, fill=True, padding=0)
-        #header.pack_end(close_button,
-        #                expand=False, fill=False, padding=0)
-        #header.show_all()
-        
     
     def open_config_file(self):
         y = list()
@@ -94,7 +80,17 @@ class MyWindow(Gtk.Window):
                     x = line.split()
                     y.append(x[1])
                         
-        return y
+        return y 
+    
+    def new_item_config(self):
+        y = list()
+        with open(self.home + '/.ssh/config') as myFile:
+            for num, line in enumerate(myFile, 1):
+                if 'Host ' in line:
+                    x = line.split()
+                    y.append(x[1])
+                        
+        return y[-1]
     
     def insert_config_file(self,widget):
         
@@ -129,50 +125,43 @@ class MyWindow(Gtk.Window):
         self.table2.attach(self.submit_button,0,1,8,9)
 
         input_window.present()
-        input_window.show_all()
+        input_window.show_all()  
+        
+    def listbox_add_items(self):
+        
+        self.two_d_array = dict()
+        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
+        for i in range(0,len(self.hosts)):
+            self.two_d_array[self.hosts[i]] = "dddd" # Host isimlerinin two_d_array dizisine aktarılması
+        
+        for i in self.two_d_array.keys():
+            ## label yerine buton oluşturduk
+            buttons = Gtk.Button.new_with_label(i)
+            buttons.connect("button-press-event",self.button_clicked)
+            self.listbox.add(buttons)
+        
+        self.listbox.show_all()
+    
+    def listbox_add_last_item(self,last):
+        self.last_item_button = Gtk.Button.new_with_label(last)
+        self.last_item_button.connect("button-press-event",self.button_clicked)
+        self.listbox.add(self.last_item_button)
 
+        self.listbox.show_all()
+    
     def on_click_submit(self,widget):
         
         with open(self.home + '/.ssh/config','a') as myFile:
             myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),self.port.get_text()))
-        
-        self.open_config_file()
-        
-        self.listbox_add_items()        
-        
-    
-    def listbox_add_items(self):
 
-        self.two_d_array = dict()
-        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
-        for i in range(0,len(self.hosts)):
-            self.two_d_array[self.hosts[i]] = "new" # Host isimlerinin two_d_array dizisine aktarılması
-        
-        for i in self.two_d_array.keys():
-            ## label yerine buton oluşturduk
-            items = Gtk.Button.new_with_label(i)
-            items.connect("button-press-event",self.button_clicked)
-            self.listbox.add(items)
+        last_value = self.new_item_config()
 
-            self.listbox.show_all()
+        self.listbox_add_last_item(last_value)    
 
 
-
-
-    ################################## OUT OF INDEX ERROR ######################################
-    #def listbox_add_last_item(self):
-    #    self.last_item = self.hosts[-1]
-    #    self.last_item_button = Gtk.Button.new_with_label(self.last_item)
-    #    self.last_item_button.connect("button-press-event",self.button_clicked)
-    #    self.listbox.add(self.last_item_button)
-
-    #    self.listbox.show_all()
-
-
-
-
-       
 window = MyWindow()
 window.show_all()
 
 Gtk.main()
+
+
