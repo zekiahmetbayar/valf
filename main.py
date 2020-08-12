@@ -3,6 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
 
@@ -18,7 +19,11 @@ class MyWindow(Gtk.Window):
         self.add(self.table)
         self.add(listbox)
 
-        self.two_d_array = {'Hello' : 'Hi', 'Example' : 'Merhaba'}
+        self.two_d_array = dict()
+        hosts = self.open_config_file() # Config dosyasındaki host isimleri
+        for i in range(0,len(hosts)):
+            self.two_d_array[hosts[i]] = "new" # Host isimlerinin two_d_array dizisine aktarılması
+        
         for i in self.two_d_array.keys():
             ## label yerine buton oluşturduk
             items = Gtk.Button.new_with_label(i)
@@ -59,12 +64,43 @@ class MyWindow(Gtk.Window):
             widget.popup(None, None, None, None, event.button, event.time)
         
     def on_click_popup(self, action):   
-        ## Yeni sayfa oluştur     
+        ## Yeni sayfa oluştur
+        
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
         self.new_page.add(Gtk.Label(label=self.two_d_array[self.labelmenu]))
+
+        #header = Gtk.HBox()
+        #image = Gtk.Image()
+        #image.set_from_stock(Gtk.STOCK_CLOSE,Gtk.ICON_SIZE_MENU)
+        #close_button = Gtk.Button()
+        #close_button.set_image(image)
+        #close_button.set_relief(Gtk.RELIEF_NONE)
+        #self.connect(close_button, 'clicked', self.close_cb)
+        #header.pack_start(new_page,
+        #                  expand=True, fill=True, padding=0)
+        #header.pack_end(close_button,
+        #                expand=False, fill=False, padding=0)
+        #header.show_all()
+        
+
         self.notebook.append_page(self.new_page, Gtk.Label(label="New Page"))
+        self.notebook.set_tab_reorderable(self.new_page, True)
+        window.connect('delete-event', Gtk.main_quit)
         self.notebook.show_all()
+    
+    def open_config_file(self):
+        y = list()
+        with open('/home/zeki/.ssh/config') as myFile:
+            for num, line in enumerate(myFile, 1):
+                if 'Host ' in line:
+                    x = line.split()
+                    y.append(x[1])
+                        
+        return y
+
+
+
         
         
 window = MyWindow()
