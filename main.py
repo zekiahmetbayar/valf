@@ -23,6 +23,7 @@ class MyWindow(Gtk.Window):
         self.connect("destroy", Gtk.main_quit)
         self.list_view()
         self.number_list = [0]
+        
     
     def close_button(self):
         self._button_box = Gtk.HBox()
@@ -39,23 +40,27 @@ class MyWindow(Gtk.Window):
         self._button_box.pack_start(self._close_btn, False, False, 3)
         
     def list_view(self):
-        self.table = Gtk.Table(n_rows=3, n_columns=3, homogeneous=True)
+        #self.grid = Gtk.Grid()
+        #self.add(self.grid)
+        self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.add(self.table)
         self.listbox = Gtk.ListBox()
         self.add(self.listbox)
 
+        #self.grid.add(self.listbox)
         self.listbox_add_items()
+        #self.grid.attach(self.listbox,0,0,400,400)
         new_window_button = Gtk.Button("Yeni Bağlantı Ekle")
         new_window_button.connect('clicked',self.insert_config_file)
-    
-        self.listbox.add(new_window_button)
-        self.table.attach(self.listbox,0,1,0,3)
+        self.table.attach(new_window_button,5,10,9,10)
+        #self.listbox.add(new_window_button)
+        self.table.attach(self.listbox,0,10,0,9)
         
         self.close_button()
 
         self.add(self.notebook)
-        self.table.attach(self.notebook,1,3,0,3)
-
+        self.table.attach(self.notebook,10,30,0,10)
+        #self.grid.add(self.notebook)
         self.notebook.show_all()
         self.listbox.show_all()
         self.page1 = Gtk.Box()
