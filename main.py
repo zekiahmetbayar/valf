@@ -3,13 +3,19 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
-
+from gi.repository import GObject
 from pathlib import Path
 
+ICONSIZE = Gtk.IconSize.MENU
+get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
 
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
     home = str(Path.home())
+
+    __gsignals__ = {
+        "close-tab": (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [GObject.TYPE_PYOBJECT]),
+    }
 
     def __init__(self):
         Gtk.Window.__init__(self)
@@ -29,6 +35,17 @@ class MyWindow(Gtk.Window):
         self.listbox.add(new_window_button)
         self.table.attach(self.listbox,0,1,0,3)
         
+        self._button_box = Gtk.HBox()
+        self._button_box.get_style_context().add_class("right")
+
+        self._close_btn = Gtk.Button()
+        self._close_btn.get_style_context().add_class("titlebutton")
+        self._close_btn.get_style_context().add_class("close")
+        self._close_btn.add(get_icon("window-close-symbolic"))
+        self._close_btn.connect("clicked", self._close_cb)
+        self._close_btn.show_all()
+        self._button_box.pack_start(self._close_btn, False, False, 3)
+
         self.add(self.notebook)
         self.table.attach(self.notebook,1,3,0,3)
 
@@ -37,7 +54,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label="Merhaba bu ilk sayfa."))
-        self.notebook.append_page(self.page1, Gtk.Label(label="Default Page"))
+        self.notebook.append_page(self.page1, self._button_box)
 
     def context_menu(self):
         menu = Gtk.Menu()
@@ -60,13 +77,13 @@ class MyWindow(Gtk.Window):
         
     def on_click_popup(self, action):   
         ## Yeni sayfa oluştur
-        
+
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
         self.new_page.add(Gtk.Label(label=self.two_d_array[self.labelmenu]))
-        self.notebook.append_page(self.new_page, Gtk.Label(label="New Page"))
+        self.notebook.append_page(self.new_page, self._button_box)
+        self.number = self.notebook.page_num(self.new_page)
         self.notebook.show_all()
-
     
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
@@ -152,6 +169,18 @@ class MyWindow(Gtk.Window):
 
         last_value = self.new_item_config()
         self.listbox_add_last_item(last_value)    
+    
+    def notebook_page_number():
+        number = self.notebook.notebook_page_number
+        return number
+    
+    def _close_cb(self, button):
+        self.notebook.remove_page(self.number)
+        self.notebook.show_all()
+
+    
+    
+
 
 
 window = MyWindow()
