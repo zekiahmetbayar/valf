@@ -5,6 +5,7 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 from gi.repository import GObject
 from pathlib import Path
+import re
 
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
@@ -22,57 +23,43 @@ class MyWindow(Gtk.Window):
         self.set_default_size(750, 500)
         self.connect("destroy", Gtk.main_quit)
         self.list_view()
-        self.number_list = [0]
-        
-    
-    def close_button(self):
-        self._button_box = Gtk.HBox()
-        self._button_box.get_style_context().add_class("right")
-        self.label1 = Gtk.Label("New Page")
-        self._close_btn = Gtk.Button()
-        self._close_btn.get_style_context().add_class("titlebutton")
-        self._close_btn.get_style_context().add_class("close")
-        self._close_btn.add(get_icon("window-close-symbolic"))
-        self._close_btn.connect("clicked", self._close_cb)
-        self._close_btn.show_all()
-        self.label1.show_all()
-        self._button_box.pack_start(self.label1, False, False, 3)
-        self._button_box.pack_start(self._close_btn, False, False, 3)
+        self.number_list = [1]
         
     def list_view(self):
-        #self.grid = Gtk.Grid()
-        #self.add(self.grid)
+
         self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.add(self.table)
         self.listbox = Gtk.ListBox()
         self.add(self.listbox)
 
-        #self.grid.add(self.listbox)
         self.listbox_add_items()
-        #self.grid.attach(self.listbox,0,0,400,400)
+
         new_window_button = Gtk.Button("Yeni Bağlantı Ekle")
         new_window_button.connect('clicked',self.insert_config_file)
         self.table.attach(new_window_button,5,10,9,10)
-        #self.listbox.add(new_window_button)
+
         self.table.attach(self.listbox,0,10,0,9)
-        
-        self.close_button()
 
         self.add(self.notebook)
         self.table.attach(self.notebook,10,30,0,10)
-        #self.grid.add(self.notebook)
+
         self.notebook.show_all()
         self.listbox.show_all()
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label="Merhaba bu ilk sayfa."))
-        self.notebook.append_page(self.page1, self._button_box)
+        self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
 
     def context_menu(self):
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("New")
+        menu_item = Gtk.MenuItem("Create New Notebook")
         menu.append(menu_item)
         menu_item.connect("activate", self.on_click_popup)
+
+        menu_item_del = Gtk.MenuItem("Delete Host Configuration")
+        menu.append(menu_item_del)
+        menu_item_del.connect("activate",self.on_click_delete)
+
         menu.show_all()
 
         return menu
@@ -101,7 +88,17 @@ class MyWindow(Gtk.Window):
         self.number_list.append(self.number)
         self.number_list.pop()
         self.notebook.show_all()
-
+    
+    def on_click_delete(self,action):        
+        with open(self.home + '/.ssh/config','r') as f:
+            lines = f.readlines()
+        with open(self.home + '/.ssh/config','w') as f2:
+            for line in lines:
+                if line.strip("\n") != "Host "+self.labelmenu:
+                    f2.write(line)
+        
+        
+                
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
         with open(self.home + '/.ssh/config') as myFile:
@@ -124,11 +121,11 @@ class MyWindow(Gtk.Window):
     
     def insert_config_file(self,widget): ## Yeni açılan pencere
 
-        input_window = Gtk.Window()
-        input_window.set_title("New Window")
-        input_window.set_border_width(10)
+        self.input_window = Gtk.Window()
+        self.input_window.set_title("New Window")
+        self.input_window.set_border_width(10)
         self.table2 = Gtk.Table(n_rows=10, n_columns=0, homogeneous=True)
-        input_window.add(self.table2)
+        self.input_window.add(self.table2)
 
         self.host = Gtk.Entry()
         self.host_name = Gtk.Entry()
@@ -139,23 +136,23 @@ class MyWindow(Gtk.Window):
         self.host.set_placeholder_text("Host")
         self.host_name.set_placeholder_text("HostName")
         self.user.set_placeholder_text("User")
-        self.port.set_placeholder_text("Port")
 
-        input_window.add(self.host)
-        input_window.add(self.host_name)
-        input_window.add(self.user)
-        input_window.add(self.port)
-        input_window.add(self.submit_button)
+
+        self.input_window.add(self.host)
+        self.input_window.add(self.host_name)
+        self.input_window.add(self.user)
+        self.input_window.add(self.port)
+        self.input_window.add(self.submit_button)
         self.submit_button.connect('clicked',self.on_click_submit)
 
         self.table2.attach(self.host,0,1,0,1)
         self.table2.attach(self.host_name,0,1,2,3)
         self.table2.attach(self.user,0,1,4,5)
-        self.table2.attach(self.port,0,1,6,7)
+
         self.table2.attach(self.submit_button,0,1,8,9)
 
-        input_window.present()
-        input_window.show_all()  
+        self.input_window.present()
+        self.input_window.show_all()  
         
     def listbox_add_items(self):
         
@@ -182,7 +179,7 @@ class MyWindow(Gtk.Window):
     def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
         
         with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),self.port.get_text()))
+            myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
 
         last_value = self.new_item_config()
         self.listbox_add_last_item(last_value)    
@@ -190,6 +187,20 @@ class MyWindow(Gtk.Window):
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
         self.notebook.show_all()
+       
+    def close_button(self):
+        self._button_box = Gtk.HBox()
+        self._button_box.get_style_context().add_class("right")
+        self.label1 = Gtk.Label(label="New Page")
+        self._close_btn = Gtk.Button()
+        self._close_btn.get_style_context().add_class("titlebutton")
+        self._close_btn.get_style_context().add_class("close")
+        self._close_btn.add(get_icon("window-close-symbolic"))
+        self._close_btn.connect("clicked", self._close_cb)
+        self._close_btn.show_all()
+        self.label1.show_all()
+        self._button_box.pack_start(self.label1, False, False, 3)
+        self._button_box.pack_start(self._close_btn, False, False, 3)
 
     
 window = MyWindow()
