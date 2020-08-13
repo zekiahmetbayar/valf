@@ -92,13 +92,19 @@ class MyWindow(Gtk.Window):
     def on_click_delete(self,action):        
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
-        with open(self.home + '/.ssh/config','w') as f2:
+        
             for line in lines:
-                if line.strip("\n") != "Host "+self.labelmenu:
-                    f2.write(line)
+                host_index = lines.index("Host " + self.labelmenu+"\n")
+            
+            for i in range(0,5):
+                lines.pop(host_index)
+            
+            with open(self.home + '/.ssh/config','w') as f2:
+                for last_lines in lines:
+                    f2.write(last_lines)
         
-        
-                
+        self.listbox.show_all()
+ 
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
         with open(self.home + '/.ssh/config') as myFile:
