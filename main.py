@@ -48,8 +48,6 @@ class MyWindow(Gtk.Window):
         self.page1.add(Gtk.Label(label = "Host Attributes : "))
         self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
         
-        
-
     def context_menu(self):
         menu = Gtk.Menu()
         menu_item = Gtk.MenuItem("Create New Notebook")
@@ -184,7 +182,7 @@ class MyWindow(Gtk.Window):
     
     def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
         with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
+            myFile.write("\nHost {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
         self.input_window.hide()
         last_value = self.new_item_config()
         self.listbox_add_last_item(last_value)    
@@ -210,6 +208,7 @@ class MyWindow(Gtk.Window):
         
     def button_left_click(self,listbox_widget,event):
             self.notebook_change_button = Gtk.Button("Change Configuration")
+            #self.notebook_change_button.connect('clicked',self.on_change_button)
             with open(self.home + '/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
@@ -218,30 +217,44 @@ class MyWindow(Gtk.Window):
                 self.numm = self.notebook.page_num(self.page1)
                 self.notebook.set_current_page(0)
 
-                self.lines = f.readlines()
-                for line in self.lines:
-                    self.host_index = self.lines.index("Host "+listbox_widget.get_label()+"\n")
-
-                self.host_attributes= list()
-                for i in range(0,5):
-                    count = 0
-                    self.host_attributes.append(self.lines.pop(self.host_index))
-                    count += 1
+                self.lines_list = list()
+                self.lines = f.read()
+                self.lines_list.append(self.lines.split(" "))
+                                   
+                self.host_index = self.lines_list[0].index(listbox_widget.get_label())
                 
-                self.host_attributes_label = "\t"
-                for z in self.host_attributes:
-                    self.host_attributes_label += z
-                self.host_attributes_label_comp = Gtk.Label(label = self.host_attributes_label)
+                self.host_name_ = Gtk.Entry()
+                self.host_name_label = Gtk.Label("Host : ")
+                self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
+                
+                self.hostname_ = Gtk.Entry()
+                self.hostname_label = Gtk.Label("HostName : ")
+                self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
+
+                self.user_ = Gtk.Entry()
+                self.user_label = Gtk.Label("User : ")
+                self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
+
+                self.intend = Gtk.Label(" ")
 
                 grid = Gtk.Grid()
                 self.page1.add(grid)
-                grid.add(self.host_attributes_label_comp)
-                grid.attach(self.notebook_change_button,0,10,3,1)
-
-                self.page1.add(self.host_attributes_label_comp)
+                #grid.add(self.host_attributes_label_comp)
+                grid.attach(self.host_name_label,0,2,2,1)
+                grid.attach(self.hostname_label,0,3,2,1)
+                grid.attach(self.user_label,0,4,2,1)
+                grid.attach(self.host_name_,5,2,2,1)
+                grid.attach(self.hostname_,5,3,2,1)
+                grid.attach(self.user_,5,4,2,1)
+                grid.attach(self.intend,0,15,3,1)
+          
+                grid.attach(self.notebook_change_button,0,20,2,1)
+                
                 self.notebook.show_all()
                 self.listbox.show_all()
     
+    #def on_change_button(self,widget):
+
 
 
 window = MyWindow()
