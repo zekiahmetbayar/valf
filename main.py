@@ -74,11 +74,9 @@ class MyWindow(Gtk.Window):
             self.labelmenu = listbox_widget.get_label()
             menu.popup( None, None, None,None, event.button, event.get_time()) 
             return True               
-        
                         
     def on_click_popup(self, action):   
         ## Yeni sayfa oluştur
-
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
         self._button_box = Gtk.HBox()
@@ -123,11 +121,10 @@ class MyWindow(Gtk.Window):
                 if 'Host ' in line:
                     x = line.split()
                     y.append(x[1])
-                        
+                
         return y[-1]
     
     def insert_config_file(self,widget): ## Yeni açılan pencere
-
         self.input_window = Gtk.Window()
         self.input_window.set_title("New Window")
         self.input_window.set_border_width(10)
@@ -172,22 +169,19 @@ class MyWindow(Gtk.Window):
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked)
             buttons.connect("button-press-event",self.button_left_click)
-            self.listbox.add(buttons)
-        
+            self.listbox.add(buttons)  
         self.listbox.show_all()
     
     def listbox_add_last_item(self,last): ## Son item'ın listbox'a eklenmesi
         self.last_item_button = Gtk.Button.new_with_label(last)
         self.last_item_button.connect("button-press-event",self.button_clicked)
         self.listbox.add(self.last_item_button)
-
         self.listbox.show_all()
     
     def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
-        
         with open(self.home + '/.ssh/config','a') as myFile:
             myFile.write("\nHost {}\n\tHostName {}\n\tUser {}\n\tPort {}\n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
-
+        self.input_window.hide()
         last_value = self.new_item_config()
         self.listbox_add_last_item(last_value)    
     
@@ -211,7 +205,6 @@ class MyWindow(Gtk.Window):
     
         
     def button_left_click(self,listbox_widget,event):
-            
             with open('/home/zeki/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
@@ -234,18 +227,10 @@ class MyWindow(Gtk.Window):
                     self.host_attributes_label += z
 
                 self.page1.add(Gtk.Label(label = self.host_attributes_label))
-                #self.page1.add(Gtk.Label(label=self.host_attributes_label))
                 self.notebook.show_all()
                 self.listbox.show_all()
 
-                
-
-    
-
-    
 window = MyWindow()
 window.show_all()
 
 Gtk.main()
-
-
