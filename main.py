@@ -47,6 +47,8 @@ class MyWindow(Gtk.Window):
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "Host Attributes : "))
         self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
+        
+        
 
     def context_menu(self):
         menu = Gtk.Menu()
@@ -153,7 +155,7 @@ class MyWindow(Gtk.Window):
         self.table2.attach(self.host,0,1,0,1)
         self.table2.attach(self.host_name,0,1,2,3)
         self.table2.attach(self.user,0,1,4,5)
-        self.table2.attach(self.submit_button,0,1,8,9)
+        self.table2.attach(self.submit_button,0,1,6,7)
 
         self.input_window.present()
         self.input_window.show_all()  
@@ -207,6 +209,7 @@ class MyWindow(Gtk.Window):
     
         
     def button_left_click(self,listbox_widget,event):
+            self.notebook_change_button = Gtk.Button("Change Configuration")
             with open(self.home + '/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
@@ -225,13 +228,17 @@ class MyWindow(Gtk.Window):
                     self.host_attributes.append(self.lines.pop(self.host_index))
                     count += 1
                 
-                
                 self.host_attributes_label = "\t"
                 for z in self.host_attributes:
                     self.host_attributes_label += z
-                
+                self.host_attributes_label_comp = Gtk.Label(label = self.host_attributes_label)
 
-                self.page1.add(Gtk.Label(label = self.host_attributes_label))
+                grid = Gtk.Grid()
+                self.page1.add(grid)
+                grid.add(self.host_attributes_label_comp)
+                grid.attach(self.notebook_change_button,0,10,3,1)
+
+                self.page1.add(self.host_attributes_label_comp)
                 self.notebook.show_all()
                 self.listbox.show_all()
     
