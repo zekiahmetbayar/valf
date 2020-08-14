@@ -5,7 +5,6 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 from gi.repository import GObject
 from pathlib import Path
-import re
 
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
@@ -27,7 +26,6 @@ class MyWindow(Gtk.Window):
         
         
     def list_view(self):
-
         self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.add(self.table)
         self.listbox = Gtk.ListBox()
@@ -102,7 +100,12 @@ class MyWindow(Gtk.Window):
             with open(self.home + '/.ssh/config','w') as f2:
                 for last_lines in lines:
                     f2.write(last_lines)
-        self.listbox.show_all() 
+
+        self.listbox = Gtk.ListBox()
+        self.open_config_file()
+        self.listbox_add_items()
+        self.listbox.show_all()
+        
         
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
@@ -170,6 +173,7 @@ class MyWindow(Gtk.Window):
             buttons.connect("button-press-event",self.button_clicked)
             buttons.connect("button-press-event",self.button_left_click)
             self.listbox.add(buttons)  
+        #self.listbox = Gtk.ListBox()
         self.listbox.show_all()
     
     def listbox_add_last_item(self,last): ## Son item'ın listbox'a eklenmesi
@@ -205,12 +209,14 @@ class MyWindow(Gtk.Window):
     
         
     def button_left_click(self,listbox_widget,event):
-            with open('/home/zeki/.ssh/config','r') as f:
+            with open(self.home + '.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
                 self.page1.set_border_width(10)
                 self.notebook.prepend_page(self.page1, Gtk.Label(listbox_widget.get_label()+" Attributes"))
+                self.numm = self.notebook.page_num(self.page1)
                 self.notebook.set_current_page(0)
+                print(self.numm)
                 
                 self.lines = f.readlines()
                 for line in self.lines:
@@ -229,6 +235,14 @@ class MyWindow(Gtk.Window):
                 self.page1.add(Gtk.Label(label = self.host_attributes_label))
                 self.notebook.show_all()
                 self.listbox.show_all()
+    
+    def process(self):
+
+        self.open_config_file()
+        self.listbox_add_items()
+        self.listbox.show_all()
+        self.notebook.show_all()
+        return True
 
 window = MyWindow()
 window.show_all()
