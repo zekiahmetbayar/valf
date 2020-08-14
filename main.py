@@ -33,10 +33,9 @@ class MyWindow(Gtk.Window):
 
         self.listbox_add_items()
 
-        new_window_button = Gtk.Button("Yeni Bağlantı Ekle")
+        new_window_button = Gtk.Button("Add New Host")
         new_window_button.connect('clicked',self.insert_config_file)
         self.table.attach(new_window_button,5,10,9,10)
-
         self.table.attach(self.listbox,0,10,0,9)
 
         self.add(self.notebook)
@@ -154,7 +153,6 @@ class MyWindow(Gtk.Window):
         self.table2.attach(self.host,0,1,0,1)
         self.table2.attach(self.host_name,0,1,2,3)
         self.table2.attach(self.user,0,1,4,5)
-
         self.table2.attach(self.submit_button,0,1,8,9)
 
         self.input_window.present()
@@ -209,15 +207,14 @@ class MyWindow(Gtk.Window):
     
         
     def button_left_click(self,listbox_widget,event):
-            with open(self.home + '.ssh/config','r') as f:
+            with open(self.home + '/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
                 self.page1.set_border_width(10)
                 self.notebook.prepend_page(self.page1, Gtk.Label(listbox_widget.get_label()+" Attributes"))
                 self.numm = self.notebook.page_num(self.page1)
                 self.notebook.set_current_page(0)
-                print(self.numm)
-                
+
                 self.lines = f.readlines()
                 for line in self.lines:
                     self.host_index = self.lines.index("Host "+listbox_widget.get_label()+"\n")
@@ -225,24 +222,20 @@ class MyWindow(Gtk.Window):
                 self.host_attributes= list()
                 for i in range(0,5):
                     count = 0
-                    self.host_attributes.append(self.lines.pop(self.host_index+count))
+                    self.host_attributes.append(self.lines.pop(self.host_index))
                     count += 1
                 
-                self.host_attributes_label = ""
+                
+                self.host_attributes_label = "\t"
                 for z in self.host_attributes:
                     self.host_attributes_label += z
+                
 
                 self.page1.add(Gtk.Label(label = self.host_attributes_label))
                 self.notebook.show_all()
                 self.listbox.show_all()
     
-    def process(self):
 
-        self.open_config_file()
-        self.listbox_add_items()
-        self.listbox.show_all()
-        self.notebook.show_all()
-        return True
 
 window = MyWindow()
 window.show_all()
