@@ -82,14 +82,14 @@ class MyWindow(Gtk.Window):
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
         self.close_button()
-        self.new_page.add(Gtk.Label(label=self.two_d_array[self.labelmenu]))
+        self.new_page.add(Gtk.Label(label=self.labelmenu))
         self.notebook.append_page(self.new_page, self._button_box)
         self.number = self.notebook.page_num(self.new_page)
         self.number_list.append(self.number)
         self.number_list.pop()
         self.notebook.show_all()
     
-    def on_click_delete(self,action):        
+    def on_click_delete(self,action): # # Seçilen bağlantıyı silme fonksiyonu        
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
         
@@ -102,9 +102,8 @@ class MyWindow(Gtk.Window):
             with open(self.home + '/.ssh/config','w') as f2:
                 for last_lines in lines:
                     f2.write(last_lines)
+        self.listbox.show_all() 
         
-        self.listbox.show_all()
- 
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
         with open(self.home + '/.ssh/config') as myFile:
@@ -142,7 +141,6 @@ class MyWindow(Gtk.Window):
         self.host.set_placeholder_text("Host")
         self.host_name.set_placeholder_text("HostName")
         self.user.set_placeholder_text("User")
-
 
         self.input_window.add(self.host)
         self.input_window.add(self.host_name)
@@ -197,7 +195,7 @@ class MyWindow(Gtk.Window):
     def close_button(self):
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
-        self.label1 = Gtk.Label(label="New Page")
+        self.label1 = Gtk.Label(label=self.labelmenu)
         self._close_btn = Gtk.Button()
         self._close_btn.get_style_context().add_class("titlebutton")
         self._close_btn.get_style_context().add_class("close")
