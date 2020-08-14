@@ -25,6 +25,7 @@ class MyWindow(Gtk.Window):
         self.list_view()
         self.number_list = [1]
         
+        
     def list_view(self):
 
         self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
@@ -47,7 +48,7 @@ class MyWindow(Gtk.Window):
         self.listbox.show_all()
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.page1.add(Gtk.Label(label="Merhaba bu ilk sayfa."))
+        self.page1.add(Gtk.Label(label = "Host Attributes : "))
         self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
 
     def context_menu(self):
@@ -72,8 +73,9 @@ class MyWindow(Gtk.Window):
             print(listbox_widget.get_label())
             self.labelmenu = listbox_widget.get_label()
             menu.popup( None, None, None,None, event.button, event.get_time()) 
-            return True
+            return True               
         
+                        
     def on_click_popup(self, action):   
         ## Yeni sayfa oluştur
 
@@ -169,6 +171,7 @@ class MyWindow(Gtk.Window):
             ## label yerine buton oluşturduk
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked)
+            buttons.connect("button-press-event",self.button_left_click)
             self.listbox.add(buttons)
         
         self.listbox.show_all()
@@ -205,6 +208,39 @@ class MyWindow(Gtk.Window):
         self.label1.show_all()
         self._button_box.pack_start(self.label1, False, False, 3)
         self._button_box.pack_start(self._close_btn, False, False, 3)
+    
+        
+    def button_left_click(self,listbox_widget,event):
+            
+            with open('/home/zeki/.ssh/config','r') as f:
+                self.notebook.remove_page(0)
+                self.page1 = Gtk.Box()
+                self.page1.set_border_width(10)
+                self.notebook.prepend_page(self.page1, Gtk.Label(listbox_widget.get_label()+" Attributes"))
+                self.notebook.set_current_page(0)
+                
+                self.lines = f.readlines()
+                for line in self.lines:
+                    self.host_index = self.lines.index("Host "+listbox_widget.get_label()+"\n")
+
+                self.host_attributes= list()
+                for i in range(0,5):
+                    count = 0
+                    self.host_attributes.append(self.lines.pop(self.host_index+count))
+                    count += 1
+                
+                self.host_attributes_label = ""
+                for z in self.host_attributes:
+                    self.host_attributes_label += z
+
+                self.page1.add(Gtk.Label(label = self.host_attributes_label))
+                #self.page1.add(Gtk.Label(label=self.host_attributes_label))
+                self.notebook.show_all()
+                self.listbox.show_all()
+
+                
+
+    
 
     
 window = MyWindow()
