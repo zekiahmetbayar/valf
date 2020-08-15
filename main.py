@@ -23,14 +23,13 @@ class MyWindow(Gtk.Window):
         self.connect("destroy", Gtk.main_quit)
         self.list_view()
         self.number_list = [1]
-        
-        
+         
     def list_view(self):
         self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.add(self.table)
+
         self.listbox = Gtk.ListBox()
         self.add(self.listbox)
-
         self.listbox_add_items()
 
         new_window_button = Gtk.Button("Add New Host")
@@ -67,7 +66,6 @@ class MyWindow(Gtk.Window):
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             menu = self.context_menu()
             ## Tıklanan objenin labelini print ediyor
-            print(listbox_widget.get_label())
             self.labelmenu = listbox_widget.get_label()
             menu.popup( None, None, None,None, event.button, event.get_time()) 
             return True               
@@ -76,22 +74,30 @@ class MyWindow(Gtk.Window):
         ## Yeni sayfa oluştur
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
+
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
+
         self.close_button()
         self.new_page.add(Gtk.Label(label=self.labelmenu))
         self.notebook.append_page(self.new_page, self._button_box)
+
         self.number = self.notebook.page_num(self.new_page)
         self.number_list.append(self.number)
         self.number_list.pop()
         self.notebook.show_all()
     
-    def on_click_delete(self,action): # # Seçilen bağlantıyı silme fonksiyonu        
+    def on_click_delete(self,action): # # Seçilen bağlantıyı silme fonksiyonu   
+        two_d_array_index = list(self.two_d_array.keys()).index(self.labelmenu)
+        print(two_d_array_index)
+        self.listbox.remove(self.listbox.get_row_at_index(two_d_array_index))  
+        #self.listbox.show_all()
+                 
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
         
             for line in lines:
-                host_index = lines.index("Host " + self.labelmenu+"\n")
+                host_index = lines.index("Host " + self.labelmenu+" \n")
             
             for i in range(0,5):
                 lines.pop(host_index)
@@ -99,12 +105,11 @@ class MyWindow(Gtk.Window):
             with open(self.home + '/.ssh/config','w') as f2:
                 for last_lines in lines:
                     f2.write(last_lines)
-
-        self.listbox = Gtk.ListBox()
-        self.open_config_file()
-        self.listbox_add_items()
-        self.listbox.show_all()
         
+        self.hosts = self.open_config_file()
+        self.two_d_array = dict()
+        for i in range(0,len(self.hosts)):
+            self.two_d_array[self.hosts[i]] = "dddd" 
         
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
@@ -164,28 +169,36 @@ class MyWindow(Gtk.Window):
         self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
         for i in range(0,len(self.hosts)):
             self.two_d_array[self.hosts[i]] = "dddd" # Host isimlerinin two_d_array dizisine aktarılması
+        print(self.two_d_array.keys())
         
         for i in self.two_d_array.keys():
             ## label yerine buton oluşturduk
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked)
             buttons.connect("button-press-event",self.button_left_click)
-            self.listbox.add(buttons)  
-        #self.listbox = Gtk.ListBox()
+            self.listbox.add(buttons) 
         self.listbox.show_all()
     
     def listbox_add_last_item(self,last): ## Son item'ın listbox'a eklenmesi
         self.last_item_button = Gtk.Button.new_with_label(last)
         self.last_item_button.connect("button-press-event",self.button_clicked)
+        self.last_item_button.connect("button-press-event",self.button_left_click)
+
         self.listbox.add(self.last_item_button)
         self.listbox.show_all()
     
     def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
         with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.write("\nHost {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
+            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
         self.input_window.hide()
+
         last_value = self.new_item_config()
-        self.listbox_add_last_item(last_value)    
+        self.listbox_add_last_item(last_value)   
+
+        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
+        self.two_d_array = dict()
+        for i in range(0,len(self.hosts)):
+            self.two_d_array[self.hosts[i]] = "dddd" 
     
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
@@ -195,20 +208,28 @@ class MyWindow(Gtk.Window):
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
         self.label1 = Gtk.Label(label=self.labelmenu)
+
         self._close_btn = Gtk.Button()
         self._close_btn.get_style_context().add_class("titlebutton")
         self._close_btn.get_style_context().add_class("close")
+
         self._close_btn.add(get_icon("window-close-symbolic"))
         self._close_btn.connect("clicked", self._close_cb)
+        
         self._close_btn.show_all()
         self.label1.show_all()
+        
         self._button_box.pack_start(self.label1, False, False, 3)
         self._button_box.pack_start(self._close_btn, False, False, 3)
     
-        
     def button_left_click(self,listbox_widget,event):
+            self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
+            self.two_d_array = dict()
+            for i in range(0,len(self.hosts)):
+                self.two_d_array[self.hosts[i]] = "dddd" 
+
             self.notebook_change_button = Gtk.Button("Change Configuration")
-            #self.notebook_change_button.connect('clicked',self.on_change_button)
+            self.notebook_change_button.connect('clicked',self.on_click_change)
             with open(self.home + '/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
@@ -222,24 +243,22 @@ class MyWindow(Gtk.Window):
                 self.lines_list.append(self.lines.split(" "))
                                    
                 self.host_index = self.lines_list[0].index(listbox_widget.get_label())
-                
-                self.host_name_ = Gtk.Entry()
+                self.host_name_ = Gtk.Entry() # Bağlantı label'ının tutulduğu değişken
                 self.host_name_label = Gtk.Label("Host : ")
                 self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
                 
-                self.hostname_ = Gtk.Entry()
+                self.hostname_ = Gtk.Entry() # HostName değişkeni
                 self.hostname_label = Gtk.Label("HostName : ")
                 self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
 
-                self.user_ = Gtk.Entry()
+                self.user_ = Gtk.Entry() # User değişkeni
                 self.user_label = Gtk.Label("User : ")
                 self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
 
                 self.intend = Gtk.Label(" ")
-
                 grid = Gtk.Grid()
                 self.page1.add(grid)
-                #grid.add(self.host_attributes_label_comp)
+
                 grid.attach(self.host_name_label,0,2,2,1)
                 grid.attach(self.hostname_label,0,3,2,1)
                 grid.attach(self.user_label,0,4,2,1)
@@ -248,15 +267,43 @@ class MyWindow(Gtk.Window):
                 grid.attach(self.user_,5,4,2,1)
                 grid.attach(self.intend,0,15,3,1)
           
-                grid.attach(self.notebook_change_button,0,20,2,1)
-                
+                grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
                 self.notebook.show_all()
                 self.listbox.show_all()
+
+    def on_click_change(self,listbox_widget):
+        self.get_host = Gtk.Entry.get_text(self.host_name_)
+        self.get_hostname = Gtk.Entry.get_text(self.hostname_)
+        self.get_user = Gtk.Entry.get_text(self.user_)
+
+        self.lines_list[0][self.host_index] = self.get_host
+        self.lines_list[0][self.host_index+1] = self.get_hostname
+        self.lines_list[0][self.host_index+2] = self.get_user
+
+        with open(self.home + '/.ssh/config','r') as f:
+            lines = f.readlines()
+        
+            for line in lines:
+                host_index = lines.index("Host " + self.get_host_name +" \n")
+            
+            for i in range(0,5):
+                lines.pop(host_index)
+            
+        with open(self.home + '/.ssh/config','w') as f2:
+            for last_lines in lines:
+                f2.write(last_lines)
     
-    #def on_change_button(self,widget):
+        self.listbox_add_items()
+        self.listbox.show_all()
 
-
-
+        with open(self.home + '/.ssh/config','a') as myFile:
+            myFile.seek(host_index)
+            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.get_host() ,self.get_hostname,self.get_user,22))
+        
+        with open(self.home + '/.ssh/config','r') as myFile:
+            print(myFile.read())
+        print(self.lines_list[0])
+            
 window = MyWindow()
 window.show_all()
 
