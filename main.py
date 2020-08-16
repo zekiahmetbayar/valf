@@ -89,9 +89,8 @@ class MyWindow(Gtk.Window):
     
     def on_click_delete(self,action): # # Seçilen bağlantıyı silme fonksiyonu   
         two_d_array_index = list(self.two_d_array.keys()).index(self.labelmenu)
-        print(two_d_array_index)
         self.listbox.remove(self.listbox.get_row_at_index(two_d_array_index))  
-        #self.listbox.show_all()
+        self.listbox.show_all()
                  
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
@@ -106,10 +105,7 @@ class MyWindow(Gtk.Window):
                 for last_lines in lines:
                     f2.write(last_lines)
         
-        self.hosts = self.open_config_file()
-        self.two_d_array = dict()
-        for i in range(0,len(self.hosts)):
-            self.two_d_array[self.hosts[i]] = "dddd" 
+        self.refresh()
         
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
@@ -165,11 +161,7 @@ class MyWindow(Gtk.Window):
         
     def listbox_add_items(self):
         
-        self.two_d_array = dict()
-        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
-        for i in range(0,len(self.hosts)):
-            self.two_d_array[self.hosts[i]] = "dddd" # Host isimlerinin two_d_array dizisine aktarılması
-        print(self.two_d_array.keys())
+        self.refresh()
         
         for i in self.two_d_array.keys():
             ## label yerine buton oluşturduk
@@ -183,6 +175,7 @@ class MyWindow(Gtk.Window):
         self.last_item_button = Gtk.Button.new_with_label(last)
         self.last_item_button.connect("button-press-event",self.button_clicked)
         self.last_item_button.connect("button-press-event",self.button_left_click)
+        
 
         self.listbox.add(self.last_item_button)
         self.listbox.show_all()
@@ -195,10 +188,7 @@ class MyWindow(Gtk.Window):
         last_value = self.new_item_config()
         self.listbox_add_last_item(last_value)   
 
-        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
-        self.two_d_array = dict()
-        for i in range(0,len(self.hosts)):
-            self.two_d_array[self.hosts[i]] = "dddd" 
+        self.refresh()
     
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
@@ -223,13 +213,11 @@ class MyWindow(Gtk.Window):
         self._button_box.pack_start(self._close_btn, False, False, 3)
     
     def button_left_click(self,listbox_widget,event):
-            self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
-            self.two_d_array = dict()
-            for i in range(0,len(self.hosts)):
-                self.two_d_array[self.hosts[i]] = "dddd" 
+            self.refresh()
 
             self.notebook_change_button = Gtk.Button("Change Configuration")
             self.notebook_change_button.connect('clicked',self.on_click_change)
+            
             with open(self.home + '/.ssh/config','r') as f:
                 self.notebook.remove_page(0)
                 self.page1 = Gtk.Box()
@@ -237,7 +225,7 @@ class MyWindow(Gtk.Window):
                 self.notebook.prepend_page(self.page1, Gtk.Label(listbox_widget.get_label()+" Attributes"))
                 self.numm = self.notebook.page_num(self.page1)
                 self.notebook.set_current_page(0)
-
+                self.refresh()
                 self.lines_list = list()
                 self.lines = f.read()
                 self.lines_list.append(self.lines.split(" "))
@@ -258,7 +246,8 @@ class MyWindow(Gtk.Window):
                 self.intend = Gtk.Label(" ")
                 grid = Gtk.Grid()
                 self.page1.add(grid)
-
+                
+                self.get_host_before = Gtk.Entry.get_text(self.host_name_)
                 grid.attach(self.host_name_label,0,2,2,1)
                 grid.attach(self.hostname_label,0,3,2,1)
                 grid.attach(self.user_label,0,4,2,1)
@@ -272,37 +261,42 @@ class MyWindow(Gtk.Window):
                 self.listbox.show_all()
 
     def on_click_change(self,listbox_widget):
-        self.get_host = Gtk.Entry.get_text(self.host_name_)
-        self.get_hostname = Gtk.Entry.get_text(self.hostname_)
-        self.get_user = Gtk.Entry.get_text(self.user_)
-
-        self.lines_list[0][self.host_index] = self.get_host
-        self.lines_list[0][self.host_index+1] = self.get_hostname
-        self.lines_list[0][self.host_index+2] = self.get_user
-
+        self.refresh()
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
         
             for line in lines:
-                host_index = lines.index("Host " + self.get_host_name +" \n")
+                host_index = lines.index("Host " + self.get_host_before +" \n")
             
-            for i in range(0,5):
+            for i in range(0,4):
                 lines.pop(host_index)
+        
+        for i in range(0,len(self.two_d_array.keys())):
+            self.listbox.remove(self.listbox.get_row_at_index(0))  
+
             
+        self.get_host = "Host "+Gtk.Entry.get_text(self.host_name_) + " " + "\n"
+        self.get_hostname = "Hostname " + Gtk.Entry.get_text(self.hostname_) + " " + "\n"
+        self.get_user = "User " + Gtk.Entry.get_text(self.user_) + " " + "\n\n"
+
+        lines.insert(self.host_index,self.get_host)
+        lines.insert(self.host_index+1,self.get_hostname)
+        lines.insert(self.host_index+2,self.get_user)
+
         with open(self.home + '/.ssh/config','w') as f2:
             for last_lines in lines:
                 f2.write(last_lines)
-    
+        
         self.listbox_add_items()
         self.listbox.show_all()
-
-        with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.seek(host_index)
-            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.get_host() ,self.get_hostname,self.get_user,22))
         
-        with open(self.home + '/.ssh/config','r') as myFile:
-            print(myFile.read())
-        print(self.lines_list[0])
+    
+    def refresh(self):
+        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
+        self.two_d_array = dict()
+        for i in range(0,len(self.hosts)):
+            self.two_d_array[self.hosts[i]] = "dddd" 
+
             
 window = MyWindow()
 window.show_all()
