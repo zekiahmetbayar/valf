@@ -211,64 +211,68 @@ class MyWindow(Gtk.Window):
         
         self._button_box.pack_start(self.label1, False, False, 3)
         self._button_box.pack_start(self._close_btn, False, False, 3)
+
+    def change_notebook(self,labelname):
+        self.refresh()
+        self.notebook_change_button = Gtk.Button("Change Configuration")
+        self.notebook_change_button.connect('clicked',self.on_click_change)
+            
+        with open(self.home + '/.ssh/config','r') as f:
+            self.notebook.remove_page(0)
+            self.page1 = Gtk.Box()
+            self.page1.set_border_width(10)
+            self.notebook.prepend_page(self.page1, Gtk.Label(labelname+" Attributes"))
+            self.numm = self.notebook.page_num(self.page1)
+            self.notebook.set_current_page(0)
+            self.refresh()
+            self.lines_list = list()
+            self.lines = f.read()
+            self.lines_list.append(self.lines.split(" "))
+                                   
+            self.host_index = self.lines_list[0].index(labelname)
+            self.host_name_ = Gtk.Entry() # Bağlantı label'ının tutulduğu değişken
+            self.host_name_label = Gtk.Label("Host : ")
+            self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
+                
+            self.hostname_ = Gtk.Entry() # HostName değişkeni
+            self.hostname_label = Gtk.Label("HostName : ")
+            self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
+
+            self.user_ = Gtk.Entry() # User değişkeni
+            self.user_label = Gtk.Label("User : ")
+            self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
+
+            self.intend = Gtk.Label(" ")
+            grid = Gtk.Grid()
+            self.page1.add(grid)
+                
+            self.get_host_before = Gtk.Entry.get_text(self.host_name_)
+            grid.attach(self.host_name_label,0,2,2,1)
+            grid.attach(self.hostname_label,0,3,2,1)
+            grid.attach(self.user_label,0,4,2,1)
+            grid.attach(self.host_name_,5,2,2,1)
+            grid.attach(self.hostname_,5,3,2,1)
+            grid.attach(self.user_,5,4,2,1)
+            grid.attach(self.intend,0,15,3,1)
+          
+            grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
+            self.notebook.show_all()
+            self.listbox.show_all()
     
     def button_left_click(self,listbox_widget,event):
-            self.refresh()
-
-            self.notebook_change_button = Gtk.Button("Change Configuration")
-            self.notebook_change_button.connect('clicked',self.on_click_change)
-            
-            with open(self.home + '/.ssh/config','r') as f:
-                self.notebook.remove_page(0)
-                self.page1 = Gtk.Box()
-                self.page1.set_border_width(10)
-                self.notebook.prepend_page(self.page1, Gtk.Label(listbox_widget.get_label()+" Attributes"))
-                self.numm = self.notebook.page_num(self.page1)
-                self.notebook.set_current_page(0)
-                self.refresh()
-                self.lines_list = list()
-                self.lines = f.read()
-                self.lines_list.append(self.lines.split(" "))
-                                   
-                self.host_index = self.lines_list[0].index(listbox_widget.get_label())
-                self.host_name_ = Gtk.Entry() # Bağlantı label'ının tutulduğu değişken
-                self.host_name_label = Gtk.Label("Host : ")
-                self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
-                
-                self.hostname_ = Gtk.Entry() # HostName değişkeni
-                self.hostname_label = Gtk.Label("HostName : ")
-                self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
-
-                self.user_ = Gtk.Entry() # User değişkeni
-                self.user_label = Gtk.Label("User : ")
-                self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
-
-                self.intend = Gtk.Label(" ")
-                grid = Gtk.Grid()
-                self.page1.add(grid)
-                
-                self.get_host_before = Gtk.Entry.get_text(self.host_name_)
-                grid.attach(self.host_name_label,0,2,2,1)
-                grid.attach(self.hostname_label,0,3,2,1)
-                grid.attach(self.user_label,0,4,2,1)
-                grid.attach(self.host_name_,5,2,2,1)
-                grid.attach(self.hostname_,5,3,2,1)
-                grid.attach(self.user_,5,4,2,1)
-                grid.attach(self.intend,0,15,3,1)
-          
-                grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
-                self.notebook.show_all()
-                self.listbox.show_all()
+        self.refresh()
+        self.change_notebook(listbox_widget.get_label())
 
     def on_click_change(self,listbox_widget):
         self.refresh()
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
         
-            for line in lines:
-                host_index = lines.index("Host " + self.get_host_before +" \n")
             
-            for i in range(0,4):
+            host_index = lines.index("Host " + self.get_host_before +" \n")
+            print(host_index)
+            
+            for i in range(0,5):
                 lines.pop(host_index)
         
         for i in range(0,len(self.two_d_array.keys())):
@@ -276,20 +280,21 @@ class MyWindow(Gtk.Window):
 
             
         self.get_host = "Host "+Gtk.Entry.get_text(self.host_name_) + " " + "\n"
-        self.get_hostname = "Hostname " + Gtk.Entry.get_text(self.hostname_) + " " + "\n"
-        self.get_user = "User " + Gtk.Entry.get_text(self.user_) + " " + "\n\n"
-
-        lines.insert(self.host_index,self.get_host)
-        lines.insert(self.host_index+1,self.get_hostname)
-        lines.insert(self.host_index+2,self.get_user)
-
+        self.get_hostname = "\tHostname " + Gtk.Entry.get_text(self.hostname_) + " " + "\n"
+        self.get_user = "\tUser " + Gtk.Entry.get_text(self.user_) + " " + "\n"
+        
+        lines.insert(host_index,'\tPort 22\n\n')
+        lines.insert(host_index,self.get_user)
+        lines.insert(host_index,self.get_hostname)
+        lines.insert(host_index,self.get_host)
+        print(host_index-1)
         with open(self.home + '/.ssh/config','w') as f2:
             for last_lines in lines:
                 f2.write(last_lines)
-        
+        self.change_notebook(Gtk.Entry.get_text(self.host_name_))
         self.listbox_add_items()
         self.listbox.show_all()
-        
+        self.refresh()
     
     def refresh(self):
         self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
