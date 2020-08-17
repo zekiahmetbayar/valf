@@ -249,6 +249,7 @@ class MyWindow(Gtk.Window):
             if list(self.two_d_array.keys())[self.array_index] == list(self.two_d_array.keys())[-1]:
                 self.next_item = None
             self.dictionary = {} ### Conf file dict -- Attribute : Att -- ###
+
             for line in f:
                 if line != '\n':
 
@@ -257,9 +258,9 @@ class MyWindow(Gtk.Window):
                     if val == self.next_item:
                         self.dictionary['Host'] = labelname
                         break
-
                 else:
-                    continue             
+                    continue   
+
             grid_count = 2
             for i in list(self.dictionary.keys()):
                 
@@ -291,7 +292,6 @@ class MyWindow(Gtk.Window):
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
         
-            
             host_index = lines.index("Host " + self.get_host_before)            
             for i in range(0,len(self.dictionary)):
                 lines.pop(host_index)
@@ -299,7 +299,6 @@ class MyWindow(Gtk.Window):
         for i in range(0,len(self.two_d_array.keys())):
             self.listbox.remove(self.listbox.get_row_at_index(0))  
 
-            
         self.get_host = "Host "+Gtk.Entry.get_text(self.right_entry) + "\n"
         self.get_hostname = "\tHostname " + Gtk.Entry.get_text(self.right_entry) + "\n"
         self.get_user = "\tUser " + Gtk.Entry.get_text(self.right_entry) + "\n"
@@ -330,7 +329,6 @@ class MyWindow(Gtk.Window):
   
         self.attribute_name.set_placeholder_text("Attribute Name")
         self.attribute_value.set_placeholder_text("Value")
-
 
         self.add_attribute_window.add(self.attribute_name)
         self.add_attribute_window.add(self.attribute_value)
@@ -370,14 +368,14 @@ class MyWindow(Gtk.Window):
 
             #    self.lines_att.pop(i)
 
-        with open(self.home + '/.ssh/config','w') as myFile:
-            myFile.seek(self.next_word_index_attribute-1,0)
+        with open(self.home + '/.ssh/config','a') as myFile:
+            myFile.seek(seek_index-1,0)
             myFile.write("\n{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text()))
             
             self.add_attribute_window.hide()
 
-        last_value = self.new_item_config()
-        self.listbox_add_last_item(last_value)   
+        
+        
 
         self.refresh() 
 
