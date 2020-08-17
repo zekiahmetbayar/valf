@@ -344,13 +344,8 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.present()
         self.add_attribute_window.show_all() 
 
-    def on_click_add_attribute(self,widget):
+   def on_click_add_attribute(self,widget):
         with open(self.home + '/.ssh/config','r') as myFile:
-
-            self.lines_att = myFile.read()
-            if self.get_host_before in self.lines_att:
-                seek_index = self.lines.index("Host " + self.get_host_before)
-
             self.array_index_attribute = list(self.two_d_array.keys()).index(self.get_host_before)
 
             self.next_word_index_attribute = self.array_index_attribute + 1    
@@ -360,19 +355,22 @@ class MyWindow(Gtk.Window):
             self.next_item_attribute = list(self.two_d_array.keys())[self.next_word_index_attribute]          
             if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
                 self.next_item_attribute = None
-            
-            #myFile.seek(seek_index,0)
-            #for i in self.lines_att:
-            #    if i == str(self.next_item_attribute) :
-            #        break
 
-            #    self.lines_att.pop(i)
 
-        with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.seek(seek_index-1,0)
-            myFile.write("\n{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text()))
+            self.lines_att = myFile.read()
+            if self.get_host_before in self.lines_att:
+                seek_index = self.lines.index("Host " + self.next_item_attribute)
+
+        with open(self.home + '/.ssh/config','r+') as myFile:
+            myFile.seek(seek_index,0)
+            remainder = myFile.read()                    
+            myFile.seek(seek_index,0)  
+            myFile.write("\t{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text())+"\n" + remainder)
+
             
             self.add_attribute_window.hide()
+
+        self.change_notebook(self.get_host_before)
 
         
         
