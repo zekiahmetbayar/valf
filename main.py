@@ -344,7 +344,7 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.present()
         self.add_attribute_window.show_all() 
 
-   def on_click_add_attribute(self,widget):
+    def on_click_add_attribute(self,widget):
         with open(self.home + '/.ssh/config','r') as myFile:
             self.array_index_attribute = list(self.two_d_array.keys()).index(self.get_host_before)
 
