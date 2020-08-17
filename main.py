@@ -259,7 +259,7 @@ class MyWindow(Gtk.Window):
                         break
 
                 else:
-                    print("Boş satır ! ")              
+                    continue             
             grid_count = 2
             for i in list(self.dictionary.keys()):
                 
