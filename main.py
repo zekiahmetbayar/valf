@@ -233,6 +233,7 @@ class MyWindow(Gtk.Window):
             self.lines = f.read()
             self.lines_list.append(self.lines.split())
             self.host_index = self.lines_list[0].index(labelname)
+            self.get_host_before = labelname
 
             if labelname in self.lines:
                 seek_index = self.lines.index("Host " + labelname)
@@ -249,11 +250,16 @@ class MyWindow(Gtk.Window):
                 self.next_item = None
             self.dictionary = {} ### Conf file dict -- Attribute : Att -- ###
             for line in f:
-                (key, val) = line.split()
-                self.dictionary[key] = val
-                if val == self.next_item:
-                    self.dictionary['Host'] = labelname
-                    break              
+                if line != '\n':
+
+                    (key, val) = line.split()
+                    self.dictionary[key] = val
+                    if val == self.next_item:
+                        self.dictionary['Host'] = labelname
+                        break
+
+                else:
+                    print("Boş satır ! ")              
             grid_count = 2
             for i in list(self.dictionary.keys()):
                 
@@ -267,8 +273,11 @@ class MyWindow(Gtk.Window):
                 self.right_entry.set_text(j)
                 grid.attach(self.right_entry,5,grid_count_2,2,1)
                 grid_count_2 += 1
-          
-            grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
+
+            self.add_attribute_button = Gtk.Button("Add New Attribute")
+            self.add_attribute_button.connect("clicked",self.add_attribute)
+            grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu    
+            grid.attach(self.add_attribute_button,0,19,2,1)     
             self.notebook.show_all()
             self.listbox.show_all()
     
@@ -283,19 +292,17 @@ class MyWindow(Gtk.Window):
             lines = f.readlines()
         
             
-            host_index = lines.index("Host " + self.get_host_before +" \n")
-            print(host_index)
-            
-            for i in range(0,5):
+            host_index = lines.index("Host " + self.get_host_before)            
+            for i in range(0,len(self.dictionary)):
                 lines.pop(host_index)
         
         for i in range(0,len(self.two_d_array.keys())):
             self.listbox.remove(self.listbox.get_row_at_index(0))  
 
             
-        self.get_host = "Host "+Gtk.Entry.get_text(self.host_name_) + " " + "\n"
-        self.get_hostname = "\tHostname " + Gtk.Entry.get_text(self.hostname_) + " " + "\n"
-        self.get_user = "\tUser " + Gtk.Entry.get_text(self.user_) + " " + "\n"
+        self.get_host = "Host "+Gtk.Entry.get_text(self.right_entry) + "\n"
+        self.get_hostname = "\tHostname " + Gtk.Entry.get_text(self.right_entry) + "\n"
+        self.get_user = "\tUser " + Gtk.Entry.get_text(self.right_entry) + "\n"
         
         lines.insert(host_index,'\tPort 22\n\n')
         lines.insert(host_index,self.get_user)
@@ -309,7 +316,71 @@ class MyWindow(Gtk.Window):
         self.listbox_add_items()
         self.listbox.show_all()
         self.refresh()
-    
+
+    def add_attribute(self,widget):
+        self.add_attribute_window = Gtk.Window()
+        self.add_attribute_window.set_title("Add Attribute")
+        self.add_attribute_window.set_border_width(10)
+        self.table3 = Gtk.Table(n_rows=5, n_columns=30, homogeneous=True)
+        self.add_attribute_window.add(self.table3)
+
+        self.attribute_name = Gtk.Entry()
+        self.attribute_value = Gtk.Entry()
+        self.add_attribute_submit_button = Gtk.Button("Add")
+  
+        self.attribute_name.set_placeholder_text("Attribute Name")
+        self.attribute_value.set_placeholder_text("Value")
+
+
+        self.add_attribute_window.add(self.attribute_name)
+        self.add_attribute_window.add(self.attribute_value)
+
+        self.add_attribute_window.add(self.add_attribute_submit_button)
+        self.add_attribute_submit_button.connect('clicked',self.on_click_add_attribute)
+
+        self.table3.attach(self.attribute_name,0,14,0,1)
+        self.table3.attach(self.attribute_value,16,30,0,1)
+
+        self.table3.attach(self.add_attribute_submit_button,10,20,2,3)
+
+        self.add_attribute_window.present()
+        self.add_attribute_window.show_all() 
+
+    def on_click_add_attribute(self,widget):
+        with open(self.home + '/.ssh/config','r') as myFile:
+
+            self.lines_att = myFile.read()
+            if self.get_host_before in self.lines_att:
+                seek_index = self.lines.index("Host " + self.get_host_before)
+
+            self.array_index_attribute = list(self.two_d_array.keys()).index(self.get_host_before)
+
+            self.next_word_index_attribute = self.array_index_attribute + 1    
+            if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
+                self.next_word_index_attribute = self.array_index_attribute
+
+            self.next_item_attribute = list(self.two_d_array.keys())[self.next_word_index_attribute]          
+            if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
+                self.next_item_attribute = None
+            
+            #myFile.seek(seek_index,0)
+            #for i in self.lines_att:
+            #    if i == str(self.next_item_attribute) :
+            #        break
+
+            #    self.lines_att.pop(i)
+
+        with open(self.home + '/.ssh/config','w') as myFile:
+            myFile.seek(self.next_word_index_attribute-1,0)
+            myFile.write("\n{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text()))
+            
+            self.add_attribute_window.hide()
+
+        last_value = self.new_item_config()
+        self.listbox_add_last_item(last_value)   
+
+        self.refresh() 
+
     def refresh(self):
         self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
         self.two_d_array = dict()
