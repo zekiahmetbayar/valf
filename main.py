@@ -112,6 +112,7 @@ class MyWindow(Gtk.Window):
         with open(self.home + '/.ssh/config') as myFile:
             for num, line in enumerate(myFile, 1):
                 if 'Host ' in line:
+                    
                     x = line.split()
                     y.append(x[1])
                         
@@ -175,14 +176,13 @@ class MyWindow(Gtk.Window):
         self.last_item_button = Gtk.Button.new_with_label(last)
         self.last_item_button.connect("button-press-event",self.button_clicked)
         self.last_item_button.connect("button-press-event",self.button_left_click)
-        
 
         self.listbox.add(self.last_item_button)
         self.listbox.show_all()
     
     def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
         with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n\n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
+            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
         self.input_window.hide()
 
         last_value = self.new_item_config()
@@ -225,41 +225,74 @@ class MyWindow(Gtk.Window):
             self.numm = self.notebook.page_num(self.page1)
             self.notebook.set_current_page(0)
             self.refresh()
+
             self.lines_list = list()
             self.lines = f.read()
-            self.lines_list.append(self.lines.split(" "))
-                                   
+            self.lines_list.append(self.lines.split())
             self.host_index = self.lines_list[0].index(labelname)
-            self.host_name_ = Gtk.Entry() # Bağlantı label'ının tutulduğu değişken
-            self.host_name_label = Gtk.Label("Host : ")
-            self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
-                
-            self.hostname_ = Gtk.Entry() # HostName değişkeni
-            self.hostname_label = Gtk.Label("HostName : ")
-            self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
-
-            self.user_ = Gtk.Entry() # User değişkeni
-            self.user_label = Gtk.Label("User : ")
-            self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
-
-            self.port_ = Gtk.Entry()
-            self.port_label = Gtk.Label("Port : ")
-            self.port_.set_text(self.lines_list[0].pop(self.host_index+3))
-            
-            self.intend = Gtk.Label(" ")
             grid = Gtk.Grid()
             self.page1.add(grid)
+            if labelname in self.lines:
+                seek_index = self.lines.index("Host " + labelname)
+            f.seek(seek_index,0)
+            self.array_index = list(self.two_d_array.keys()).index(labelname)
+            self.next_word_index = self.array_index + 1         
+            self.next_item = list(self.two_d_array.keys())[self.next_word_index]          
+
+            self.dictionary = {} ### Conf file dict -- Attribute : Att -- ###
+            for line in f:
+                (key, val) = line.split()
+                self.dictionary[key] = val
+                if val == self.next_item:
+                    self.dictionary['Host'] = labelname
+                    break              
+            grid_count = 2
+            for i in list(self.dictionary.keys()):
                 
-            self.get_host_before = Gtk.Entry.get_text(self.host_name_)
-            grid.attach(self.host_name_label,0,2,2,1)
-            grid.attach(self.hostname_label,0,3,2,1)
-            grid.attach(self.user_label,0,4,2,1)
-            grid.attach(self.host_name_,5,2,2,1)
-            grid.attach(self.hostname_,5,3,2,1)
-            grid.attach(self.user_,5,4,2,1)
-            grid.attach(self.port_label,0,5,2,1)
-            grid.attach(self.port_,5,5,2,1)
-            grid.attach(self.intend,0,15,3,1)
+                self.left_label = Gtk.Label(i + " :")
+                grid.attach(self.left_label,0,grid_count,2,1)
+                grid_count += 1
+
+            grid_count_2 = 2
+            for j in list(self.dictionary.values()):
+                self.right_entry = Gtk.Entry()
+                self.right_entry.set_text(j)
+                grid.attach(self.right_entry,5,grid_count_2,2,1)
+                grid_count_2 += 1
+
+            
+
+            #self.host_name_ = Gtk.Entry() # Bağlantı label'ının tutulduğu değişken
+            #self.host_name_label = Gtk.Label('Host : ')
+            #self.host_name_.set_text(self.lines_list[0].pop(self.host_index))
+                
+            #self.hostname_ = Gtk.Entry() # HostName değişkeni
+            #self.hostname_label = Gtk.Label("HostName : ")
+            #self.hostname_.set_text(self.lines_list[0].pop(self.host_index+1))
+
+            #self.user_ = Gtk.Entry() # User değişkeni
+            #self.user_label = Gtk.Label("User : ")
+            #self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
+
+            #self.port_ = Gtk.Entry()
+            #self.port_label = Gtk.Label("Port : ")
+            #self.port_.set_text(self.lines_list[0].pop(self.host_index+3))
+            
+            #self.intend = Gtk.Label(" ")
+            
+                
+            #self.get_host_before = Gtk.Entry.get_text(self.host_name_)
+            #grid.attach(self.host_name_label,0,2,2,1)
+            #grid.attach(self.hostname_label,0,3,2,1)
+            #grid.attach(self.user_label,0,4,2,1)
+            #grid.attach(self.port_label,0,5,2,1)
+
+            #grid.attach(self.host_name_,5,2,2,1)
+            #grid.attach(self.hostname_,5,3,2,1)
+            #grid.attach(self.user_,5,4,2,1)
+            #grid.attach(self.port_,5,5,2,1)
+
+            #grid.attach(self.intend,0,15,3,1)
           
             grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
             self.notebook.show_all()
