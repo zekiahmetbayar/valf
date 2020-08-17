@@ -131,7 +131,7 @@ class MyWindow(Gtk.Window):
         self.input_window = Gtk.Window()
         self.input_window.set_title("New Window")
         self.input_window.set_border_width(10)
-        self.table2 = Gtk.Table(n_rows=10, n_columns=0, homogeneous=True)
+        self.table2 = Gtk.Table(n_rows=7, n_columns=0, homogeneous=True)
         self.input_window.add(self.table2)
 
         self.host = Gtk.Entry()
@@ -242,6 +242,10 @@ class MyWindow(Gtk.Window):
             self.user_label = Gtk.Label("User : ")
             self.user_.set_text(self.lines_list[0].pop(self.host_index+2))
 
+            self.port_ = Gtk.Entry()
+            self.port_label = Gtk.Label("Port : ")
+            self.port_.set_text(self.lines_list[0].pop(self.host_index+3))
+            
             self.intend = Gtk.Label(" ")
             grid = Gtk.Grid()
             self.page1.add(grid)
@@ -253,6 +257,8 @@ class MyWindow(Gtk.Window):
             grid.attach(self.host_name_,5,2,2,1)
             grid.attach(self.hostname_,5,3,2,1)
             grid.attach(self.user_,5,4,2,1)
+            grid.attach(self.port_label,0,5,2,1)
+            grid.attach(self.port_,5,5,2,1)
             grid.attach(self.intend,0,15,3,1)
           
             grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu         
@@ -261,6 +267,7 @@ class MyWindow(Gtk.Window):
     
     def button_left_click(self,listbox_widget,event):
         self.refresh()
+        self.open_config_file()
         self.change_notebook(listbox_widget.get_label())
 
     def on_click_change(self,listbox_widget):
