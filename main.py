@@ -260,20 +260,31 @@ class MyWindow(Gtk.Window):
                         break
                 else:
                     continue   
-
+            self.label_dict = {}
             grid_count = 2
             for i in list(self.dictionary.keys()):
-                
-                self.left_label = Gtk.Label(i + " :")
-                grid.attach(self.left_label,0,grid_count,2,1)
+                self.labeltemp = "left_label_"+str(i)
+                self.oldlabel = self.labeltemp
+                self.labeltemp = Gtk.Label(i) 
+                self.label_dict[self.oldlabel] = self.labeltemp
+                grid.attach(self.labeltemp,0,grid_count,2,1)
                 grid_count += 1
 
+            self.entries_dict = {}
             grid_count_2 = 2
+            count = 0
             for j in list(self.dictionary.values()):
-                self.right_entry = Gtk.Entry()
-                self.right_entry.set_text(j)
-                grid.attach(self.right_entry,5,grid_count_2,2,1)
+                self.temp = "right_entry_"+str(j)
+                self.oldname = self.temp
+                self.temp = Gtk.Entry()
+                self.entries_dict[self.oldname] = self.temp
+                self.temp.set_text(j)
+                
+
+                grid.attach(self.temp,5,grid_count_2,2,1)
                 grid_count_2 += 1
+                count += 1
+                
 
             self.add_attribute_button = Gtk.Button("Add New Attribute")
             self.add_attribute_button.connect("clicked",self.add_attribute)
@@ -288,33 +299,46 @@ class MyWindow(Gtk.Window):
         self.change_notebook(listbox_widget.get_label())
 
     def on_click_change(self,listbox_widget):
-        self.refresh()
+        self.values_list = list(self.entries_dict.values())
+        self.labels_list = list(self.label_dict.values())
+        self.values_dict = dict()
+
+        for i in range(0,len(self.values_list)):
+            self.values_dict[self.labels_list[i].get_label()] = self.values_list[i].get_text()
+        self.list1 = list()
+        self.list2 = list()
+        self.set1 = self.dictionary.items()
+        self.set2 = self.values_dict.items()
+        self.set3 = self.set2 - self.set1
+        self.set4 = self.set1 - self.set2
+        for i in self.set3:
+            self.list1.append(i)
+        for i in self.set4:
+            self.list2.append(i)
+
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
-        
-            host_index = lines.index("Host " + self.get_host_before)            
-            for i in range(0,len(self.dictionary)):
-                lines.pop(host_index)
-        
-        for i in range(0,len(self.two_d_array.keys())):
-            self.listbox.remove(self.listbox.get_row_at_index(0))  
 
-        self.get_host = "Host "+Gtk.Entry.get_text(self.right_entry) + "\n"
-        self.get_hostname = "\tHostname " + Gtk.Entry.get_text(self.right_entry) + "\n"
-        self.get_user = "\tUser " + Gtk.Entry.get_text(self.right_entry) + "\n"
+        with open(self.home + '/.ssh/config','w') as f:
+            index = lines.index(self.list2[0][0] + " " + self.list2[0][1] + '\n')
+            lines.pop(index)
+            lines.insert(index,self.list1[0][0] + " " + self.list1[0][1]+ '\n')
+
+            for i in lines:
+                f.write(i)
+            
+                
+                
+
         
-        lines.insert(host_index,'\tPort 22\n\n')
-        lines.insert(host_index,self.get_user)
-        lines.insert(host_index,self.get_hostname)
-        lines.insert(host_index,self.get_host)
-        print(host_index-1)
-        with open(self.home + '/.ssh/config','w') as f2:
-            for last_lines in lines:
-                f2.write(last_lines)
-        self.change_notebook(Gtk.Entry.get_text(self.host_name_))
-        self.listbox_add_items()
-        self.listbox.show_all()
-        self.refresh()
+        
+
+
+        
+                
+
+        
+            
 
     def add_attribute(self,widget):
         self.add_attribute_window = Gtk.Window()
@@ -366,8 +390,6 @@ class MyWindow(Gtk.Window):
             remainder = myFile.read()                    
             myFile.seek(seek_index,0)  
             myFile.write("\t{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text())+"\n" + remainder)
-
-            
             self.add_attribute_window.hide()
 
         self.change_notebook(self.get_host_before)
