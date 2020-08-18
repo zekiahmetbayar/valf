@@ -12,7 +12,7 @@ get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
     home = str(Path.home())
-
+    baglantilar = dict() # Goal 1
     __gsignals__ = {
         "close-tab": (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [GObject.TYPE_PYOBJECT]),
     }
@@ -46,7 +46,39 @@ class MyWindow(Gtk.Window):
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "Host Attributes : "))
         self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
-        
+
+    
+    
+    def read_config(self):
+        self.baglantilar.clear()
+        with open(self.home+'/.ssh/config','r') as f:    
+            for line in f: # Goal 2 
+                if 'Host ' in line: # Goal 3
+                    if line != '\n':
+                        
+                        (key,value) = line.split()
+                        hostline = value
+                        self.baglantilar[hostline] = dict() # Goal 3
+                        self.baglantilar[hostline][key] = value # Goal 5
+
+                    else:
+                        continue
+                    
+                else: # Goal 4
+                    if line != '\n':
+                        (key,value) = line.split() 
+                        self.baglantilar[hostline][key] = value
+                
+                    else:
+                        continue
+
+          
+    def write_config(self):
+        with open(self.home+'/.ssh/config','w') as f:
+            for p_id, p_info in self.baglantilar.items():
+                for key in p_info:
+                    f.write(key+" "+p_info[key]+"\n")
+                
     def context_menu(self):
         menu = Gtk.Menu()
         menu_item = Gtk.MenuItem("Create New Notebook")
@@ -56,6 +88,10 @@ class MyWindow(Gtk.Window):
         menu_item_del = Gtk.MenuItem("Delete Host Configuration")
         menu.append(menu_item_del)
         menu_item_del.connect("activate",self.on_click_delete)
+
+        menu_item_connect = Gtk.MenuItem("Connect Host")
+        menu.append(menu_item_connect)
+        menu_item_connect.connect("activate",self.on_click_connect)
 
         menu.show_all()
 
@@ -94,13 +130,26 @@ class MyWindow(Gtk.Window):
                  
         with open(self.home + '/.ssh/config','r') as f:
             lines = f.readlines()
+            words = f.read()
+            word = words.split()
+            
+            list1 = list()
+            list1 = list(self.two_d_array.keys())
         
-            for line in lines:
-                host_index = lines.index("Host " + self.labelmenu+" \n")
-            
-            for i in range(0,5):
-                lines.pop(host_index)
-            
+            for line in words:
+                host_index = lines.index(self.labelmenu)
+
+            for x in range(0,10): 
+                if self.labelmenu == list1[-1]:
+                    a = lines.pop()
+                    if a == "Host " + self.labelmenu + "\n":
+                        break
+                    
+                else:
+                    lines.pop(host_index)
+                    if lines[host_index] == "Host " + list1[two_d_array_index + 1]+"\n":
+                        break                 
+                
             with open(self.home + '/.ssh/config','w') as f2:
                 for last_lines in lines:
                     f2.write(last_lines)
@@ -162,9 +211,14 @@ class MyWindow(Gtk.Window):
         
     def listbox_add_items(self):
         
-        self.refresh()
-        
-        for i in self.two_d_array.keys():
+        self.baglantilar.clear()
+        self.read_config()
+
+        deneme=list(self.baglantilar.keys())
+        print(deneme)
+        for row in self.listbox.get_children():
+            self.listbox.remove(row)
+        for i in deneme:
             ## label yerine buton oluşturduk
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked)
@@ -211,134 +265,84 @@ class MyWindow(Gtk.Window):
         
         self._button_box.pack_start(self.label1, False, False, 3)
         self._button_box.pack_start(self._close_btn, False, False, 3)
+    
+    def index_host(self,wanted_host):#indeksi istenilen hostun labelname atılmalı String
+        self.read_config()
+        self.wanted_host_index=int()
+        
+        baglanti_key=list(self.baglantilar.keys())
+        for i in range(0,len(baglanti_key)):
+            if(baglanti_key[i]==wanted_host):
+                self.wanted_host_index=i
 
-    def change_notebook(self,labelname):
+    def notebooks(self,labelname):
         self.refresh()
+        self.read_config()
         self.notebook_change_button = Gtk.Button("Change Configuration")
         self.notebook_change_button.connect('clicked',self.on_click_change)
-            
-        with open(self.home + '/.ssh/config','r') as f:
-            self.notebook.remove_page(0)
-            self.page1 = Gtk.Box()
-            self.page1.set_border_width(10)
-            self.notebook.prepend_page(self.page1, Gtk.Label(labelname+" Attributes"))
-            self.numm = self.notebook.page_num(self.page1)
-            self.notebook.set_current_page(0)
 
-            grid = Gtk.Grid()
-            self.page1.add(grid)
+        self.notebook.remove_page(0)
+        self.page1 = Gtk.Box()
+        self.page1.set_border_width(10)
+        self.notebook.prepend_page(self.page1, Gtk.Label(labelname+" Attributes"))
+        self.notebook.set_current_page(0)
+        self.get_host_before = labelname
 
-            self.refresh()
-            self.lines_list = list()
-            self.lines = f.read()
-            self.lines_list.append(self.lines.split())
-            self.host_index = self.lines_list[0].index(labelname)
-            self.get_host_before = labelname
+        grid = Gtk.Grid()
+        self.page1.add(grid)
+        self.label_dict={}
+        self.entries_dict={}
+        grid_count=2
+        grid_count_2=2
+        for p_id, p_info in self.baglantilar.items():
+                for key in p_info:
+                    if(p_info['Host']==labelname):
+                        self.labeltemp = "left_label_"+str(key)
+                        self.oldlabel = self.labeltemp
+                        self.labeltemp = Gtk.Label(key) 
+                        self.label_dict[self.oldlabel] = self.labeltemp
 
-            if labelname in self.lines:
-                seek_index = self.lines.index("Host " + labelname)
-            
-            f.seek(seek_index,0)
-            self.array_index = list(self.two_d_array.keys()).index(labelname)
+                        grid.attach(self.labeltemp,0,grid_count,2,1)
+                        grid_count += 1
+                    
 
-            self.next_word_index = self.array_index + 1    
-            if list(self.two_d_array.keys())[self.array_index] == list(self.two_d_array.keys())[-1]:
-                self.next_word_index = self.array_index
-
-            self.next_item = list(self.two_d_array.keys())[self.next_word_index]          
-            if list(self.two_d_array.keys())[self.array_index] == list(self.two_d_array.keys())[-1]:
-                self.next_item = None
-            self.dictionary = {} ### Conf file dict -- Attribute : Att -- ###
-
-            for line in f:
-                if line != '\n':
-
-                    (key, val) = line.split()
-                    self.dictionary[key] = val
-                    if val == self.next_item:
-                        self.dictionary['Host'] = labelname
-                        break
-                else:
-                    continue   
-            self.label_dict = {}
-            grid_count = 2
-            for i in list(self.dictionary.keys()):
-                self.labeltemp = "left_label_"+str(i)
-                self.oldlabel = self.labeltemp
-                self.labeltemp = Gtk.Label(i) 
-                self.label_dict[self.oldlabel] = self.labeltemp
-                grid.attach(self.labeltemp,0,grid_count,2,1)
-                grid_count += 1
-
-            self.entries_dict = {}
-            grid_count_2 = 2
-            count = 0
-            for j in list(self.dictionary.values()):
-                self.temp = "right_entry_"+str(j)
-                self.oldname = self.temp
-                self.temp = Gtk.Entry()
-                self.entries_dict[self.oldname] = self.temp
-                self.temp.set_text(j)
+                        self.temp = "right_entry_"+str(p_info[key])
+                        self.oldname = self.temp
+                        self.temp = Gtk.Entry()
+                        self.entries_dict[self.oldname] = self.temp
+                        self.temp.set_text(p_info[key])
                 
+                        grid.attach(self.temp,5,grid_count_2,2,1)
+                        grid_count_2 += 1
 
-                grid.attach(self.temp,5,grid_count_2,2,1)
-                grid_count_2 += 1
-                count += 1
-                
 
-            self.add_attribute_button = Gtk.Button("Add New Attribute")
-            self.add_attribute_button.connect("clicked",self.add_attribute)
-            grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu    
-            grid.attach(self.add_attribute_button,0,19,2,1)     
-            self.notebook.show_all()
-            self.listbox.show_all()
+        self.add_attribute_button = Gtk.Button("Add New Attribute")
+        self.add_attribute_button.connect("clicked",self.add_attribute)
+        grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu    
+        grid.attach(self.add_attribute_button,0,19,2,1)     
+        self.notebook.show_all()
+        self.listbox.show_all()
+            
+       
     
     def button_left_click(self,listbox_widget,event):
         self.refresh()
         self.open_config_file()
-        self.change_notebook(listbox_widget.get_label())
+        self.notebooks(listbox_widget.get_label())
 
     def on_click_change(self,listbox_widget):
         self.values_list = list(self.entries_dict.values())
         self.labels_list = list(self.label_dict.values())
-        self.values_dict = dict()
-
+        self.updated_list=dict()
         for i in range(0,len(self.values_list)):
-            self.values_dict[self.labels_list[i].get_label()] = self.values_list[i].get_text()
-        self.list1 = list()
-        self.list2 = list()
-        self.set1 = self.dictionary.items()
-        self.set2 = self.values_dict.items()
-        self.set3 = self.set2 - self.set1
-        self.set4 = self.set1 - self.set2
-        for i in self.set3:
-            self.list1.append(i)
-        for i in self.set4:
-            self.list2.append(i)
+            self.updated_list[self.labels_list[i].get_text()]=self.values_list[i].get_text()
+        self.index_host(self.get_host_before)
+        self.baglantilar[self.get_host_before]=self.updated_list
+        self.baglantilar[self.values_list[0].get_text()] = self.baglantilar.pop(self.get_host_before)#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
+        self.write_config()
+        self.notebooks(self.values_list[0].get_text())
+        self.listbox_add_items()
 
-        with open(self.home + '/.ssh/config','r') as f:
-            lines = f.readlines()
-
-        with open(self.home + '/.ssh/config','w') as f:
-            index = lines.index(self.list2[0][0] + " " + self.list2[0][1] + '\n')
-            lines.pop(index)
-            lines.insert(index,self.list1[0][0] + " " + self.list1[0][1]+ '\n')
-
-            for i in lines:
-                f.write(i)
-            
-                
-                
-
-        
-        
-
-
-        
-                
-
-        
-            
 
     def add_attribute(self,widget):
         self.add_attribute_window = Gtk.Window()
@@ -380,7 +384,6 @@ class MyWindow(Gtk.Window):
             if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
                 self.next_item_attribute = None
 
-
             self.lines_att = myFile.read()
             if self.get_host_before in self.lines_att:
                 seek_index = self.lines.index("Host " + self.next_item_attribute)
@@ -389,15 +392,44 @@ class MyWindow(Gtk.Window):
             myFile.seek(seek_index,0)
             remainder = myFile.read()                    
             myFile.seek(seek_index,0)  
-            myFile.write("\t{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text())+"\n" + remainder)
+            myFile.write("{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text())+"\n" + remainder)
             self.add_attribute_window.hide()
 
         self.change_notebook(self.get_host_before)
 
         
-        
 
         self.refresh() 
+    
+    def on_click_connect(self,widget):
+        self.connect_window = Gtk.Window()
+        self.connect_window.set_title("Connect")
+        self.connect_window.set_border_width(10)
+        self.table4 = Gtk.Table(n_rows=3, n_columns=2, homogeneous=True)
+        self.connect_window.add(self.table4)
+
+
+        self.connect_password = Gtk.Entry()
+        self.connect_button = Gtk.Button("Connect")
+
+        self.connect_password.set_placeholder_text("password")
+        self.connect_password.set_visibility(False)
+        self.connect_window.add(self.connect_password)
+
+        self.connect_window.add(self.connect_button)
+        self.connect_button.connect('clicked',self.on_click_add_attribute)
+
+        self.table4.attach(self.connect_password,0,1,0,1)
+
+        self.table4.attach(self.connect_button,0,1,2,3)
+
+        self.connect_window.present()
+        self.connect_window.show_all()
+    
+    def on_click_check_password(self):
+
+        print('a')
+
 
     def refresh(self):
         self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
