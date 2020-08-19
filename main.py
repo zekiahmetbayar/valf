@@ -6,7 +6,7 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, GLib
 from gi.repository import GObject
 from pathlib import Path
-
+import time
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
 
@@ -343,7 +343,7 @@ class MyWindow(Gtk.Window):
         self.connect_window.add(self.connect_password)
 
         self.connect_window.add(self.connect_button)
-        self.connect_button.connect('clicked',self.on_click_check_password)
+        self.connect_button.connect('clicked',self.send_password)
 
         self.table4.attach(self.connect_password,0,1,0,1)
 
@@ -372,6 +372,7 @@ class MyWindow(Gtk.Window):
 
         self.grid.attach(self.terminal, 1,1,1,1)
         self.terminal_window.add(self.terminal)
+        
         self.terminal_window.show_all()
 
     def wrong_password_win(self):
@@ -392,17 +393,27 @@ class MyWindow(Gtk.Window):
     
     def hide(self,event):
         self.wrong_pass_win.hide()
-    
-    def on_click_check_password(self,event): # Password kontrolü
-        password = self.connect_password.get_text()
+
+    def send_password(self,event): # İlgili makineye login işlemi
+        self.terminal.new()
+        self.command = "ssh " + self.labelmenu + "\n"
+        self.password = self.connect_password.get_text() + "\n"
+
+        self.terminal.feed_child(self.command.encode("utf-8"))
+        time.sleep(0.1)
+        self.terminal.feed_child(self.password.encode("utf-8"))
         
-        if condition:
-            pass
+    
+    #def on_click_check_password(self,event): # Password kontrolü
+    #    password = self.connect_password.get_text()
+        
+    #    if condition:
+    #        pass
             #self.terminal_win()
             
-        else:
+    #    else:
             #self.wrong_password_win()
-            pass
+    #        pass
 
 
             
