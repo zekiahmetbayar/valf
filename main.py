@@ -1,10 +1,14 @@
 import gi
+import os
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Vte
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
+from gi.repository import Gdk, GLib
 from gi.repository import GObject
 from pathlib import Path
+
+HOME = "HOME"
+SHELLS = [ "/bin/bash" ]
 
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
@@ -331,7 +335,6 @@ class MyWindow(Gtk.Window):
         self.table4 = Gtk.Table(n_rows=3, n_columns=2, homogeneous=True)
         self.connect_window.add(self.table4)
 
-
         self.connect_password = Gtk.Entry()
         self.connect_button = Gtk.Button("Connect")
 
@@ -340,7 +343,7 @@ class MyWindow(Gtk.Window):
         self.connect_window.add(self.connect_password)
 
         self.connect_window.add(self.connect_button)
-        self.connect_button.connect('clicked',self.on_click_add_attribute)
+        self.connect_button.connect('clicked',self.on_click_check_password)
 
         self.table4.attach(self.connect_password,0,1,0,1)
 
@@ -349,9 +352,58 @@ class MyWindow(Gtk.Window):
         self.connect_window.present()
         self.connect_window.show_all()
     
-    def on_click_check_password(self): # Password kontrolü
+    def terminal_win(self):
+        self.terminal_window = Gtk.Window()
+        self.terminal_window.set_title("Terminal")
+        self.terminal     = Vte.Terminal()
+        self.terminal.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+    
+        self.grid = Gtk.Grid()
+        self.grid.set_column_homogeneous(True)
+        self.grid.set_row_homogeneous(True)
+        self.terminal_window.add(self.grid)
 
-        print('a')
+        self.grid.attach(self.terminal, 1,1,1,1)
+        self.terminal_window.add(self.terminal)
+        self.terminal_window.show_all()
+
+    def wrong_password_win(self):
+        self.wrong_pass_win = Gtk.Window()
+        self.wrong_pass_win.set_title("Wrong")
+        
+        self.wrong_pass_label = Gtk.Label("Wrong pass ! Try Again.")
+        self.table5 = Gtk.Table(n_rows=3, n_columns=3, homogeneous=True)
+        self.wrong_pass_win.add(self.table5)
+
+        self.table5.attach(self.wrong_pass_label,1,2,1,2)
+
+        try_again_button = Gtk.Button("Try Again")
+        try_again_button.connect("clicked",self.hide)
+
+        self.table5.attach(try_again_button,1,2,2,3)
+        self.wrong_pass_win.show_all()
+    
+    def hide(self,event):
+        self.wrong_pass_win.hide()
+    
+    def on_click_check_password(self,event): # Password kontrolü
+        password = self.connect_password.get_text()
+        
+        if condition:
+            pass
+            #self.terminal_win()
+            
+        else:
+            #self.wrong_password_win()
+            pass
+
 
             
 window = MyWindow()
