@@ -49,7 +49,7 @@ class MyWindow(Gtk.Window):
 
     
     
-    def read_config(self):
+    def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         self.baglantilar.clear()
         with open(self.home+'/.ssh/config','r') as f:    
             for line in f: # Goal 2 
@@ -72,8 +72,7 @@ class MyWindow(Gtk.Window):
                     else:
                         continue
 
-          
-    def write_config(self):
+    def write_config(self): # RAM'de tutulan dictionary değerlerini dosyaya yazar.
         with open(self.home+'/.ssh/config','w') as f:
             for p_id, p_info in self.baglantilar.items():
                 for key in p_info:
@@ -128,33 +127,7 @@ class MyWindow(Gtk.Window):
         self.listbox.remove(self.listbox.get_row_at_index(two_d_array_index))  
         self.listbox.show_all()
                  
-        with open(self.home + '/.ssh/config','r') as f:
-            lines = f.readlines()
-            words = f.read()
-            word = words.split()
-            
-            list1 = list()
-            list1 = list(self.two_d_array.keys())
         
-            for line in words:
-                host_index = lines.index(self.labelmenu)
-
-            for x in range(0,10): 
-                if self.labelmenu == list1[-1]:
-                    a = lines.pop()
-                    if a == "Host " + self.labelmenu + "\n":
-                        break
-                    
-                else:
-                    lines.pop(host_index)
-                    if lines[host_index] == "Host " + list1[two_d_array_index + 1]+"\n":
-                        break                 
-                
-            with open(self.home + '/.ssh/config','w') as f2:
-                for last_lines in lines:
-                    f2.write(last_lines)
-        
-        self.refresh()
         
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
@@ -199,7 +172,7 @@ class MyWindow(Gtk.Window):
         self.input_window.add(self.user)
         self.input_window.add(self.port)
         self.input_window.add(self.submit_button)
-        self.submit_button.connect('clicked',self.on_click_submit)
+        self.submit_button.connect('clicked',self.on_click_add_newhost)
 
         self.table2.attach(self.host,0,1,0,1)
         self.table2.attach(self.host_name,0,1,2,3)
@@ -234,15 +207,20 @@ class MyWindow(Gtk.Window):
         self.listbox.add(self.last_item_button)
         self.listbox.show_all()
     
-    def on_click_submit(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
-        with open(self.home + '/.ssh/config','a') as myFile:
-            myFile.write("Host {} \n\tHostName {} \n\tUser {} \n\tPort {} \n".format(self.host.get_text() ,self.host_name.get_text(),self.user.get_text(),22))
+    def on_click_add_newhost(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
+        self.read_config()
+        new_host = self.host.get_text()
+        new_hostname = self.host_name.get_text()
+        new_user = self.user.get_text()
+        default_port = '22'
+
+        self.baglantilar[new_host] = {'Host' : new_host, 'Hostname' : new_hostname , 'User' : new_user, 'Port' : default_port}
+        self.write_config()
+
+        self.listbox_add_items()
+        self.listbox.show_all()
         self.input_window.hide()
 
-        last_value = self.new_item_config()
-        self.listbox_add_last_item(last_value)   
-
-        self.refresh()
     
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
@@ -336,9 +314,10 @@ class MyWindow(Gtk.Window):
         self.updated_list=dict()
         for i in range(0,len(self.values_list)):
             self.updated_list[self.labels_list[i].get_text()]=self.values_list[i].get_text()
+            
         self.index_host(self.get_host_before)
         self.baglantilar[self.get_host_before]=self.updated_list
-        self.baglantilar[self.values_list[0].get_text()] = self.baglantilar.pop(self.get_host_before)#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
+        self.baglantilar[self.values_list[0].get_text()] = self.baglantilar[self.get_host_before]#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
         self.write_config()
         self.notebooks(self.values_list[0].get_text())
         self.listbox_add_items()
