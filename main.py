@@ -277,6 +277,7 @@ class MyWindow(Gtk.Window):
             
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
+        self.notebook.set_current_page(0)
 
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
         self.values_list = list(self.entries_dict.values())
@@ -418,6 +419,7 @@ class MyWindow(Gtk.Window):
             
             if length > 3:
                 self.notebook.show_all()
+                self.notebook.set_current_page(-1)
 
             else:
                 self.notebook.remove(self.new_page)
