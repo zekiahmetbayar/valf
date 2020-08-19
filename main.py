@@ -49,8 +49,8 @@ class MyWindow(Gtk.Window):
         self.listbox.show_all()
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.page1.add(Gtk.Label(label = "Host Attributes : "))
-        self.notebook.append_page(self.page1, Gtk.Label("Attributes"))
+        self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
+        self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
         
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         self.baglantilar.clear()
@@ -234,7 +234,7 @@ class MyWindow(Gtk.Window):
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.notebook.prepend_page(self.page1, Gtk.Label(labelname+" Attributes"))
+        self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
         self.notebook.set_current_page(0)
         self.get_host_before = labelname
 
@@ -244,6 +244,10 @@ class MyWindow(Gtk.Window):
         self.entries_dict={}
         grid_count=2
         grid_count_2=2
+        self.header = Gtk.Label(self.get_host_before+" Özellikleri")
+        
+        grid.attach(self.header,1,1,1,1)
+
         for p_id, p_info in self.baglantilar.items():
                 for key in p_info:
                     if(p_info['Host']==labelname):
@@ -252,7 +256,7 @@ class MyWindow(Gtk.Window):
                         self.labeltemp = Gtk.Label(key) 
                         self.label_dict[self.oldlabel] = self.labeltemp
 
-                        grid.attach(self.labeltemp,0,grid_count,2,1)
+                        grid.attach(self.labeltemp,1,grid_count,2,1)
                         grid_count += 1
                     
 
@@ -349,7 +353,7 @@ class MyWindow(Gtk.Window):
         self.connect_window.present()
         self.connect_window.show_all()
 
-    def wrong_password_win(self):
+    def wrong_password_win(self): # Şifre yanlış olduğunda gösterilecek pencere
         self.wrong_pass_win = Gtk.Window()
         self.wrong_pass_win.set_title("Wrong")
         
@@ -397,23 +401,15 @@ class MyWindow(Gtk.Window):
         self.password = self.connect_password.get_text() + "\n"
 
         self.terminal2.feed_child(self.command.encode("utf-8"))
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.terminal2.feed_child(self.password.encode("utf-8"))
+        
         self.connect_window.hide()
-        
     
-    #def on_click_check_password(self,event): # Password kontrolü
-    #    password = self.connect_password.get_text()
+    
+
+
         
-    #    if condition:
-    #        pass
-            #self.terminal_win()
-            
-    #    else:
-            #self.wrong_password_win()
-    #        pass
-
-
             
 window = MyWindow()
 window.show_all()
