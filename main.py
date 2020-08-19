@@ -235,7 +235,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
-        #self.notebook.set_current_page(0)
+        self.notebook.set_current_page(0)
         self.get_host_before = labelname
 
         grid = Gtk.Grid()
@@ -245,7 +245,6 @@ class MyWindow(Gtk.Window):
         grid_count=2
         grid_count_2=2
         self.header = Gtk.Label(labelname+" Özellikleri")
-        
         grid.attach(self.header,1,1,1,1)
 
         for p_id, p_info in self.baglantilar.items():
@@ -269,7 +268,6 @@ class MyWindow(Gtk.Window):
                         grid.attach(self.temp,5,grid_count_2,2,1)
                         grid_count_2 += 1
 
-
         self.add_attribute_button = Gtk.Button("Add New Attribute")
         self.add_attribute_button.connect("clicked",self.add_attribute)
         grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu    
@@ -289,7 +287,6 @@ class MyWindow(Gtk.Window):
             if self.values_list[i].get_text() == "":
                 self.updated_list.pop(self.labels_list[i].get_text())
 
-            
         self.index_host(self.get_host_before)
         self.baglantilar[self.get_host_before]=self.updated_list
         self.baglantilar[self.values_list[0].get_text()] = self.baglantilar[self.get_host_before]#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
@@ -406,31 +403,25 @@ class MyWindow(Gtk.Window):
         time.sleep(0.5) # Parola girilme işlemi gerçekleşmesi için bekleme
         
         self.terminal2.feed_child(self.password.encode("utf-8"))
-        time.sleep(0.5) # Parola girildikten sonra pencerenin kapanması için bekleme
+        time.sleep(2) # Parola girildikten sonra pencerenin kapanması için bekleme
 
         self.is_correct()
-        
 
         self.connect_window.hide()
     
     def is_correct(self):
-        with open('/tmp/is_correct.txt','r') as correct_file:
-            text = correct_file.read()
+        with open('/tmp/is_correct.txt','r') as correct_file:            
             correct_list = list()
-            correct_list = text.split()
-
-            length = len(correct_list)
-
-            if length > 10:
-                self.notebook.show_all()
+            correct_list = correct_file.readlines()
             
+            length = len(correct_list)
+            
+            if length > 3:
+                self.notebook.show_all()
+
             else:
+                self.notebook.remove(self.new_page)
                 self.wrong_password_win()
-
-
-
-
-        
 
 window = MyWindow()
 window.show_all()
