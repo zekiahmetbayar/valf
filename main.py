@@ -273,8 +273,6 @@ class MyWindow(Gtk.Window):
         self.notebook.show_all()
         self.listbox.show_all()
             
-       
-    
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
 
@@ -291,7 +289,6 @@ class MyWindow(Gtk.Window):
         self.write_config()
         self.notebooks(self.values_list[0].get_text())
         self.listbox_add_items()
-
 
     def add_attribute(self,widget): # Yeni attribute penceresi
         self.add_attribute_window = Gtk.Window()
@@ -332,7 +329,7 @@ class MyWindow(Gtk.Window):
         self.connect_window = Gtk.Window()
         self.connect_window.set_title("Connect")
         self.connect_window.set_border_width(10)
-        self.table4 = Gtk.Table(n_rows=3, n_columns=2, homogeneous=True)
+        self.table4 = Gtk.Table(n_rows=2, n_columns=1, homogeneous=True)
         self.connect_window.add(self.table4)
 
         self.connect_password = Gtk.Entry()
@@ -347,33 +344,10 @@ class MyWindow(Gtk.Window):
 
         self.table4.attach(self.connect_password,0,1,0,1)
 
-        self.table4.attach(self.connect_button,0,1,2,3)
+        self.table4.attach(self.connect_button,0,1,1,2)
 
         self.connect_window.present()
         self.connect_window.show_all()
-    
-    def terminal_win(self):
-        self.terminal_window = Gtk.Window()
-        self.terminal_window.set_title("Terminal")
-        self.terminal     = Vte.Terminal()
-        self.terminal.spawn_sync(
-            Vte.PtyFlags.DEFAULT,
-            os.environ[HOME],
-            SHELLS,
-            [],
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            None,
-            None,)
-    
-        self.grid = Gtk.Grid()
-        self.grid.set_column_homogeneous(True)
-        self.grid.set_row_homogeneous(True)
-        self.terminal_window.add(self.grid)
-
-        self.grid.attach(self.terminal, 1,1,1,1)
-        self.terminal_window.add(self.terminal)
-        
-        self.terminal_window.show_all()
 
     def wrong_password_win(self):
         self.wrong_pass_win = Gtk.Window()
@@ -395,13 +369,37 @@ class MyWindow(Gtk.Window):
         self.wrong_pass_win.hide()
 
     def send_password(self,event): # İlgili makineye login işlemi
-        self.terminal.new()
+        self.terminal2     = Vte.Terminal()
+        self.terminal2.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+        self.new_page = Gtk.Box()
+        self.new_page.set_border_width(10)
+
+        self._button_box = Gtk.HBox()
+        self._button_box.get_style_context().add_class("right")
+
+        self.close_button()
+        self.new_page.add(self.terminal2)
+        self.notebook.append_page(self.new_page, self._button_box)
+
+        self.number = self.notebook.page_num(self.new_page)
+        self.number_list.append(self.number)
+        self.number_list.pop()
+        self.notebook.show_all()
+        
         self.command = "ssh " + self.labelmenu + "\n"
         self.password = self.connect_password.get_text() + "\n"
 
-        self.terminal.feed_child(self.command.encode("utf-8"))
+        self.terminal2.feed_child(self.command.encode("utf-8"))
         time.sleep(0.1)
-        self.terminal.feed_child(self.password.encode("utf-8"))
+        self.terminal2.feed_child(self.password.encode("utf-8"))
+        self.connect_window.hide()
         
     
     #def on_click_check_password(self,event): # Password kontrolü
