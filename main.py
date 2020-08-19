@@ -123,11 +123,15 @@ class MyWindow(Gtk.Window):
         self.notebook.show_all()
     
     def on_click_delete(self,action): # # Seçilen bağlantıyı silme fonksiyonu   
-        two_d_array_index = list(self.two_d_array.keys()).index(self.labelmenu)
-        self.listbox.remove(self.listbox.get_row_at_index(two_d_array_index))  
+        baglantilar_index = list(self.baglantilar.keys()).index(self.labelmenu)
+        self.listbox.remove(self.listbox.get_row_at_index(baglantilar_index))  
         self.listbox.show_all()
+
+        self.baglantilar.pop(self.labelmenu)
+        self.write_config()
+ 
                  
-        
+       
         
     def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
         y = list()
