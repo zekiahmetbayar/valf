@@ -21,10 +21,10 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self)
         self.set_default_size(750, 500)
         self.connect("destroy", Gtk.main_quit)
-        self.list_view()
+        self.main()
         self.number_list = [1]
          
-    def list_view(self):
+    def main(self):
         self.table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.add(self.table)
 
@@ -33,7 +33,8 @@ class MyWindow(Gtk.Window):
         self.listbox_add_items()
 
         new_window_button = Gtk.Button("Add New Host")
-        new_window_button.connect('clicked',self.insert_config_file)
+        new_window_button.connect('clicked',self.add_newhost_window)
+
         self.table.attach(new_window_button,5,10,9,10)
         self.table.attach(self.listbox,0,10,0,9)
 
@@ -45,10 +46,8 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "Host Attributes : "))
-        self.notebook.append_page(self.page1, Gtk.Label("İlk Sayfa"))
-
-    
-    
+        self.notebook.append_page(self.page1, Gtk.Label("Attributes"))
+        
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         self.baglantilar.clear()
         with open(self.home+'/.ssh/config','r') as f:    
@@ -77,8 +76,9 @@ class MyWindow(Gtk.Window):
             for p_id, p_info in self.baglantilar.items():
                 for key in p_info:
                     f.write(key+" "+p_info[key]+"\n")
+
                 
-    def context_menu(self):
+    def context_menu(self): # Buton sağ tıkında açılan menü 
         menu = Gtk.Menu()
         menu_item = Gtk.MenuItem("Create New Notebook")
         menu.append(menu_item)
@@ -105,8 +105,8 @@ class MyWindow(Gtk.Window):
             menu.popup( None, None, None,None, event.button, event.get_time()) 
             return True               
                         
-    def on_click_popup(self, action):   
-        ## Yeni sayfa oluştur
+    def on_click_popup(self, action): ## Yeni sayfa oluştur
+        
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
 
@@ -128,33 +128,9 @@ class MyWindow(Gtk.Window):
         self.listbox.show_all()
 
         self.baglantilar.pop(self.labelmenu)
-        self.write_config()
- 
-                 
-       
-        
-    def open_config_file(self): ## config dosyasındaki itemlar'ı return eden fonksiyon
-        y = list()
-        with open(self.home + '/.ssh/config') as myFile:
-            for num, line in enumerate(myFile, 1):
-                if 'Host ' in line:
-                    
-                    x = line.split()
-                    y.append(x[1])
-                        
-        return y 
-    
-    def new_item_config(self): ## Yeni eklenen itemı return eden fonksiyon
-        y = list()
-        with open(self.home + '/.ssh/config') as myFile:
-            for num, line in enumerate(myFile, 1):
-                if 'Host ' in line:
-                    x = line.split()
-                    y.append(x[1])
-                
-        return y[-1]
-    
-    def insert_config_file(self,widget): ## Yeni açılan pencere
+        self.write_config()               
+
+    def add_newhost_window(self,widget): ## Yeni açılan pencere
         self.input_window = Gtk.Window()
         self.input_window.set_title("New Window")
         self.input_window.set_border_width(10)
@@ -186,29 +162,19 @@ class MyWindow(Gtk.Window):
         self.input_window.present()
         self.input_window.show_all()  
         
-    def listbox_add_items(self):
+    def listbox_add_items(self): # Listbox'a host isimlerini ekleyen fonksiyon
         
         self.baglantilar.clear()
         self.read_config()
-
-        deneme=list(self.baglantilar.keys())
-        print(deneme)
+        keys = self.baglantilar.keys()
         for row in self.listbox.get_children():
             self.listbox.remove(row)
-        for i in deneme:
+        for i in keys:
             ## label yerine buton oluşturduk
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked)
             buttons.connect("button-press-event",self.button_left_click)
             self.listbox.add(buttons) 
-        self.listbox.show_all()
-    
-    def listbox_add_last_item(self,last): ## Son item'ın listbox'a eklenmesi
-        self.last_item_button = Gtk.Button.new_with_label(last)
-        self.last_item_button.connect("button-press-event",self.button_clicked)
-        self.last_item_button.connect("button-press-event",self.button_left_click)
-
-        self.listbox.add(self.last_item_button)
         self.listbox.show_all()
     
     def on_click_add_newhost(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
@@ -225,12 +191,11 @@ class MyWindow(Gtk.Window):
         self.listbox.show_all()
         self.input_window.hide()
 
-    
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
         self.notebook.show_all()
        
-    def close_button(self):
+    def close_button(self): # Close butonu
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
         self.label1 = Gtk.Label(label=self.labelmenu)
@@ -257,8 +222,7 @@ class MyWindow(Gtk.Window):
             if(baglanti_key[i]==wanted_host):
                 self.wanted_host_index=i
 
-    def notebooks(self,labelname):
-        self.refresh()
+    def notebooks(self,labelname): # Attributes sayfası
         self.read_config()
         self.notebook_change_button = Gtk.Button("Change Configuration")
         self.notebook_change_button.connect('clicked',self.on_click_change)
@@ -307,12 +271,10 @@ class MyWindow(Gtk.Window):
             
        
     
-    def button_left_click(self,listbox_widget,event):
-        self.refresh()
-        self.open_config_file()
+    def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
 
-    def on_click_change(self,listbox_widget):
+    def on_click_change(self,listbox_widget): # Change attribute butonu görevi
         self.values_list = list(self.entries_dict.values())
         self.labels_list = list(self.label_dict.values())
         self.updated_list=dict()
@@ -327,7 +289,7 @@ class MyWindow(Gtk.Window):
         self.listbox_add_items()
 
 
-    def add_attribute(self,widget):
+    def add_attribute(self,widget): # Yeni attribute penceresi
         self.add_attribute_window = Gtk.Window()
         self.add_attribute_window.set_title("Add Attribute")
         self.add_attribute_window.set_border_width(10)
@@ -355,36 +317,14 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.present()
         self.add_attribute_window.show_all() 
 
-    def on_click_add_attribute(self,widget):
-        with open(self.home + '/.ssh/config','r') as myFile:
-            self.array_index_attribute = list(self.two_d_array.keys()).index(self.get_host_before)
-
-            self.next_word_index_attribute = self.array_index_attribute + 1    
-            if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
-                self.next_word_index_attribute = self.array_index_attribute
-
-            self.next_item_attribute = list(self.two_d_array.keys())[self.next_word_index_attribute]          
-            if list(self.two_d_array.keys())[self.array_index_attribute] == list(self.two_d_array.keys())[-1]:
-                self.next_item_attribute = None
-
-            self.lines_att = myFile.read()
-            if self.get_host_before in self.lines_att:
-                seek_index = self.lines.index("Host " + self.next_item_attribute)
-
-        with open(self.home + '/.ssh/config','r+') as myFile:
-            myFile.seek(seek_index,0)
-            remainder = myFile.read()                    
-            myFile.seek(seek_index,0)  
-            myFile.write("{} {}".format(self.attribute_name.get_text(),self.attribute_value.get_text())+"\n" + remainder)
-            self.add_attribute_window.hide()
-
-        self.change_notebook(self.get_host_before)
-
+    def on_click_add_attribute(self,widget): # Yeni attribute ekleme butonu görevi
+        self.add_attribute_window.hide()
+        self.read_config()
+        self.baglantilar[self.get_host_before][self.attribute_name.get_text()] = self.attribute_value.get_text()
+        self.write_config()
+        self.notebooks(self.get_host_before)
         
-
-        self.refresh() 
-    
-    def on_click_connect(self,widget):
+    def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         self.connect_window = Gtk.Window()
         self.connect_window.set_title("Connect")
         self.connect_window.set_border_width(10)
@@ -409,16 +349,9 @@ class MyWindow(Gtk.Window):
         self.connect_window.present()
         self.connect_window.show_all()
     
-    def on_click_check_password(self):
+    def on_click_check_password(self): # Password kontrolü
 
         print('a')
-
-
-    def refresh(self):
-        self.hosts = self.open_config_file() # Config dosyasındaki host isimleri
-        self.two_d_array = dict()
-        for i in range(0,len(self.hosts)):
-            self.two_d_array[self.hosts[i]] = "dddd" 
 
             
 window = MyWindow()
