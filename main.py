@@ -338,7 +338,7 @@ class MyWindow(Gtk.Window):
             self.updated_list[self.labels_list[i].get_text()]=self.values_list[i].get_text()
         self.index_host(self.get_host_before)
         self.baglantilar[self.get_host_before]=self.updated_list
-        self.baglantilar[self.values_list[0].get_text()] = self.baglantilar.pop(self.get_host_before)#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
+        self.baglantilar[self.values_list[0].get_text()] = self.baglantilar[self.get_host_before]#index değişimi bakılmalı sona eklenen kendi indexsine eklenmeli normalde
         self.write_config()
         self.notebooks(self.values_list[0].get_text())
         self.listbox_add_items()
