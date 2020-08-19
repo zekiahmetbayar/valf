@@ -286,6 +286,9 @@ class MyWindow(Gtk.Window):
         self.updated_list=dict()
         for i in range(0,len(self.values_list)):
             self.updated_list[self.labels_list[i].get_text()]=self.values_list[i].get_text()
+            if self.values_list[i].get_text() == "":
+                self.updated_list.pop(self.labels_list[i].get_text())
+
             
         self.index_host(self.get_host_before)
         self.baglantilar[self.get_host_before]=self.updated_list
@@ -408,9 +411,6 @@ class MyWindow(Gtk.Window):
     
     
 
-
-        
-            
 window = MyWindow()
 window.show_all()
 
