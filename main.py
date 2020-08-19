@@ -235,7 +235,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
-        self.notebook.set_current_page(0)
+        #self.notebook.set_current_page(0)
         self.get_host_before = labelname
 
         grid = Gtk.Grid()
@@ -244,7 +244,7 @@ class MyWindow(Gtk.Window):
         self.entries_dict={}
         grid_count=2
         grid_count_2=2
-        self.header = Gtk.Label(self.get_host_before+" Özellikleri")
+        self.header = Gtk.Label(labelname+" Özellikleri")
         
         grid.attach(self.header,1,1,1,1)
 
@@ -350,7 +350,6 @@ class MyWindow(Gtk.Window):
         self.connect_button.connect('clicked',self.send_password)
 
         self.table4.attach(self.connect_password,0,1,0,1)
-
         self.table4.attach(self.connect_button,0,1,1,2)
 
         self.connect_window.present()
@@ -385,6 +384,7 @@ class MyWindow(Gtk.Window):
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
             None,)
+
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
 
@@ -398,18 +398,39 @@ class MyWindow(Gtk.Window):
         self.number = self.notebook.page_num(self.new_page)
         self.number_list.append(self.number)
         self.number_list.pop()
-        self.notebook.show_all()
         
-        self.command = "ssh " + self.labelmenu + "\n"
+        self.command = "ssh " + self.labelmenu + " 2>&1 | tee /tmp/is_correct.txt\n"
         self.password = self.connect_password.get_text() + "\n"
 
         self.terminal2.feed_child(self.command.encode("utf-8"))
-        time.sleep(0.5)
-        self.terminal2.feed_child(self.password.encode("utf-8"))
+        time.sleep(0.5) # Parola girilme işlemi gerçekleşmesi için bekleme
         
+        self.terminal2.feed_child(self.password.encode("utf-8"))
+        time.sleep(0.5) # Parola girildikten sonra pencerenin kapanması için bekleme
+
+        self.is_correct()
+        
+
         self.connect_window.hide()
     
-    
+    def is_correct(self):
+        with open('/tmp/is_correct.txt','r') as correct_file:
+            text = correct_file.read()
+            correct_list = list()
+            correct_list = text.split()
+
+            length = len(correct_list)
+
+            if length > 10:
+                self.notebook.show_all()
+            
+            else:
+                self.wrong_password_win()
+
+
+
+
+        
 
 window = MyWindow()
 window.show_all()
