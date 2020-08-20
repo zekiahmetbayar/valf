@@ -436,7 +436,7 @@ class MyWindow(Gtk.Window):
                 self.notebook.remove(self.new_page)
                 self.wrong_password_win()
     
-    def file_choose(self):
+    def file_choose(self,event):
         name_list = []
         filechooserdialog = Gtk.FileChooserDialog(title="Open...",
              parent=None,
@@ -472,7 +472,10 @@ class MyWindow(Gtk.Window):
 
         try:
             ssh.connect(ip_adress,username=username,password=password)
-            self.choose_file_btn2('clicked')
+            
+            self.connect_window.hide()
+            self.choose_file_btn2()
+            
 
         except paramiko.SSHException:
             print("Hata ! ")
@@ -498,8 +501,9 @@ class MyWindow(Gtk.Window):
         self.enter_password()
         self.connect_button.connect('clicked',self.send_file)
         
+        
     
-    def choose_file_btn2(self,event):
+    def choose_file_btn2(self):
         self.choose_file_winbtn = Gtk.Window()
         self.choose_file_winbtn.set_title("Choose File")
         self.choose_file_winbtn.set_default_size(200, 200)
@@ -509,12 +513,13 @@ class MyWindow(Gtk.Window):
         self.choose_file_winbtn.add(self.table6)
         
         choose_file_btn_ = Gtk.Button("Choose File")
-        choose_file_btn_.connect("clicked",self.file_choose())
-        self.choose_file_winbtn.add(choose_file_btn_)
+        self.choose_file_winbtn.add(choose_file_btn_) 
+        choose_file_btn_.connect("clicked",self.file_choose)      
 
         self.table6.attach(choose_file_btn_,0,1,0,1)
         self.choose_file_winbtn.show_all()
         self.connect_window.hide()
+        
 
 
 window = MyWindow()
