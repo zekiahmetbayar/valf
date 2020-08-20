@@ -41,6 +41,7 @@ class MyWindow(Gtk.Window):
         self.listbox_add_items()
 
         self.searchentry = Gtk.SearchEntry()
+        self.searchentry.connect("activate",self.on_search_activated)
         self.add(self.searchentry)
 
         scrolled_window = Gtk.ScrolledWindow()
@@ -536,6 +537,20 @@ class MyWindow(Gtk.Window):
         self.choose_file_winbtn.show_all()
         self.connect_window.hide()
     
+    def on_search_activated(self,searchentry):
+        self.baglantilar.clear()
+        self.read_config()
+        search_text = searchentry.get_text()
+        keys = self.baglantilar.keys()
+        for row in self.listbox.get_children():
+            self.listbox.remove(row)
+        for i in keys:
+
+            if search_text in i:
+                deneme_button=Gtk.Button.new_with_label(i)
+                self.listbox.add(deneme_button)
+                self.listbox.show_all()
+        
     def sftp_file_transfer(self):
         print('a')
     
