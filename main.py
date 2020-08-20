@@ -574,18 +574,15 @@ class MyWindow(Gtk.Window):
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
         self.table7 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
-        
 
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
 
         self.close_button_2()
-
+        self.deneme_tree()
+        self.table7.attach(self.view,0,1,0,1)
+        self.table7.attach(self.view2,2,3,0,1)
         self.new_page.add(self.table7)
-        self.lablab = Gtk.Label("sadfjlkasfd")
-        self.lablab2 = Gtk.Label("lasdfjaldsfjakfasd")
-        self.table7.attach(self.lablab,0,1,0,1)
-        self.table7.attach(self.lablab2,2,3,0,1)
         
         self.notebook.append_page(self.new_page, self._button_box)
 
@@ -595,11 +592,38 @@ class MyWindow(Gtk.Window):
         self.notebook.show_all()
         self.notebook.set_current_page(-1)
     
-
+    def deneme_tree(self):
+        books = [["/home", ["/Desktop",True], ["/Documents",True],["/Pictures",True]],
         
-        
+         ["/etc", ["/acpi",True], ["/cron.d",True], ["/ssh",True]],
 
-    
+         ["/tmp", ["is_correct.txt",True]]]
+
+        self.store = Gtk.TreeStore(str, bool)
+
+        for i in range(len(books)):
+            piter = self.store.append(None, [books[i][0], False])
+            j = 1
+            while j < len(books[i]):
+                self.store.append(piter, books[i][j])
+                j += 1
+
+        self.view = Gtk.TreeView()
+        self.view.set_model(self.store)
+        renderer_books = Gtk.CellRendererText()
+        column_books = Gtk.TreeViewColumn("Books", renderer_books, text=0)
+        self.view.append_column(column_books)
+        self.add(self.view)
+
+        self.view2 = Gtk.TreeView()
+        self.view2.set_model(self.store)
+        renderer_books = Gtk.CellRendererText()
+        column_books = Gtk.TreeViewColumn("Books", renderer_books, text=0)
+        self.view2.append_column(column_books)
+        self.add(self.view2)
+
+
+
         
 window = MyWindow()
 window.show_all()
