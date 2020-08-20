@@ -40,22 +40,30 @@ class MyWindow(Gtk.Window):
         self.add(self.listbox)
         self.listbox_add_items()
 
-        self.searchbar = Gtk.SearchEntry()
-        self.add(self.searchbar)
+        self.searchentry = Gtk.SearchEntry()
+        self.add(self.searchentry)
+
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_border_width(10)
+        scrolled_window.set_policy(
+            Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        
+        scrolled_window.add_with_viewport(self.listbox)
+        self.add(scrolled_window)
 
         new_window_button = Gtk.Button("Add New Host")
         new_window_button.connect('clicked',self.add_newhost_window)
 
         self.table.attach(new_window_button,5,10,9,10)
-        self.table.attach(self.listbox,0,10,1,9)
-        self.table.attach(self.searchbar,0,10,0,1)
+        self.table.attach(scrolled_window,0,10,1,9)
+        self.table.attach(self.searchentry,0,10,0,1)
 
         self.add(self.notebook)
         self.table.attach(self.notebook,10,30,0,10)
 
         self.notebook.show_all()
         self.listbox.show_all()
-        self.searchbar.show_all()
+        self.searchentry.show_all()
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
@@ -240,8 +248,6 @@ class MyWindow(Gtk.Window):
 
     def notebooks(self,labelname): # Attributes sayfası
         self.read_config()
-        self.notebook_change_button = Gtk.Button("Change Configuration")
-        self.notebook_change_button.connect('clicked',self.on_click_change)
 
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
@@ -256,7 +262,7 @@ class MyWindow(Gtk.Window):
         self.entries_dict={}
         grid_count=2
         grid_count_2=2
-        self.header = Gtk.Label(labelname+" Özellikleri")
+        self.header = Gtk.Label(labelname+" Attributes")
         grid.attach(self.header,1,1,1,1)
 
         for p_id, p_info in self.baglantilar.items():
@@ -281,11 +287,20 @@ class MyWindow(Gtk.Window):
 
         self.add_attribute_button = Gtk.Button("Add New Attribute")
         self.add_attribute_button.connect("clicked",self.add_attribute)
-        grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu    
-        grid.attach(self.add_attribute_button,0,19,2,1)     
+
+        self.notebook_change_button = Gtk.Button("Change Configuration")
+        self.notebook_change_button.connect('clicked',self.on_click_change)
+
+        self.start_sftp_button = Gtk.Button("Start File Transfer")
+        self.start_sftp_button.connect("clicked",self.sftp_file_transfer)
+
+        grid.attach(self.add_attribute_button,0,19,2,1)   # Add Attribute button
+        grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu 
+        grid.attach(self.start_sftp_button,0,21,2,1)      # Start SFTP Button
+          
         self.notebook.show_all()
         self.listbox.show_all()
-            
+    
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
         self.notebook.set_current_page(0)
@@ -520,9 +535,11 @@ class MyWindow(Gtk.Window):
         self.table6.attach(choose_file_btn_,0,1,0,1)
         self.choose_file_winbtn.show_all()
         self.connect_window.hide()
+    
+    def sftp_file_transfer(self):
+        print('a')
+    
         
-
-
 window = MyWindow()
 window.show_all()
 Gtk.main()
