@@ -29,6 +29,7 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self)
         self.set_default_size(750, 500)
         self.connect("destroy", Gtk.main_quit)
+        self.set_title("Uzaktan Bağlantı Aracı")
         self.main()
         self.number_list = [1]
          
@@ -224,6 +225,24 @@ class MyWindow(Gtk.Window):
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
         self.label1 = Gtk.Label(label=self.labelmenu)
+
+        self._close_btn = Gtk.Button()
+        self._close_btn.get_style_context().add_class("titlebutton")
+        self._close_btn.get_style_context().add_class("close")
+
+        self._close_btn.add(get_icon("window-close-symbolic"))
+        self._close_btn.connect("clicked", self._close_cb)
+        
+        self._close_btn.show_all()
+        self.label1.show_all()
+        
+        self._button_box.pack_start(self.label1, False, False, 3)
+        self._button_box.pack_start(self._close_btn, False, False, 3)
+    
+    def close_button_2(self):
+        self._button_box = Gtk.HBox()
+        self._button_box.get_style_context().add_class("right")
+        self.label1 = Gtk.Label(label=self.get_host_before)
 
         self._close_btn = Gtk.Button()
         self._close_btn.get_style_context().add_class("titlebutton")
@@ -551,8 +570,35 @@ class MyWindow(Gtk.Window):
                 self.listbox.add(deneme_button)
                 self.listbox.show_all()
         
-    def sftp_file_transfer(self):
-        print('a')
+    def sftp_file_transfer(self,event):
+        self.new_page = Gtk.Box()
+        self.new_page.set_border_width(10)
+        self.table7 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
+        
+
+        self._button_box = Gtk.HBox()
+        self._button_box.get_style_context().add_class("right")
+
+        self.close_button_2()
+
+        self.new_page.add(self.table7)
+        self.lablab = Gtk.Label("sadfjlkasfd")
+        self.lablab2 = Gtk.Label("lasdfjaldsfjakfasd")
+        self.table7.attach(self.lablab,0,1,0,1)
+        self.table7.attach(self.lablab2,2,3,0,1)
+        
+        self.notebook.append_page(self.new_page, self._button_box)
+
+        self.number = self.notebook.page_num(self.new_page)
+        self.number_list.append(self.number)
+        self.number_list.pop()
+        self.notebook.show_all()
+        self.notebook.set_current_page(-1)
+    
+
+        
+        
+
     
         
 window = MyWindow()
