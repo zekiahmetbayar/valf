@@ -40,17 +40,22 @@ class MyWindow(Gtk.Window):
         self.add(self.listbox)
         self.listbox_add_items()
 
+        self.searchbar = Gtk.SearchEntry()
+        self.add(self.searchbar)
+
         new_window_button = Gtk.Button("Add New Host")
         new_window_button.connect('clicked',self.add_newhost_window)
 
         self.table.attach(new_window_button,5,10,9,10)
-        self.table.attach(self.listbox,0,10,0,9)
+        self.table.attach(self.listbox,0,10,1,9)
+        self.table.attach(self.searchbar,0,10,0,1)
 
         self.add(self.notebook)
         self.table.attach(self.notebook,10,30,0,10)
 
         self.notebook.show_all()
         self.listbox.show_all()
+        self.searchbar.show_all()
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
@@ -472,11 +477,9 @@ class MyWindow(Gtk.Window):
 
         try:
             ssh.connect(ip_adress,username=username,password=password)
-            
             self.connect_window.hide()
             self.choose_file_btn2()
             
-
         except paramiko.SSHException:
             print("Hata ! ")
             self.connect_window.hide()
@@ -501,8 +504,6 @@ class MyWindow(Gtk.Window):
         self.enter_password()
         self.connect_button.connect('clicked',self.send_file)
         
-        
-    
     def choose_file_btn2(self):
         self.choose_file_winbtn = Gtk.Window()
         self.choose_file_winbtn.set_title("Choose File")
