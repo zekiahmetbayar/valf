@@ -472,7 +472,7 @@ class MyWindow(Gtk.Window):
 
         try:
             ssh.connect(ip_adress,username=username,password=password)
-            self.file_choose()
+            self.choose_file_btn2('clicked')
 
         except paramiko.SSHException:
             print("Hata ! ")
@@ -496,20 +496,20 @@ class MyWindow(Gtk.Window):
     
     def scp_transfer(self,event):
         self.enter_password()
-        self.connect_button.connect('clicked',self.choose_file_btn2)
+        self.connect_button.connect('clicked',self.send_file)
         
     
-    def choose_file_btn2(self,clicked):
+    def choose_file_btn2(self,event):
         self.choose_file_winbtn = Gtk.Window()
-        self.choose_file_winbtn.set_title("Choose")
+        self.choose_file_winbtn.set_title("Choose File")
         self.choose_file_winbtn.set_default_size(200, 200)
         self.choose_file_winbtn.set_border_width(20)
 
         self.table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
         self.choose_file_winbtn.add(self.table6)
         
-        choose_file_btn_ = Gtk.Button("Choose")
-        choose_file_btn_.connect("clicked",self.send_file)
+        choose_file_btn_ = Gtk.Button("Choose File")
+        choose_file_btn_.connect("clicked",self.file_choose())
         self.choose_file_winbtn.add(choose_file_btn_)
 
         self.table6.attach(choose_file_btn_,0,1,0,1)
