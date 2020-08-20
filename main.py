@@ -175,7 +175,6 @@ class MyWindow(Gtk.Window):
         self.input_window.show_all()  
         
     def listbox_add_items(self): # Listbox'a host isimlerini ekleyen fonksiyon
-        
         self.baglantilar.clear()
         self.read_config()
         keys = self.baglantilar.keys()
@@ -453,8 +452,10 @@ class MyWindow(Gtk.Window):
             self.send_file_path = filechooserdialog.get_filename()
             name_list = self.send_file_path.split('/')
             self.file_name = name_list[-1]
-
         
+        if response == Gtk.ResponseType.CANCEL:
+            filechooserdialog.destroy()
+
         self.transfer()
 
         filechooserdialog.destroy()
@@ -491,17 +492,30 @@ class MyWindow(Gtk.Window):
         scp = SCPClient(ssh.get_transport())
         scp.put(self.send_file_path, self.file_name)
 
-        scp.close()
-
-        
-
-        
-    
-        
+        scp.close()   
     
     def scp_transfer(self,event):
         self.enter_password()
-        self.connect_button.connect('clicked',self.send_file)
+        self.connect_button.connect('clicked',self.choose_file_btn2)
+        
+    
+    def choose_file_btn2(self,clicked):
+        self.choose_file_winbtn = Gtk.Window()
+        self.choose_file_winbtn.set_title("Choose")
+        self.choose_file_winbtn.set_default_size(200, 200)
+        self.choose_file_winbtn.set_border_width(20)
+
+        self.table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
+        self.choose_file_winbtn.add(self.table6)
+        
+        choose_file_btn_ = Gtk.Button("Choose")
+        choose_file_btn_.connect("clicked",self.send_file)
+        self.choose_file_winbtn.add(choose_file_btn_)
+
+        self.table6.attach(choose_file_btn_,0,1,0,1)
+        self.choose_file_winbtn.show_all()
+        self.connect_window.hide()
+
 
 window = MyWindow()
 window.show_all()
