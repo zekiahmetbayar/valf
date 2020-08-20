@@ -257,7 +257,6 @@ class MyWindow(Gtk.Window):
 
                         grid.attach(self.labeltemp,1,grid_count,2,1)
                         grid_count += 1
-                    
 
                         self.temp = "right_entry_"+str(p_info[key])
                         self.oldname = self.temp
@@ -294,6 +293,7 @@ class MyWindow(Gtk.Window):
         self.write_config()
         self.notebooks(self.values_list[0].get_text())
         self.listbox_add_items()
+        self.notebook.set_current_page(0)
 
     def add_attribute(self,widget): # Yeni attribute penceresi
         self.add_attribute_window = Gtk.Window()
@@ -323,12 +323,15 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.present()
         self.add_attribute_window.show_all() 
 
+        self.notebook.set_current_page(0)
+
     def on_click_add_attribute(self,widget): # Yeni attribute ekleme butonu görevi
         self.add_attribute_window.hide()
         self.read_config()
         self.baglantilar[self.get_host_before][self.attribute_name.get_text()] = self.attribute_value.get_text()
         self.write_config()
         self.notebooks(self.get_host_before)
+        self.notebook.set_current_page(0)
         
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         self.connect_window = Gtk.Window()
@@ -414,7 +417,6 @@ class MyWindow(Gtk.Window):
         with open('/tmp/is_correct.txt','r') as correct_file:            
             correct_list = list()
             correct_list = correct_file.readlines()
-            
             length = len(correct_list)
             
             if length > 3:
@@ -427,5 +429,4 @@ class MyWindow(Gtk.Window):
 
 window = MyWindow()
 window.show_all()
-
 Gtk.main()
