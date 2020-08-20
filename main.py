@@ -9,6 +9,7 @@ from pathlib import Path
 from paramiko import SSHClient
 from scp import SCPClient
 import time
+import paramiko
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
@@ -436,7 +437,7 @@ class MyWindow(Gtk.Window):
                 self.notebook.remove(self.new_page)
                 self.wrong_password_win()
     
-    def file_choose(self,event):
+    def file_choose(self):
         name_list = []
         filechooserdialog = Gtk.FileChooserDialog(title="Open...",
              parent=None,
@@ -453,12 +454,31 @@ class MyWindow(Gtk.Window):
             name_list = self.send_file_path.split('/')
             self.file_name = name_list[-1]
 
-        self.send_file()
+        
+        self.transfer()
+
         filechooserdialog.destroy()
         self.connect_window.hide()
         
     
-    def send_file(self):
+    def send_file(self,event):
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+
+        ip_adress = self.baglantilar[self.labelmenu]['Hostname']
+        username = self.baglantilar[self.labelmenu]['User']
+        password = self.connect_password.get_text()
+
+        try:
+            ssh.connect(ip_adress,username=username,password=password)
+            self.file_choose()
+
+        except paramiko.SSHException:
+            print("Hata ! ")
+            self.connect_window.hide()
+            self.scp_transfer("clicked")
+    
+    def transfer(self):
         ssh = SSHClient()
         ssh.load_system_host_keys()
 
@@ -467,16 +487,21 @@ class MyWindow(Gtk.Window):
         password = self.connect_password.get_text()
 
         ssh.connect(ip_adress,username=username,password=password)
-
+        
         scp = SCPClient(ssh.get_transport())
-
         scp.put(self.send_file_path, self.file_name)
 
         scp.close()
+
+        
+
+        
+    
+        
     
     def scp_transfer(self,event):
         self.enter_password()
-        self.connect_button.connect('clicked',self.file_choose)
+        self.connect_button.connect('clicked',self.send_file)
 
 window = MyWindow()
 window.show_all()
