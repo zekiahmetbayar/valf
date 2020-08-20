@@ -6,7 +6,10 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, GLib
 from gi.repository import GObject
 from pathlib import Path
+from paramiko import SSHClient
+from scp import SCPClient
 import time
+
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
 
@@ -95,6 +98,10 @@ class MyWindow(Gtk.Window):
         menu_item_connect = Gtk.MenuItem("Connect Host")
         menu.append(menu_item_connect)
         menu_item_connect.connect("activate",self.on_click_connect)
+
+        menu_item_scp = Gtk.MenuItem("Send File (Scp)")
+        menu.append(menu_item_scp)
+        menu_item_scp.connect("activate",self.scp_transfer)
 
         menu.show_all()
 
@@ -332,8 +339,8 @@ class MyWindow(Gtk.Window):
         self.write_config()
         self.notebooks(self.get_host_before)
         self.notebook.set_current_page(0)
-        
-    def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
+
+    def enter_password(self):
         self.connect_window = Gtk.Window()
         self.connect_window.set_title("Connect")
         self.connect_window.set_border_width(10)
@@ -348,13 +355,15 @@ class MyWindow(Gtk.Window):
         self.connect_window.add(self.connect_password)
 
         self.connect_window.add(self.connect_button)
-        self.connect_button.connect('clicked',self.send_password)
-
         self.table4.attach(self.connect_password,0,1,0,1)
         self.table4.attach(self.connect_button,0,1,1,2)
 
         self.connect_window.present()
         self.connect_window.show_all()
+        
+    def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
+        self.enter_password()
+        self.connect_button.connect('clicked',self.send_password)
 
     def wrong_password_win(self): # Şifre yanlış olduğunda gösterilecek pencere
         self.wrong_pass_win = Gtk.Window()
@@ -426,6 +435,48 @@ class MyWindow(Gtk.Window):
             else:
                 self.notebook.remove(self.new_page)
                 self.wrong_password_win()
+    
+    def file_choose(self,event):
+        name_list = []
+        filechooserdialog = Gtk.FileChooserDialog(title="Open...",
+             parent=None,
+             action=Gtk.FileChooserAction.OPEN)
+        filechooserdialog.add_buttons("_Open", Gtk.ResponseType.OK)
+        filechooserdialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL)
+        filechooserdialog.set_default_response(Gtk.ResponseType.OK)
+
+        response = filechooserdialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            print("File selected: %s" % filechooserdialog.get_filename())
+            self.send_file_path = filechooserdialog.get_filename()
+            name_list = self.send_file_path.split('/')
+            self.file_name = name_list[-1]
+
+        self.send_file()
+        filechooserdialog.destroy()
+        self.connect_window.hide()
+        
+    
+    def send_file(self):
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+
+        ip_adress = self.baglantilar[self.labelmenu]['Hostname']
+        username = self.baglantilar[self.labelmenu]['User']
+        password = self.connect_password.get_text()
+
+        ssh.connect(ip_adress,username=username,password=password)
+
+        scp = SCPClient(ssh.get_transport())
+
+        scp.put(self.send_file_path, self.file_name)
+
+        scp.close()
+    
+    def scp_transfer(self,event):
+        self.enter_password()
+        self.connect_button.connect('clicked',self.file_choose)
 
 window = MyWindow()
 window.show_all()
