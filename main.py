@@ -567,7 +567,10 @@ class MyWindow(Gtk.Window):
 
             if search_text in i:
                 deneme_button=Gtk.Button.new_with_label(i)
+                deneme_button.connect("button-press-event",self.button_clicked)
+                deneme_button.connect("button-press-event",self.button_left_click)
                 self.listbox.add(deneme_button)
+                
                 self.listbox.show_all()
         
     def sftp_file_transfer(self,event):
