@@ -536,7 +536,7 @@ class MyWindow(Gtk.Window):
                     correct_list_ = list()
                     string_file= correct_file_.read()
                     correct_list_ = string_file.split()
-                    word = ".ssh"
+                    word = "-bash:"
                     self.notebook.set_current_page(-1)
 
                     if word in correct_list_:
