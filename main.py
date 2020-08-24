@@ -524,14 +524,13 @@ class MyWindow(Gtk.Window):
         
         with open('/tmp/control.txt','r') as y:
             string_change = y.read()
-            word = "@@@@@@@@@@"
+            word = "@@@@@@@@@@@"
 
             if word in string_change:
                 self.host_change()
             
             else:
                 pass
-
 
     def host_change(self):
         self.host_change_window = Gtk.Window()
@@ -542,6 +541,8 @@ class MyWindow(Gtk.Window):
         self.host_change_window.add(self.table9)
         self.host_change_entry.set_placeholder_text("Evet değişiklik yap.")
 
+        self.host_change_label = Gtk.Label("Bağlanmak istediğiniz sunucu ip'si başka bir sunucu tarafından alınmış olabilir.\nKnown değişimini onaylıyorsanız --Evet değişiklik yap.-- yazın")
+        self.table9.attach(self.host_change_label,0,3,0,1)
         self.table9.attach(self.host_change_entry,1,2,1,2)
 
         host_change_button = Gtk.Button("Send")
@@ -557,6 +558,7 @@ class MyWindow(Gtk.Window):
 
         if entry == "Evet değişiklik yap.":
             self.terminal2.feed_child(self.degistir.encode("utf-8"))
+            self.host_change_window.hide()
             self.enter_password()
 
 
