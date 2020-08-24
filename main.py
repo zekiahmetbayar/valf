@@ -449,28 +449,55 @@ class MyWindow(Gtk.Window):
         self.number_list.append(self.number)
         self.number_list.pop()
         
-        self.command = "ssh " + self.labelmenu + " 2>&1 | tee /tmp/is_correct.txt\n"
+        self.command = "ssh " + self.labelmenu + " 2>&1 | tee /tmp/control.txt\n"
         self.password = self.connect_password.get_text() + "\n"
 
         self.terminal2.feed_child(self.command.encode("utf-8"))
         time.sleep(0.5) # Parola girilme işlemi gerçekleşmesi için bekleme
-        
+
         self.terminal2.feed_child(self.password.encode("utf-8"))
-        time.sleep(2) # Parola girildikten sonra pencerenin kapanması için bekleme
+        time.sleep(2) 
 
         self.is_correct()
 
         self.connect_window.hide()
+        
+
     
     def is_correct(self):
-        with open('/tmp/is_correct.txt','r') as correct_file:            
+        with open('/tmp/control.txt','r') as correct_file:            
             correct_list = list()
             correct_list = correct_file.readlines()
             length = len(correct_list)
             
             if length > 3:
-                self.notebook.show_all()
-                self.notebook.set_current_page(-1)
+                
+                self.directory = "cd .ssh 2>&1 | tee /tmp/control.txt\n"
+                self.terminal2.feed_child(self.directory.encode("utf-8"))
+                time.sleep(0.5)
+
+                with open('/tmp/control.txt','r') as correct_file_:
+
+                    correct_list_ = list()
+                    correct_list_ = correct_file_.readlines()
+                    word = "bash: cd: .ssh: No such file or directory"
+                    self.notebook.set_current_page(-1)
+
+                    if correct_list_[0] == word:
+                        self.create = "mkdir .ssh\n"+"touch config\n"
+                        self.terminal2.feed_child(self.create.encode("utf-8"))
+                        time.sleep(0.5)
+                        self.notebook.set_current_page(-1)
+                        self.notebook.show_all()
+
+
+                    else:
+                        self.notebook.set_current_page(-1)
+                        self.notebook.show_all()
+                    
+                    self.notebook.set_current_page(-1)
+                    self.notebook.show_all()
+                
 
             else:
                 self.notebook.remove(self.new_page)
@@ -596,7 +623,7 @@ class MyWindow(Gtk.Window):
         self.notebook.set_current_page(-1)
     
     def deneme_tree(self):
-        books = [["/home", ["/Desktop",True], ["/Documents",True],["/Pictures",True]],
+        books = [["/home", ["/Desktop",None], ["/Documents",None],["/Pictures",True]],
         
          ["/etc", ["/acpi",True], ["/cron.d",True], ["/ssh",True]],
 
@@ -614,18 +641,16 @@ class MyWindow(Gtk.Window):
         self.view = Gtk.TreeView()
         self.view.set_model(self.store)
         renderer_books = Gtk.CellRendererText()
-        column_books = Gtk.TreeViewColumn("Books", renderer_books, text=0)
+        column_books = Gtk.TreeViewColumn("File System", renderer_books, text=0)
         self.view.append_column(column_books)
         self.add(self.view)
 
         self.view2 = Gtk.TreeView()
         self.view2.set_model(self.store)
         renderer_books = Gtk.CellRendererText()
-        column_books = Gtk.TreeViewColumn("Books", renderer_books, text=0)
+        column_books = Gtk.TreeViewColumn("File System", renderer_books, text=0)
         self.view2.append_column(column_books)
         self.add(self.view2)
-
-
 
         
 window = MyWindow()
