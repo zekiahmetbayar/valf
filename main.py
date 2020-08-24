@@ -448,22 +448,77 @@ class MyWindow(Gtk.Window):
         self.number = self.notebook.page_num(self.new_page)
         self.number_list.append(self.number)
         self.number_list.pop()
+
+        self.aranan = self.baglantilar[self.labelmenu]['Hostname']
         
+        self.fp_check = "ssh-keygen -H -F " + self.aranan + " 2>&1 | tee /tmp/control.txt\n"
         self.command = "ssh " + self.labelmenu + " 2>&1 | tee /tmp/control.txt\n"
-        self.password = self.connect_password.get_text() + "\n"
+        self.password = self.connect_password.get_text() + "\n" 
 
-        self.terminal2.feed_child(self.command.encode("utf-8"))
-        time.sleep(0.5) # Parola girilme işlemi gerçekleşmesi için bekleme
+        self.terminal2.feed_child(self.fp_check.encode("utf-8"))
+        time.sleep(0.5)
+        with open('/tmp/control.txt','r') as t:
+            t_list = list()
+            t_list = t.readlines()
+            length = len(t_list)
 
-        self.terminal2.feed_child(self.password.encode("utf-8"))
-        time.sleep(2) 
+            if length > 0:
+                self.terminal2.feed_child(self.command.encode("utf-8"))
+                time.sleep(0.5) 
 
-        self.is_correct()
+                self.terminal2.feed_child(self.password.encode("utf-8"))
+                time.sleep(2) 
 
-        self.connect_window.hide()
+                self.is_correct()
+
+                self.connect_window.hide()
+            
+            else:
+                self.connect_window.hide()
+                self.yes_no()
+
+    def yes_no(self):
+        self.yes_or_no_window = Gtk.Window()
+        self.yes_or_no_window.set_title("yes or no")
+        
+        self.yes_or_no_entry = Gtk.Entry()
+        self.table8 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
+        self.yes_or_no_window.add(self.table8)
+
+        self.table8.attach(self.yes_or_no_entry,1,2,1,2)
+
+        yes_or_no_button = Gtk.Button("Send")
+        yes_or_no_button.connect("clicked",self.yes_or_no)
+
+        self.table8.attach(yes_or_no_button,1,2,2,3)
+        self.yes_or_no_window.show_all()   
+    
+    def yes_or_no(self,event):
+        self.ans = self.yes_or_no_entry.get_text()
+        if self.ans == 'yes':
+            self.terminal2.feed_child(self.command.encode("utf-8"))
+            time.sleep(0.5) 
+
+            self.answer = 'yes\n'
+
+            self.terminal2.feed_child(self.answer.encode("utf-8"))
+            time.sleep(0.5) 
+
+            self.terminal2.feed_child(self.password.encode("utf-8"))
+            time.sleep(2) 
+
+            self.is_correct()
+
+            self.connect_window.hide()
+
+            self.yes_or_no_window.hide()
+        
+        else:
+            self.connect_window.hide()
+            self.yes_or_no_window.hide()
+
         
 
-    
     def is_correct(self):
         with open('/tmp/control.txt','r') as correct_file:            
             correct_list = list()
@@ -484,12 +539,11 @@ class MyWindow(Gtk.Window):
                     self.notebook.set_current_page(-1)
 
                     if correct_list_[0] == word:
-                        self.create = "mkdir .ssh\n"+"touch config\n"
+                        self.create = "mkdir .ssh\n"+"touch .ssh/config\n"+ "touch .ssh/known_hosts\n"
                         self.terminal2.feed_child(self.create.encode("utf-8"))
                         time.sleep(0.5)
                         self.notebook.set_current_page(-1)
                         self.notebook.show_all()
-
 
                     else:
                         self.notebook.set_current_page(-1)
@@ -498,7 +552,6 @@ class MyWindow(Gtk.Window):
                     self.notebook.set_current_page(-1)
                     self.notebook.show_all()
                 
-
             else:
                 self.notebook.remove(self.new_page)
                 self.wrong_password_win()
