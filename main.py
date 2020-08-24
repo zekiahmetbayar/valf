@@ -469,6 +469,9 @@ class MyWindow(Gtk.Window):
                 self.terminal2.feed_child(self.password.encode("utf-8"))
                 time.sleep(2) 
 
+                self.c_check()
+                time.sleep(0.5)
+
                 self.is_correct()
 
                 self.connect_window.hide()
@@ -516,8 +519,46 @@ class MyWindow(Gtk.Window):
         else:
             self.connect_window.hide()
             self.yes_or_no_window.hide()
-
+    
+    def c_check(self):
         
+        with open('/tmp/control.txt','r') as y:
+            string_change = y.read()
+            word = "@@@@@@@@@@"
+
+            if word in string_change:
+                self.host_change()
+            
+            else:
+                pass
+
+
+    def host_change(self):
+        self.host_change_window = Gtk.Window()
+        self.host_change_window.set_title("Change known")
+        
+        self.host_change_entry = Gtk.Entry()
+        self.table9 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
+        self.host_change_window.add(self.table9)
+        self.host_change_entry.set_placeholder_text("Evet değişiklik yap.")
+
+        self.table9.attach(self.host_change_entry,1,2,1,2)
+
+        host_change_button = Gtk.Button("Send")
+        host_change_button.connect("clicked",self.hostchange)
+
+        self.table9.attach(host_change_button,1,2,2,3)
+        self.host_change_window.show_all()   
+    
+    def hostchange(self,event):
+        entry = self.host_change_entry.get_text()
+        hostname = self.baglantilar[self.labelmenu]['Hostname']
+        self.degistir = "ssh-keygen -R " + hostname +"\n"
+
+        if entry == "Evet değişiklik yap.":
+            self.terminal2.feed_child(self.degistir.encode("utf-8"))
+            self.enter_password()
+
 
     def is_correct(self):
         with open('/tmp/control.txt','r') as correct_file:            
