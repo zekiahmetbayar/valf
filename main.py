@@ -534,11 +534,12 @@ class MyWindow(Gtk.Window):
                 with open('/tmp/control.txt','r') as correct_file_:
 
                     correct_list_ = list()
-                    correct_list_ = correct_file_.readlines()
-                    word = "bash: cd: .ssh: No such file or directory"
+                    string_file= correct_file_.read()
+                    correct_list_ = string_file.split()
+                    word = ".ssh"
                     self.notebook.set_current_page(-1)
 
-                    if correct_list_[0] == word:
+                    if word in correct_list_:
                         self.create = "mkdir .ssh\n"+"touch .ssh/config\n"+ "touch .ssh/known_hosts\n"
                         self.terminal2.feed_child(self.create.encode("utf-8"))
                         time.sleep(0.5)
@@ -558,11 +559,11 @@ class MyWindow(Gtk.Window):
     
     def file_choose(self,event):
         name_list = []
-        filechooserdialog = Gtk.FileChooserDialog(title="Open...",
+        filechooserdialog = Gtk.FileChooserDialog(title="Select the file to send.",
              parent=None,
              action=Gtk.FileChooserAction.OPEN)
         filechooserdialog.add_buttons("_Open", Gtk.ResponseType.OK)
-        filechooserdialog.add_buttons("_Cancel", Gtk.ResponseType.CANCEL)
+        filechooserdialog.add_buttons("_Close", Gtk.ResponseType.CANCEL)
         filechooserdialog.set_default_response(Gtk.ResponseType.OK)
 
         response = filechooserdialog.run()
