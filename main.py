@@ -1,5 +1,5 @@
 import gi
-import os
+import os,stat
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Vte
 gi.require_version('Gdk', '3.0')
@@ -10,6 +10,8 @@ from paramiko import SSHClient
 from scp import SCPClient
 import time
 import paramiko
+from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
+from gi.repository.GdkPixbuf import Pixbuf
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
@@ -338,6 +340,7 @@ class MyWindow(Gtk.Window):
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
         self.notebook.set_current_page(0)
+        
 
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
         self.values_list = list(self.entries_dict.values())
@@ -688,16 +691,16 @@ class MyWindow(Gtk.Window):
     def sftp_file_transfer(self,event):
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
-        self.table7 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
-
+        self.table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
+        self.new_page.add(self.table7)
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
 
         self.close_button_2()
         self.deneme_tree()
-        self.table7.attach(self.view,0,1,0,1)
-        self.table7.attach(self.view2,2,3,0,1)
-        self.new_page.add(self.table7)
+        self.table7.attach(self.scrollView,20,25,0,10)
+        #self.table7.attach(self.scrollView,2,3,0,1)
+        
         
         self.notebook.append_page(self.new_page, self._button_box)
 
@@ -708,37 +711,33 @@ class MyWindow(Gtk.Window):
         self.notebook.set_current_page(-1)
     
     def deneme_tree(self):
-
-        #books = dict()
-        #books = {'/home' : {1 : '/Desktop',2 : '/Documents'}, '/etc' : {1 : '/acpi',2 : '/cron.d'}}
-        books = [["/home", ["/Desktop",None], ["/Documents",None],["/Pictures",None]],
+        fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
+        populateFileSystemTreeStore(fileSystemTreeStore, '/home')
+        fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
+        treeViewCol = Gtk.TreeViewColumn("File")
+        treeViewCol.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
+        treeViewCol.set_fixed_width(500)
+        colCellText = Gtk.CellRendererText()
+        colCellImg = Gtk.CellRendererPixbuf()
+        treeViewCol.set_expand(True)
+        treeViewCol.pack_start(colCellImg, False)
+        treeViewCol.pack_start(colCellText, True)
+        treeViewCol.add_attribute(colCellText, "text", 0)
+        treeViewCol.add_attribute(colCellImg, "pixbuf", 1)
         
-         ["/etc", ["/acpi",None], ["/cron.d",None], ["/ssh",None]],
+        fileSystemTreeView.append_column(treeViewCol)
+        fileSystemTreeView.connect("row-expanded", onRowExpanded)
+        fileSystemTreeView.connect("row-collapsed", onRowCollapsed)
+        select = fileSystemTreeView.get_selection()
+        select.connect("changed", on_tree_selection_changed)
+        fileSystemTreeView.columns_autosize()
+        fileSystemTreeView.columns_autosize()
+        self.scrollView = Gtk.ScrolledWindow()
+        self.scrollView.add_with_viewport(fileSystemTreeView)
+        
 
-         ["/tmp", ["is_correct.txt",None]]]
+      
 
-        self.store = Gtk.TreeStore(str, bool)
-
-        for i in range(len(books)):
-            piter = self.store.append(None, [books[i][1], False])
-            j = 1
-            while j < len(books[i]):
-                self.store.append(piter, books[i][j])
-                j += 1
-
-        self.view = Gtk.TreeView()
-        self.view.set_model(self.store)
-        renderer_books = Gtk.CellRendererText()
-        column_books = Gtk.TreeViewColumn("File System", renderer_books, text=0)
-        self.view.append_column(column_books)
-        self.add(self.view)
-
-        self.view2 = Gtk.TreeView()
-        self.view2.set_model(self.store)
-        renderer_books = Gtk.CellRendererText()
-        column_books = Gtk.TreeViewColumn("File System", renderer_books, text=0)
-        self.view2.append_column(column_books)
-        self.add(self.view2)
 
         
 window = MyWindow()
