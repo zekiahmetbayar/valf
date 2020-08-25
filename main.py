@@ -29,7 +29,7 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self)
         self.set_default_size(750, 500)
         self.connect("destroy", Gtk.main_quit)
-        self.set_title("Uzaktan Bağlantı Aracı")
+        self.set_title("VALF")
         self.main()
         self.number_list = [1]
          
@@ -72,27 +72,41 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
         
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
-        self.baglantilar.clear()
-        with open(self.home+'/.ssh/config','r') as f:    
-            for line in f: # Goal 2 
-                if 'Host ' in line: # Goal 3
-                    if line != '\n':
-                        
-                        (key,value) = line.split()
-                        hostline = value
-                        self.baglantilar[hostline] = dict() # Goal 3
-                        self.baglantilar[hostline][key] = value # Goal 5
+        try : 
+            self.baglantilar.clear()
+            with open(self.home+'/.ssh/config','r') as f:    
+                for line in f: # Goal 2 
+                    if 'Host ' in line: # Goal 3
+                        if line != '\n':
+                            
+                            (key,value) = line.split()
+                            hostline = value
+                            self.baglantilar[hostline] = dict() # Goal 3
+                            self.baglantilar[hostline][key] = value # Goal 5
 
-                    else:
-                        continue
+                        else:
+                            continue
+                        
+                    else: # Goal 4
+                        if line != '\n':
+                            (key,value) = line.split() 
+                            self.baglantilar[hostline][key] = value
                     
-                else: # Goal 4
-                    if line != '\n':
-                        (key,value) = line.split() 
-                        self.baglantilar[hostline][key] = value
-                
-                    else:
-                        continue
+                        else:
+                            continue
+        
+        except:
+            self.terminal     = Vte.Terminal()
+            self.terminal.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+            self.create = "mkdir .ssh\n" + "cd .ssh\n"  + "touch config\n" + "touch known_hosts\n"
+            self.terminal.feed_child(self.create.encode("utf-8"))
 
     def write_config(self): # RAM'de tutulan dictionary değerlerini dosyaya yazar.
         with open(self.home+'/.ssh/config','w') as f:
@@ -481,50 +495,48 @@ class MyWindow(Gtk.Window):
                 self.yes_no()
 
     def yes_no(self):
+        self.table8 = Gtk.Table(n_rows=1, n_columns=2, homogeneous=True)
         self.yes_or_no_window = Gtk.Window()
-        self.yes_or_no_window.set_title("yes or no")
-        
-        self.yes_or_no_entry = Gtk.Entry()
-        self.table8 = Gtk.Table(n_rows=1, n_columns=3, homogeneous=True)
         self.yes_or_no_window.add(self.table8)
+        self.yes_or_no_window.set_title("Yes/No")
 
-        self.table8.attach(self.yes_or_no_entry,1,2,1,2)
+        self.yes_button = Gtk.Button("YES")
+        self.table8.attach(self.yes_button,0,1,0,1)
+        self.yes_button.connect("clicked",self.yes_button_clicked)
+        
+        self.no_button = Gtk.Button("NO")
+        self.table8.attach(self.no_button,1,2,0,1)
+        self.yes_button.connect("clicked",self.no_button_clicked)
 
-        yes_or_no_button = Gtk.Button("Send")
-        yes_or_no_button.connect("clicked",self.yes_or_no)
-
-        self.table8.attach(yes_or_no_button,1,2,2,3)
         self.yes_or_no_window.show_all()   
     
-    def yes_or_no(self,event):
-        self.ans = self.yes_or_no_entry.get_text()
-        if self.ans == 'yes':
-            self.terminal2.feed_child(self.command.encode("utf-8"))
-            time.sleep(0.5) 
+    def yes_button_clicked(self,event):
+        self.terminal2.feed_child(self.command.encode("utf-8"))
+        time.sleep(0.5) 
 
-            self.answer = 'yes\n'
+        self.answer = 'yes\n'
 
-            self.terminal2.feed_child(self.answer.encode("utf-8"))
-            time.sleep(0.5) 
+        self.terminal2.feed_child(self.answer.encode("utf-8"))
+        time.sleep(0.5) 
 
-            self.terminal2.feed_child(self.password.encode("utf-8"))
-            time.sleep(2) 
+        self.terminal2.feed_child(self.password.encode("utf-8"))
+        time.sleep(2) 
 
-            self.is_correct()
+        self.is_correct()
 
-            self.connect_window.hide()
+        self.connect_window.hide()
 
-            self.yes_or_no_window.hide()
-        
-        else:
-            self.connect_window.hide()
-            self.yes_or_no_window.hide()
+        self.yes_or_no_window.hide()
+    
+    def no_button_clicked(self,event):
+        self.connect_window.hide()
+        self.yes_or_no_window.hide()
     
     def c_check(self):
         
         with open('/tmp/control.txt','r') as y:
             string_change = y.read()
-            word = "@@@@@@@@@@@"
+            word = "programs"
 
             if word in string_change:
                 self.host_change()
@@ -541,7 +553,7 @@ class MyWindow(Gtk.Window):
         self.host_change_window.add(self.table9)
         self.host_change_entry.set_placeholder_text("Evet değişiklik yap.")
 
-        self.host_change_label = Gtk.Label("Bağlanmak istediğiniz sunucu ip'si başka bir sunucu tarafından alınmış olabilir.\nKnown değişimini onaylıyorsanız --Evet değişiklik yap.-- yazın")
+        self.host_change_label = Gtk.Label("Bağlanmak istediğiniz sunucu ip'si başka bir sunucu tarafından alınmış olabilir.\nKnown değişimini onaylıyorsanız --  Evet değişiklik yap  -- yazın")
         self.table9.attach(self.host_change_label,0,3,0,1)
         self.table9.attach(self.host_change_entry,1,2,1,2)
 
@@ -556,10 +568,11 @@ class MyWindow(Gtk.Window):
         hostname = self.baglantilar[self.labelmenu]['Hostname']
         self.degistir = "ssh-keygen -R " + hostname +"\n"
 
-        if entry == "Evet değişiklik yap.":
+        if entry.lower() == "evet değişiklik yap":
             self.terminal2.feed_child(self.degistir.encode("utf-8"))
             self.host_change_window.hide()
             self.enter_password()
+            self.notebook.remove_page(-1)
 
 
     def is_correct(self):
@@ -569,33 +582,8 @@ class MyWindow(Gtk.Window):
             length = len(correct_list)
             
             if length > 3:
-                
-                self.directory = "cd .ssh 2>&1 | tee /tmp/control.txt\n"
-                self.terminal2.feed_child(self.directory.encode("utf-8"))
-                time.sleep(0.5)
-
-                with open('/tmp/control.txt','r') as correct_file_:
-
-                    correct_list_ = list()
-                    string_file= correct_file_.read()
-                    correct_list_ = string_file.split()
-                    word = "-bash:"
-                    self.notebook.set_current_page(-1)
-
-                    if word in correct_list_:
-                        self.create = "mkdir .ssh\n"+"touch .ssh/config\n"+ "touch .ssh/known_hosts\n"
-                        self.terminal2.feed_child(self.create.encode("utf-8"))
-                        time.sleep(0.5)
-                        self.notebook.set_current_page(-1)
-                        self.notebook.show_all()
-
-                    else:
-                        self.notebook.set_current_page(-1)
-                        self.notebook.show_all()
-                    
-                    self.notebook.set_current_page(-1)
-                    self.notebook.show_all()
-                
+                self.notebook.show_all()
+                self.notebook.set_current_page(-1)
             else:
                 self.notebook.remove(self.new_page)
                 self.wrong_password_win()
@@ -720,16 +708,19 @@ class MyWindow(Gtk.Window):
         self.notebook.set_current_page(-1)
     
     def deneme_tree(self):
-        books = [["/home", ["/Desktop",None], ["/Documents",None],["/Pictures",True]],
-        
-         ["/etc", ["/acpi",True], ["/cron.d",True], ["/ssh",True]],
 
-         ["/tmp", ["is_correct.txt",True]]]
+        #books = dict()
+        #books = {'/home' : {1 : '/Desktop',2 : '/Documents'}, '/etc' : {1 : '/acpi',2 : '/cron.d'}}
+        books = [["/home", ["/Desktop",None], ["/Documents",None],["/Pictures",None]],
+        
+         ["/etc", ["/acpi",None], ["/cron.d",None], ["/ssh",None]],
+
+         ["/tmp", ["is_correct.txt",None]]]
 
         self.store = Gtk.TreeStore(str, bool)
 
         for i in range(len(books)):
-            piter = self.store.append(None, [books[i][0], False])
+            piter = self.store.append(None, [books[i][1], False])
             j = 1
             while j < len(books[i]):
                 self.store.append(piter, books[i][j])
