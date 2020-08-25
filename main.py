@@ -698,7 +698,7 @@ class MyWindow(Gtk.Window):
 
         self.close_button_2()
         self.deneme_tree()
-        self.table7.attach(self.scrollView,20,25,0,10)
+        self.table7.attach(self.scrollView,0,15,0,10)
         #self.table7.attach(self.scrollView,2,3,0,1)
         
         
@@ -715,30 +715,24 @@ class MyWindow(Gtk.Window):
         populateFileSystemTreeStore(fileSystemTreeStore, '/home')
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
         treeViewCol = Gtk.TreeViewColumn("File")
-        treeViewCol.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
-        treeViewCol.set_fixed_width(500)
+        treeViewCol.set_min_width(5000)
+   
         colCellText = Gtk.CellRendererText()
         colCellImg = Gtk.CellRendererPixbuf()
-        treeViewCol.set_expand(True)
         treeViewCol.pack_start(colCellImg, False)
         treeViewCol.pack_start(colCellText, True)
         treeViewCol.add_attribute(colCellText, "text", 0)
         treeViewCol.add_attribute(colCellImg, "pixbuf", 1)
-        
         fileSystemTreeView.append_column(treeViewCol)
         fileSystemTreeView.connect("row-expanded", onRowExpanded)
         fileSystemTreeView.connect("row-collapsed", onRowCollapsed)
         select = fileSystemTreeView.get_selection()
         select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
-        fileSystemTreeView.columns_autosize()
         self.scrollView = Gtk.ScrolledWindow()
+        self.scrollView.set_min_content_width(200)
         self.scrollView.add_with_viewport(fileSystemTreeView)
         
-
-      
-
-
         
 window = MyWindow()
 window.show_all()
