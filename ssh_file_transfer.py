@@ -1,28 +1,34 @@
-import os,stat
-from gi.repository.GdkPixbuf import Pixbuf
+#!/usr/bin/python
+import os, stat
+import paramiko
 from gi.repository import Gtk
+from gi.repository.GdkPixbuf import Pixbuf
 
 
-def on_tree_selection_changed(selection):
+def on_tree_selection_changed2(selection):
     model, treeiter = selection.get_selected()
     if treeiter != None:
         print ("You selected", model[treeiter][0])
 
-def populateFileSystemTreeStore(treeStore, path, parent=None):
+
+
+
+
+def populateFileSystemTreeStore2(self,treeStore, path, parent=None):
     itemCounter = 0
     # iterate over the items in the path
-    for item in os.listdir(path):
+    for item in self.ftp.listdir_attr(path):
         # Get the absolute path of the item
-        itemFullname = os.path.join(path, item)
+        itemFullname = path+"/"+item.filename
+        print(itemFullname)
         # Extract metadata from the item
-        itemMetaData = os.stat(itemFullname)
-        
+        itemMetaData = self.ftp.stat(itemFullname)
         # Determine if the item is a folder
         itemIsFolder = stat.S_ISDIR(itemMetaData.st_mode)
         # Generate an icon from the default icon theme
         itemIcon = Gtk.IconTheme.get_default().load_icon("folder" if itemIsFolder else "empty", 22, 0)
         # Append the item to the TreeStore
-        currentIter = treeStore.append(parent, [item, itemIcon, itemFullname])
+        currentIter = treeStore.append(parent, [item.filename, itemIcon, itemFullname])
         # add dummy if current item was a folder
         if itemIsFolder: treeStore.append(currentIter, [None, None, None])
         #increment the item counter
@@ -30,17 +36,17 @@ def populateFileSystemTreeStore(treeStore, path, parent=None):
     # add the dummy node back if nothing was inserted before
     if itemCounter < 1: treeStore.append(parent, [None, None, None])
 
-def onRowExpanded(treeView, treeIter, treePath):
+def onRowExpanded2(treeView, treeIter, treePath):
     # get the associated model
     treeStore = treeView.get_model()
     # get the full path of the position
     newPath = treeStore.get_value(treeIter, 2)
     # populate the subtree on curent position
-    populateFileSystemTreeStore(treeStore, newPath, treeIter)
+    populateFileSystemTreeStore2(treeStore, newPath, treeIter)
     # remove the first child (dummy node)
     treeStore.remove(treeStore.iter_children(treeIter))
 
-def onRowCollapsed(treeView, treeIter, treePath):
+def onRowCollapsed2(treeView, treeIter, treePath):
     # get the associated model
     treeStore = treeView.get_model()
     # get the iterator of the first child
@@ -53,9 +59,4 @@ def onRowCollapsed(treeView, treeIter, treePath):
         currentChildIter = treeStore.iter_children(treeIter)
     # append dummy node
     treeStore.append(treeIter, [None, None, None])
-
-
-
-
-    
 

@@ -11,6 +11,7 @@ from scp import SCPClient
 import time
 import paramiko
 from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
+from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2 
 from gi.repository.GdkPixbuf import Pixbuf
 
 HOME = "HOME"
@@ -698,10 +699,8 @@ class MyWindow(Gtk.Window):
 
         self.close_button_2()
         self.deneme_tree()
-        self.table7.attach(self.scrollView,0,15,0,10)
-        #self.table7.attach(self.scrollView,2,3,0,1)
-        
-        
+        self.table7.attach(self.scrollView,0,15,0,10)       
+        self.table7.attach(self.scrollView2,16,30,0,10) 
         self.notebook.append_page(self.new_page, self._button_box)
 
         self.number = self.notebook.page_num(self.new_page)
@@ -729,9 +728,47 @@ class MyWindow(Gtk.Window):
         select = fileSystemTreeView.get_selection()
         select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
+
         self.scrollView = Gtk.ScrolledWindow()
-        self.scrollView.set_min_content_width(200)
+        self.scrollView.set_min_content_width(225)
         self.scrollView.add_with_viewport(fileSystemTreeView)
+
+    
+
+        sftpURL   =  '192.168.2.95'
+        sftpUser  =  'pardus'
+        sftpPass  =  '1'
+        ssh = paramiko.SSHClient()
+
+            # automatically add keys without requiring human intervention
+        ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )
+        ssh.connect(sftpURL, username=sftpUser, password=sftpPass)
+        self.ftp = ssh.open_sftp()
+
+        fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
+        populateFileSystemTreeStore2(self,fileSystemTreeStore2, '/home')
+        fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
+        treeViewCol2 = Gtk.TreeViewColumn("File")
+        treeViewCol2.set_min_width(5000)
+   
+        colCellText2 = Gtk.CellRendererText()
+        colCellImg2 = Gtk.CellRendererPixbuf()
+        treeViewCol2.pack_start(colCellImg, False)
+        treeViewCol2.pack_start(colCellText, True)
+        treeViewCol2.add_attribute(colCellText, "text", 0)
+        treeViewCol2.add_attribute(colCellImg, "pixbuf", 1)
+        fileSystemTreeView2.append_column(treeViewCol2)
+        fileSystemTreeView2.connect("row-expanded", onRowExpanded2)
+        fileSystemTreeView2.connect("row-collapsed", onRowCollapsed2)
+        select2 = fileSystemTreeView2.get_selection()
+        select2.connect("changed", on_tree_selection_changed2)
+        fileSystemTreeView2.columns_autosize()
+
+        self.scrollView2 = Gtk.ScrolledWindow()
+        self.scrollView2.set_min_content_width(225)
+        self.scrollView2.add_with_viewport(fileSystemTreeView2)
+
+
         
         
 window = MyWindow()
