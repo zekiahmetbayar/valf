@@ -236,7 +236,7 @@ class MyWindow(Gtk.Window):
 
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
-        self.notebook.show_all()
+        #self.notebook.show_all()
        
     def close_button(self): # Close butonu
         self._button_box = Gtk.HBox()
@@ -503,17 +503,17 @@ class MyWindow(Gtk.Window):
                 self.yes_no()
 
     def yes_no(self):
-        self.table8 = Gtk.Table(n_rows=1, n_columns=2, homogeneous=True)
+        self.table8 = Gtk.Table(n_rows=10, n_columns=20, homogeneous=True)
         self.yes_or_no_window = Gtk.Window()
         self.yes_or_no_window.add(self.table8)
         self.yes_or_no_window.set_title("Yes/No")
 
         self.yes_button = Gtk.Button("YES")
-        self.table8.attach(self.yes_button,0,1,0,1)
+        self.table8.attach(self.yes_button,0,10,0,10)
         self.yes_button.connect("clicked",self.yes_button_clicked)
         
         self.no_button = Gtk.Button("NO")
-        self.table8.attach(self.no_button,1,2,0,1)
+        self.table8.attach(self.no_button,10,20,0,10)
         self.yes_button.connect("clicked",self.no_button_clicked)
 
         self.yes_or_no_window.show_all()   
@@ -544,9 +544,10 @@ class MyWindow(Gtk.Window):
         
         with open('/tmp/control.txt','r') as y:
             string_change = y.read()
-            word = "programs"
+            word = "@@@@@@"
 
             if word in string_change:
+                self.connect_window.hide()
                 self.host_change()
             
             else:
@@ -570,6 +571,7 @@ class MyWindow(Gtk.Window):
 
         self.table9.attach(host_change_button,1,2,2,3)
         self.host_change_window.show_all()   
+        self.notebook.remove_page(-1)
     
     def hostchange(self,event):
         entry = self.host_change_entry.get_text()
@@ -580,7 +582,8 @@ class MyWindow(Gtk.Window):
             self.terminal2.feed_child(self.degistir.encode("utf-8"))
             self.host_change_window.hide()
             self.enter_password()
-            self.notebook.remove_page(-1)
+            self.connect_button.connect('clicked',self.send_password)
+            
 
 
     def is_correct(self):
@@ -752,10 +755,6 @@ class MyWindow(Gtk.Window):
         except :
             self.sftp_fail()
             
-
-        
-
-
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore2(self,fileSystemTreeStore2, '/home')
         fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
