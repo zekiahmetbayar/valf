@@ -5,20 +5,26 @@ from gi.repository import Gtk
 from gi.repository.GdkPixbuf import Pixbuf
 
 
+def ssh_connect(a):
+    global ftp
+    ftp=a
+
 def on_tree_selection_changed2(selection):
     model, treeiter = selection.get_selected()
     if treeiter != None:
         print ("You selected", model[treeiter][0])
 
-def populateFileSystemTreeStore2(self,treeStore, path, parent=None):
+
+
+def populateFileSystemTreeStore2(treeStore, path, parent=None):
     itemCounter = 0
     # iterate over the items in the path
-    for item in self.ftp.listdir_attr(path):
+    for item in ftp.listdir_attr(path):
         # Get the absolute path of the item
         itemFullname = path+"/"+item.filename
 
         # Extract metadata from the item
-        itemMetaData = self.ftp.stat(itemFullname)
+        itemMetaData = ftp.stat(itemFullname)
         # Determine if the item is a folder
         itemIsFolder = stat.S_ISDIR(itemMetaData.st_mode)
         # Generate an icon from the default icon theme

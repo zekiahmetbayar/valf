@@ -11,7 +11,7 @@ from scp import SCPClient
 import time
 import paramiko
 from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
-from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2 
+from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
 
 HOME = "HOME"
@@ -147,6 +147,10 @@ class MyWindow(Gtk.Window):
         action_filequit.connect("activate", self.send_certificate)
         action_group.add_action(action_filequit)
 
+        action_filequit = Gtk.Action(name="Connect", label = "Connect with Certificate")
+        action_filequit.connect("activate", self.send_certificate)
+        action_group.add_action(action_filequit)
+
     def create_ui_manager(self):
         uimanager = Gtk.UIManager()
 
@@ -223,6 +227,20 @@ class MyWindow(Gtk.Window):
         self.cert_name_win.present()
         self.cert_name_win.show_all()
     
+    def connect_with_cert(self,event):
+        self.terminal5     = Vte.Terminal()
+        self.terminal5.spawn_sync(
+        Vte.PtyFlags.DEFAULT,
+        os.environ[HOME],
+        SHELLS,
+        [],
+        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        None,
+        None,)
+        
+        self.connect_w_cert = "ssh " + self.get_host_before + "\n"
+#        self.connect_w_certpass = 
+
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         try : 
             self.baglantilar.clear()
@@ -903,9 +921,10 @@ class MyWindow(Gtk.Window):
 
         except :
             self.sftp_fail()
-            
+
+        ssh_connect(self.ftp)  
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
-        populateFileSystemTreeStore2(self,fileSystemTreeStore2, '/home')
+        populateFileSystemTreeStore2(fileSystemTreeStore2, '/home')
         fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
         treeViewCol2 = Gtk.TreeViewColumn("Bağlanılan makina")
         treeViewCol2.set_min_width(5000)
@@ -943,9 +962,6 @@ class MyWindow(Gtk.Window):
         self.auth_except_win.show_all()
         self.connect_window.hide()
 
-
-        
-        
 window = MyWindow()
 window.show_all()
 Gtk.main()
