@@ -20,6 +20,34 @@ SHELLS = [ "/bin/bash" ]
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
 
+UI_INFO = """
+<ui>
+  <menubar name='MenuBar'>
+    <menu action='FileMenu'>
+      <menuitem action='FileNew' />
+      <menuitem action='FileQuit' />
+    </menu>
+    <menu action='EditMenu'>
+      <menuitem action='EditCopy' />
+      <menuitem action='EditPaste' />
+      <menuitem action='EditSomething' />
+    </menu>
+    <menu action='ChoicesMenu'>
+      <menuitem action='ChoiceOne'/>
+      <menuitem action='ChoiceTwo'/>
+      <separator />
+      <menuitem action='ChoiceThree'/>
+    </menu>
+  </menubar>
+  <toolbar name='ToolBar'>
+    <toolitem action='FileNewStandard' />
+    <toolitem action='FileQuit' />
+  </toolbar>
+
+</ui>
+"""
+
+
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
     home = str(Path.home())
@@ -73,7 +101,98 @@ class MyWindow(Gtk.Window):
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
         self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
+
+    def toolbar(self):
+
+        action_group = Gtk.ActionGroup(name="my_actions")
+
+        self.add_file_menu_actions(action_group)
+
+        uimanager = self.create_ui_manager()
+        uimanager.insert_action_group(action_group)
+
+        menubar = uimanager.get_widget("/MenuBar")
+
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.box.pack_start(menubar, False, False, 0)
+
+        self.eventbox = Gtk.EventBox()
+        self.box.pack_start(self.eventbox, True, True, 0)
         
+    def add_file_menu_actions(self, action_group):
+        action_filemenu = Gtk.Action(name="FileMenu", label="SSH Management")
+        action_group.add_action(action_filemenu)
+
+        action_filenewmenu = Gtk.Action(name="FileNew", label = "Create Certificate")
+        action_filenewmenu.connect("activate", self.cert_name_window)
+        action_group.add_action(action_filenewmenu)
+
+        action_filequit = Gtk.Action(name="FileQuit", label = "Send Certificate")
+        action_filequit.connect("activate", self.on_menu_file_quit)
+        action_group.add_action(action_filequit)
+
+    def create_ui_manager(self):
+        uimanager = Gtk.UIManager()
+
+        # Throws exception if something went wrong
+        uimanager.add_ui_from_string(UI_INFO)
+
+        # Add the accelerator group to the toplevel window
+        accelgroup = uimanager.get_accel_group()
+        self.add_accel_group(accelgroup)
+        return uimanager
+
+    def on_menu_file_quit(self, widget):
+        Gtk.main_quit()
+    
+    def create_certificate(self,event):
+        self.terminal3     = Vte.Terminal()
+        self.terminal3.spawn_sync(
+        Vte.PtyFlags.DEFAULT,
+        os.environ[HOME],
+        SHELLS,
+        [],
+        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        None,
+        None,)
+        self.generate_ssh_cert = "ssh-keygen\n"
+        self.cert_name = self.home + "/.ssh/" + self.cert_name_entry.get_text() + "\n"
+        self.passphrase = self.cert_pass_entry.get_text()+ "\n"
+
+        self.terminal3.feed_child(self.generate_ssh_cert.encode("utf-8"))
+        time.sleep(0.5)
+        self.terminal3.feed_child(self.cert_name.encode("utf-8"))
+        time.sleep(0.5)
+        self.terminal3.feed_child(self.passphrase.encode("utf-8"))
+        time.sleep(0.5)
+        self.terminal3.feed_child(self.passphrase.encode("utf-8"))
+        
+
+    def cert_name_window(self,event):
+        self.cert_name_win = Gtk.Window()
+        self.cert_name_win.set_title("Enter cert name")
+        self.cert_name_win.set_border_width(10)
+        self.table11 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
+        self.cert_name_win.add(self.table11)
+
+        self.cert_name_entry = Gtk.Entry()
+        self.cert_pass_entry = Gtk.Entry()
+        self.cert_pass_entry.set_visibility(False)
+        self.cert_name_button = Gtk.Button("Send")
+        self.cert_name_button.connect("clicked",self.create_certificate)
+
+        self.cert_name_entry.set_placeholder_text("Enter cert name")
+        self.cert_pass_entry.set_placeholder_text("Enter pass")
+
+
+        self.cert_name_win.add(self.cert_name_button)
+        self.table11.attach(self.cert_name_entry,0,1,0,1)
+        self.table11.attach(self.cert_pass_entry,0,1,1,2)
+        self.table11.attach(self.cert_name_button,0,1,2,3)
+
+        self.cert_name_win.present()
+        self.cert_name_win.show_all()  
+ 
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         try : 
             self.baglantilar.clear()
@@ -285,18 +404,19 @@ class MyWindow(Gtk.Window):
 
     def notebooks(self,labelname): # Attributes sayfası
         self.read_config()
-
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
-        self.notebook.set_current_page(0)
+        self.notebook.set_current_page(0),
+        self.toolbar()
         self.get_host_before = labelname
 
         grid = Gtk.Grid()
         self.page1.add(grid)
         self.label_dict={}
         self.entries_dict={}
+        grid.attach(self.box,0,0,1,10)
         grid_count=2
         grid_count_2=2
         self.header = Gtk.Label(labelname+" Attributes")
