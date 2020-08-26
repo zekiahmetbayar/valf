@@ -10,17 +10,13 @@ def on_tree_selection_changed2(selection):
     if treeiter != None:
         print ("You selected", model[treeiter][0])
 
-
-
-
-
 def populateFileSystemTreeStore2(self,treeStore, path, parent=None):
     itemCounter = 0
     # iterate over the items in the path
     for item in self.ftp.listdir_attr(path):
         # Get the absolute path of the item
         itemFullname = path+"/"+item.filename
-        print(itemFullname)
+
         # Extract metadata from the item
         itemMetaData = self.ftp.stat(itemFullname)
         # Determine if the item is a folder

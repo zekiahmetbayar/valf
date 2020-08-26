@@ -328,8 +328,8 @@ class MyWindow(Gtk.Window):
         self.notebook_change_button = Gtk.Button("Change Configuration")
         self.notebook_change_button.connect('clicked',self.on_click_change)
 
-        self.start_sftp_button = Gtk.Button("Start File Transfer")
-        self.start_sftp_button.connect("clicked",self.sftp_file_transfer)
+        self.start_sftp_button = Gtk.Button("Start Secure File Transfer")
+        self.start_sftp_button.connect("clicked",self.on_click_sftp)
 
         grid.attach(self.add_attribute_button,0,19,2,1)   # Add Attribute button
         grid.attach(self.notebook_change_button,0,20,2,1) # Change butonu 
@@ -422,6 +422,10 @@ class MyWindow(Gtk.Window):
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         self.enter_password()
         self.connect_button.connect('clicked',self.send_password)
+    
+    def on_click_sftp(self,widget):
+        self.enter_password()
+        self.connect_button.connect("clicked",self.sftp_file_transfer)
 
     def wrong_password_win(self): # Şifre yanlış olduğunda gösterilecek pencere
         self.wrong_pass_win = Gtk.Window()
@@ -713,7 +717,7 @@ class MyWindow(Gtk.Window):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore(fileSystemTreeStore, '/home')
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
-        treeViewCol = Gtk.TreeViewColumn("File")
+        treeViewCol = Gtk.TreeViewColumn("Ana makina")
         treeViewCol.set_min_width(5000)
    
         colCellText = Gtk.CellRendererText()
@@ -733,22 +737,29 @@ class MyWindow(Gtk.Window):
         self.scrollView.set_min_content_width(225)
         self.scrollView.add_with_viewport(fileSystemTreeView)
 
-    
-
-        sftpURL   =  '192.168.2.95'
-        sftpUser  =  'pardus'
-        sftpPass  =  '1'
+        sftpURL   =  self.baglantilar[self.get_host_before]['Hostname']
+        sftpUser  =  self.baglantilar[self.get_host_before]['User']
+        sftpPass  =  self.connect_password.get_text()
         ssh = paramiko.SSHClient()
 
             # automatically add keys without requiring human intervention
         ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )
-        ssh.connect(sftpURL, username=sftpUser, password=sftpPass)
-        self.ftp = ssh.open_sftp()
+        try:
+            ssh.connect(sftpURL, username=sftpUser, password=sftpPass)
+            self.ftp = ssh.open_sftp()
+            self.connect_window.hide()
+
+        except :
+            self.sftp_fail()
+            
+
+        
+
 
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore2(self,fileSystemTreeStore2, '/home')
         fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
-        treeViewCol2 = Gtk.TreeViewColumn("File")
+        treeViewCol2 = Gtk.TreeViewColumn("Bağlanılan makina")
         treeViewCol2.set_min_width(5000)
    
         colCellText2 = Gtk.CellRendererText()
@@ -767,6 +778,22 @@ class MyWindow(Gtk.Window):
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
         self.scrollView2.add_with_viewport(fileSystemTreeView2)
+    
+    def sftp_fail(self):
+        self.auth_except_win = Gtk.Window()
+        self.auth_except_win.set_title("Fail")
+        self.auth_except_win.set_default_size(200, 200)
+        self.auth_except_win.set_border_width(20)
+
+        self.table10 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
+        self.auth_except_win.add(self.table10)
+            
+        auth_except_label = Gtk.Label("Auth Failed. Check login informations.")
+        self.auth_except_win.add(auth_except_label)       
+
+        self.table10.attach(auth_except_label,0,1,0,1)
+        self.auth_except_win.show_all()
+        self.connect_window.hide()
 
 
         
