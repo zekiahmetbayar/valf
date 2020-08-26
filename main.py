@@ -107,6 +107,7 @@ class MyWindow(Gtk.Window):
         action_group = Gtk.ActionGroup(name="my_actions")
 
         self.add_file_menu_actions(action_group)
+        self.add_edit_menu_actions(action_group)
 
         uimanager = self.create_ui_manager()
         uimanager.insert_action_group(action_group)
@@ -118,6 +119,21 @@ class MyWindow(Gtk.Window):
 
         self.eventbox = Gtk.EventBox()
         self.box.pack_start(self.eventbox, True, True, 0)
+    
+    def add_edit_menu_actions(self, action_group):
+        action_group.add_actions(
+            [
+                ("EditMenu", None, "Other Menu"),
+                (
+                    "EditSomething",
+                    None,
+                    "Something",
+                    "<control><alt>S",
+                    None,
+                    
+                ),
+            ]
+        )
         
     def add_file_menu_actions(self, action_group):
         action_filemenu = Gtk.Action(name="FileMenu", label="SSH Management")
@@ -128,7 +144,7 @@ class MyWindow(Gtk.Window):
         action_group.add_action(action_filenewmenu)
 
         action_filequit = Gtk.Action(name="FileQuit", label = "Send Certificate")
-        action_filequit.connect("activate", self.on_menu_file_quit)
+        action_filequit.connect("activate", self.send_certificate)
         action_group.add_action(action_filequit)
 
     def create_ui_manager(self):
@@ -166,7 +182,22 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
-        
+        self.cert_name_win.hide()
+
+    def send_certificate(self,event):
+        self.terminal4     = Vte.Terminal()
+        self.terminal4.spawn_sync(
+        Vte.PtyFlags.DEFAULT,
+        os.environ[HOME],
+        SHELLS,
+        [],
+        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        None,
+        None,)
+
+        self.send_cert = "ssh-copy-id -i" + self.cert_name + " " + self.baglantilar[self.get_host_before]['User']+"@" +self.baglantilar[self.get_host_before]['Hostname'] + "\n"
+        self.terminal4.feed_child(self.send_cert.encode("utf-8"))
+        time.sleep(0.5)
 
     def cert_name_window(self,event):
         self.cert_name_win = Gtk.Window()
@@ -184,15 +215,14 @@ class MyWindow(Gtk.Window):
         self.cert_name_entry.set_placeholder_text("Enter cert name")
         self.cert_pass_entry.set_placeholder_text("Enter pass")
 
-
         self.cert_name_win.add(self.cert_name_button)
         self.table11.attach(self.cert_name_entry,0,1,0,1)
         self.table11.attach(self.cert_pass_entry,0,1,1,2)
         self.table11.attach(self.cert_name_button,0,1,2,3)
 
         self.cert_name_win.present()
-        self.cert_name_win.show_all()  
- 
+        self.cert_name_win.show_all()
+    
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         try : 
             self.baglantilar.clear()
@@ -416,11 +446,11 @@ class MyWindow(Gtk.Window):
         self.page1.add(grid)
         self.label_dict={}
         self.entries_dict={}
-        grid.attach(self.box,0,0,1,10)
+        grid.attach(self.box,0,0,1,1)
         grid_count=2
         grid_count_2=2
         self.header = Gtk.Label(labelname+" Attributes")
-        grid.attach(self.header,1,1,1,1)
+        grid.attach(self.header,0,1,1,1)
 
         for p_id, p_info in self.baglantilar.items():
                 for key in p_info:
@@ -430,7 +460,7 @@ class MyWindow(Gtk.Window):
                         self.labeltemp = Gtk.Label(key) 
                         self.label_dict[self.oldlabel] = self.labeltemp
 
-                        grid.attach(self.labeltemp,1,grid_count,2,1)
+                        grid.attach(self.labeltemp,0,grid_count,2,1)
                         grid_count += 1
 
                         self.temp = "right_entry_"+str(p_info[key])
@@ -615,7 +645,6 @@ class MyWindow(Gtk.Window):
                 time.sleep(0.5)
 
                 self.is_correct()
-
                 self.connect_window.hide()
             
             else:
