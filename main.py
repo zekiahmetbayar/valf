@@ -14,39 +14,12 @@ from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeSto
 from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
 
+
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
 
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
-
-UI_INFO = """
-<ui>
-  <menubar name='MenuBar'>
-    <menu action='FileMenu'>
-      <menuitem action='FileNew' />
-      <menuitem action='FileQuit' />
-    </menu>
-    <menu action='EditMenu'>
-      <menuitem action='EditCopy' />
-      <menuitem action='EditPaste' />
-      <menuitem action='EditSomething' />
-    </menu>
-    <menu action='ChoicesMenu'>
-      <menuitem action='ChoiceOne'/>
-      <menuitem action='ChoiceTwo'/>
-      <separator />
-      <menuitem action='ChoiceThree'/>
-    </menu>
-  </menubar>
-  <toolbar name='ToolBar'>
-    <toolitem action='FileNewStandard' />
-    <toolitem action='FileQuit' />
-  </toolbar>
-
-</ui>
-"""
-
 
 class MyWindow(Gtk.Window):
     notebook = Gtk.Notebook()
@@ -102,15 +75,60 @@ class MyWindow(Gtk.Window):
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
         self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
 
+    def ui_info(self):
+        parca1 = """<ui>
+  <menubar name='MenuBar'>
+    <menu action='FileMenu'>
+      <menu action='FileNew'>"""
+
+        parca2  = """
+      </menu>
+      <separator />
+      <menuitem action='FileQuit' />
+    </menu>
+    <menu action='EditMenu'>
+      <menuitem action='EditCopy' />
+      <menuitem action='EditPaste' />
+      <menuitem action='EditSomething' />
+    </menu>
+    <menu action='ChoicesMenu'>
+      <menuitem action='ChoiceOne'/>
+      <menuitem action='ChoiceTwo'/>
+      <separator />
+      <menuitem action='ChoiceThree'/>
+    </menu>
+  </menubar>
+  <toolbar name='ToolBar'>
+    <toolitem action='FileNewStandard' />
+    <toolitem action='FileQuit' />
+  </toolbar>
+  <popup name='PopupMenu'>
+    <menuitem action='EditCopy' />
+    <menuitem action='EditPaste' />
+    <menuitem action='EditSomething' />
+  </popup>
+</ui>
+        """
+
+        parca3 = str()
+        for i in self.certificates:
+            parca3 += "\n\t" + "<menuitem action='" + i.rstrip('\n') +"' />" 
+        
+        self.UI_INFO = parca1 + parca3 + parca2
+        print(self.UI_INFO)
+            
+
+    
+
     def toolbar(self):
 
         action_group = Gtk.ActionGroup(name="my_actions")
-
+        uimanager = self.create_ui_manager()
+        uimanager.insert_action_group(action_group)
         self.add_file_menu_actions(action_group)
         self.add_edit_menu_actions(action_group)
 
-        uimanager = self.create_ui_manager()
-        uimanager.insert_action_group(action_group)
+        
 
         menubar = uimanager.get_widget("/MenuBar")
 
@@ -136,26 +154,62 @@ class MyWindow(Gtk.Window):
         )
         
     def add_file_menu_actions(self, action_group):
-        action_filemenu = Gtk.Action(name="FileMenu", label="SSH Management")
+        
+        action_filemenu = Gtk.Action(name="FileMenu", label="Certificates")
         action_group.add_action(action_filemenu)
 
-        action_filenewmenu = Gtk.Action(name="FileNew", label = "Create Certificate")
-        action_filenewmenu.connect("activate", self.cert_name_window)
+        action_filenewmenu = Gtk.Action(name="FileNew", label = "My Certificates")
         action_group.add_action(action_filenewmenu)
 
-        action_filequit = Gtk.Action(name="FileQuit", label = "Send Certificate")
-        action_filequit.connect("activate", self.send_certificate)
-        action_group.add_action(action_filequit)
+        action_new = Gtk.Action(
+            name="FileNewStandard",
+            label="_New",
+            tooltip="Create a new file",
+            stock_id=Gtk.STOCK_NEW,
+        )
+        action_group.add_action_with_accel(action_new, None)
+        deneme_liste = list()
+        for i in self.certificates:
+            a = (i.rstrip('\n'),None,i.rstrip('\n'),None) ##############,i.rstrip('\n'),self.func
+            deneme_liste.append(a)
+        
+        
+        action_group.add_actions(
+            deneme_liste
+            
+        )
+        print(deneme_liste)
+    
+    def write_certificates(self):
+        self.terminal6     = Vte.Terminal()
+        self.terminal6.spawn_sync(
+        Vte.PtyFlags.DEFAULT,
+        os.environ[HOME],
+        SHELLS,
+        [],
+        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        None,
+        None,)
 
-        action_filequit = Gtk.Action(name="Connect", label = "Connect with Certificate")
-        action_filequit.connect("activate", self.send_certificate)
-        action_group.add_action(action_filequit)
-
+        self.list_cert = "cd .ssh\n" + "ls | grep .pub >" +  "/tmp/certificates.txt\n"
+        self.terminal6.feed_child(self.list_cert.encode("utf-8"))
+    
+    
+    def read_certificates(self):
+        with open("/tmp/certificates.txt",'r') as cert_file:
+            self.certificates = list()
+            self.certificates = cert_file.readlines()
+            
+            for i in self.certificates:
+                print(i)
+    
     def create_ui_manager(self):
         uimanager = Gtk.UIManager()
-
+        self.write_certificates()
+        self.read_certificates()
+        self.ui_info()
         # Throws exception if something went wrong
-        uimanager.add_ui_from_string(UI_INFO)
+        uimanager.add_ui_from_string(self.UI_INFO)
 
         # Add the accelerator group to the toplevel window
         accelgroup = uimanager.get_accel_group()
@@ -698,9 +752,7 @@ class MyWindow(Gtk.Window):
         time.sleep(2) 
 
         self.is_correct()
-
         self.connect_window.hide()
-
         self.yes_or_no_window.hide()
     
     def no_button_clicked(self,event):
@@ -750,8 +802,6 @@ class MyWindow(Gtk.Window):
             self.host_change_window.hide()
             self.enter_password()
             self.connect_button.connect('clicked',self.send_password)
-            
-
 
     def is_correct(self):
         with open('/tmp/control.txt','r') as correct_file:            
