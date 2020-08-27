@@ -231,12 +231,18 @@ class MyWindow(Gtk.Window):
         None,)
         self.generate_ssh_cert = "ssh-keygen\n"
         self.cert_name = self.home + "/.ssh/" + self.cert_name_entry.get_text() + "\n"
+        self.cert_name_none = "\n"
         self.passphrase = self.cert_pass_entry.get_text()+ "\n"
 
         self.terminal3.feed_child(self.generate_ssh_cert.encode("utf-8"))
         time.sleep(0.5)
-        self.terminal3.feed_child(self.cert_name.encode("utf-8"))
-        time.sleep(0.5)
+        if self.cert_name_entry.get_text() == '':
+            self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
+            time.sleep(0.5)
+        else:
+            self.terminal3.feed_child(self.cert_name.encode("utf-8"))
+            time.sleep(0.5)
+
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
@@ -247,9 +253,6 @@ class MyWindow(Gtk.Window):
         self.toolbar()
         self.cert_name_win.hide()
         
-        
-
-
     def send_certificate(self,event):
         self.terminal4     = Vte.Terminal()
         self.terminal4.spawn_sync(
@@ -338,7 +341,7 @@ class MyWindow(Gtk.Window):
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
             None,)
-            self.create = "mkdir .ssh\n" + "cd .ssh\n"  + "touch config\n" + "touch known_hosts\n"
+            self.create = "mkdir .ssh\n" + "cd .ssh\n"  + "touch config\n" + "touch known_hosts\n" + "touch authorized_keys\n"
             self.terminal.feed_child(self.create.encode("utf-8"))
 
     def write_config(self): # RAM'de tutulan dictionary değerlerini dosyaya yazar.
@@ -380,7 +383,6 @@ class MyWindow(Gtk.Window):
             return True               
                         
     def on_click_popup(self, action): ## Yeni sayfa oluştur
-        
         self.new_page = Gtk.Box()
         self.new_page.set_border_width(10)
 
@@ -576,7 +578,6 @@ class MyWindow(Gtk.Window):
         self.read_certificates()
         self.toolbar()
         
-
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
         self.values_list = list(self.entries_dict.values())
         self.labels_list = list(self.label_dict.values())
@@ -875,16 +876,12 @@ class MyWindow(Gtk.Window):
     def transfer(self):
         ssh = SSHClient()
         ssh.load_system_host_keys()
-
         ip_adress = self.baglantilar[self.labelmenu]['Hostname']
         username = self.baglantilar[self.labelmenu]['User']
         password = self.connect_password.get_text()
-
         ssh.connect(ip_adress,username=username,password=password)
-        
         scp = SCPClient(ssh.get_transport())
         scp.put(self.send_file_path, self.file_name)
-
         scp.close()   
     
     def scp_transfer(self,event):
@@ -1055,13 +1052,7 @@ class MyWindow(Gtk.Window):
             self.table12.set_homogeneous(False)
             self.page1.add(self.table12) 
             self.page1.set_homogeneous(False)
-             
             self.notebook.show_all()       
-
-
-        
-
-
 
 window = MyWindow()
 window.show_all()
