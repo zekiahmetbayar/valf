@@ -59,13 +59,14 @@ class MyWindow(Gtk.Window):
 
         new_window_button = Gtk.Button("Add New Host")
         new_window_button.connect('clicked',self.add_newhost_window)
-
+        self.toolbar()
+        self.table.attach(self.box,0,30,0,1)
         self.table.attach(new_window_button,5,10,9,10)
-        self.table.attach(scrolled_window,0,10,1,9)
-        self.table.attach(self.searchentry,0,10,0,1)
+        self.table.attach(scrolled_window,0,10,2,9)
+        self.table.attach(self.searchentry,0,10,1,2)
 
         self.add(self.notebook)
-        self.table.attach(self.notebook,10,30,0,10)
+        self.table.attach(self.notebook,10,30,1,10)
 
         self.notebook.show_all()
         self.listbox.show_all()
@@ -76,14 +77,11 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
 
     def ui_info(self):
-        parca1 = """<ui>
+        self.UI_INFO = """
+<ui>
   <menubar name='MenuBar'>
     <menu action='FileMenu'>
-      <menu action='FileNew'>"""
-
-        parca2  = """
-      </menu>
-      <separator />
+      <menuitem action='FileNew' />
       <menuitem action='FileNewNew' />
     </menu>
     <menu action='EditMenu'>
@@ -108,13 +106,7 @@ class MyWindow(Gtk.Window):
     <menuitem action='EditSomething' />
   </popup>
 </ui>
-        """
-
-        parca3 = str()
-        for i in self.certificates:
-            parca3 += "\n\t" + "<menuitem action='" + i.rstrip('\n') +"' />" 
-        
-        self.UI_INFO = parca1 + parca3 + parca2         
+"""      
 
     def toolbar(self):
 
@@ -155,31 +147,121 @@ class MyWindow(Gtk.Window):
         
         action_filemenu = Gtk.Action(name="FileMenu", label="Certificates")
         action_group.add_action(action_filemenu)
+        
+        
 
         action_filenewmenu = Gtk.Action(name="FileNew", label = "My Certificates")
         action_group.add_action(action_filenewmenu)
-
-        action_new = Gtk.Action(
-            name="FileNewStandard",
-            label="_New",
-            tooltip="Create a new file",
-            stock_id=Gtk.STOCK_NEW,
-        )
-        action_group.add_action_with_accel(action_new, None)
-        deneme_liste = list()
-        for i in self.certificates:
-            a = (i.rstrip('\n'),None,i.rstrip('\n'),None,i.rstrip('\n'),self.print_certificate) ##############,i.rstrip('\n'),self.func
-            deneme_liste.append(a)
-        
-        action_group.add_actions(
-            deneme_liste
-        )
+        action_filenewmenu.connect("activate", self.list_certificates)
 
         action_filenewnewmenu = Gtk.Action(name="FileNewNew", label = "Create Certficate")
         action_filenewnewmenu.connect("activate", self.cert_name_window)
         action_group.add_action(action_filenewnewmenu)
-
     
+    def list_certificates(self,event):
+        self.write_certificates()
+        self.read_certificates()
+
+        self.cert_listbox = Gtk.ListBox()
+        self.table14 = Gtk.Table(n_rows = 10, n_columns = 30, homogeneous=True)
+        self.notebook.remove_page(0)
+        self.page1 = Gtk.Box()
+        self.page1.set_border_width(10)
+        self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
+        self.notebook.set_current_page(0),
+        self.toolbar()   
+
+        scrolled_window1 = Gtk.ScrolledWindow()
+        scrolled_window1.set_border_width(10)
+        scrolled_window1.set_policy(
+            Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        
+        scrolled_window1.add_with_viewport(self.cert_listbox)
+        self.page1.add(scrolled_window1)        
+        
+        for row in self.listbox.get_children():
+            self.cert_listbox.remove(row)
+
+        for i in self.certificates:
+            ## label yerine buton oluşturduk
+            buttons = Gtk.Button.new_with_label(i)
+            buttons.connect("button-press-event",self.button_clicked_cert)
+            buttons.connect("button-press-event",self.button_left_click_cert)
+            self.cert_listbox.add(buttons) 
+        self.cert_listbox.show_all()
+        scrolled_window1.set_min_content_width(150)
+        self.table14.attach(scrolled_window1,0,10,0,20)
+        self.page1.add(self.table14)
+        
+        self.notebook.show_all()
+    
+    def context_menu_cert(self): # Buton sağ tıkında açılan menü 
+        menu = Gtk.Menu()
+        menu_item = Gtk.MenuItem("Delete Certificates")
+        menu.append(menu_item)
+        menu_item.connect("activate", self.delete_cert)
+        menu.show_all()
+
+        return menu
+
+    ##  Buton sağ click ise context menu açtı
+    def button_clicked_cert(self,listbox_widget,event): 
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
+            menu = self.context_menu_cert()
+            ## Tıklanan objenin labelini print ediyor
+            self.labelmenu_cert = listbox_widget.get_label()
+            menu.popup( None, None, None,None, event.button, event.get_time()) 
+            return True
+    
+    def delete_cert(self,action):
+        cert_index = self.certificates.index(self.labelmenu_cert)
+        self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))  
+        self.cert_listbox.show_all()
+
+        self.terminal8     = Vte.Terminal()
+        self.terminal8.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+
+        self.rm = "cd " + self.home + "\ncd .ssh\nrm -rf " + self.labelmenu_cert + " " + self.labelmenu_cert.rstrip('.pub') + "\n"
+        self.terminal8.feed_child(self.rm.encode("utf-8"))
+        self.write_certificates()   
+        self.read_certificates()
+
+    def button_left_click_cert(self,listbox_widget,event):
+        self.labelmenu_cert_left = listbox_widget.get_label()
+        self.terminal7     = Vte.Terminal()
+        self.terminal7.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+        self.send_cert = "cd /tmp\ntouch cert_description\n"
+        self.print_cert = "cd " + self.home + "/.ssh\ncat " + self.labelmenu_cert_left + " > /tmp/cert_description\n"
+
+        self.terminal7.feed_child(self.send_cert.encode("utf-8"))
+        self.terminal7.feed_child(self.print_cert.encode("utf-8"))
+        time.sleep(0.5)
+        with open('/tmp/cert_description', 'r') as description:
+            self.table12 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=False)
+            desc = str()
+            desc = description.read()
+            self.desc_label = Gtk.Label(label = desc)
+            self.desc_label.set_selectable(True)
+
+            self.scrollView3 = Gtk.ScrolledWindow()
+            self.scrollView3.set_min_content_width(150)
+            self.scrollView3.add_with_viewport(self.desc_label)
+        
+
     def write_certificates(self):
         self.terminal6     = Vte.Terminal()
         self.terminal6.spawn_sync(
@@ -193,7 +275,6 @@ class MyWindow(Gtk.Window):
 
         self.list_cert = "cd .ssh\n" + "ls | grep .pub >" +  "/tmp/certificates.txt\n"
         self.terminal6.feed_child(self.list_cert.encode("utf-8"))
-    
     
     def read_certificates(self):
         with open("/tmp/certificates.txt",'r') as cert_file:
@@ -250,11 +331,6 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
-        self.write_certificates()
-        time.sleep(0.5)
-        self.read_certificates()
-        self.notebooks(self.get_host_before)
-        self.toolbar()
         self.cert_name_win.hide()
     
     def cert_yes_no(self):
@@ -288,8 +364,6 @@ class MyWindow(Gtk.Window):
     def cert_no(self,clicked):
         self.cert_yes_no_win.hide()
 
-
-        
     def send_certificate(self,event):
         self.terminal4     = Vte.Terminal()
         self.terminal4.spawn_sync(
@@ -304,7 +378,6 @@ class MyWindow(Gtk.Window):
         self.send_cert = "ssh-copy-id -i" + self.cert_name + " " + self.baglantilar[self.get_host_before]['User']+"@" +self.baglantilar[self.get_host_before]['Hostname'] + "\n"
         self.terminal4.feed_child(self.send_cert.encode("utf-8"))
         time.sleep(0.5)
-
 
     def cert_name_window(self,event):
         self.cert_name_win = Gtk.Window()
@@ -440,6 +513,8 @@ class MyWindow(Gtk.Window):
         self.listbox.remove(self.listbox.get_row_at_index(baglantilar_index))  
         self.listbox.show_all()
 
+
+
         self.baglantilar.pop(self.labelmenu)
         self.write_config()               
 
@@ -566,7 +641,6 @@ class MyWindow(Gtk.Window):
         self.page1.add(grid)
         self.label_dict={}
         self.entries_dict={}
-        grid.attach(self.box,0,0,1,1)
         grid_count=2
         grid_count_2=2
         self.header = Gtk.Label(labelname+" Attributes")
@@ -970,9 +1044,9 @@ class MyWindow(Gtk.Window):
         self.close_button_2()
         self.deneme_tree()
         self.toolbar()        
-        self.table7.attach(self.box,0,30,0,1)
-        self.table7.attach(self.scrollView,0,15,1,10)       
-        self.table7.attach(self.scrollView2,16,30,1,10) 
+ 
+        self.table7.attach(self.scrollView,0,15,0,10)       
+        self.table7.attach(self.scrollView2,16,30,0,10) 
         self.notebook.append_page(self.page1, self._button_box)
 
         self.number = self.notebook.page_num(self.page1)
@@ -1060,41 +1134,8 @@ class MyWindow(Gtk.Window):
         self.auth_except_win.show_all()
         self.connect_window.hide()
     
-    def print_certificate(self,widget):
-        self.terminal7     = Vte.Terminal()
-        self.terminal7.spawn_sync(
-            Vte.PtyFlags.DEFAULT,
-            os.environ[HOME],
-            SHELLS,
-            [],
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            None,
-            None,)
-        self.send_cert = "cd /tmp\ntouch cert_description\n"
-        self.print_cert = "cd " + self.home + "/.ssh\ncat " + widget.get_label() + " > /tmp/cert_description\n"
-
-        self.terminal7.feed_child(self.send_cert.encode("utf-8"))
-        self.terminal7.feed_child(self.print_cert.encode("utf-8"))
-        time.sleep(0.5)
-        with open('/tmp/cert_description', 'r') as description:
-            self.table12 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=False)
-            desc = str()
-            desc = description.read()
-            self.desc_label = Gtk.Label(label = desc)
-            self.notebook.remove_page(0)
-            self.page1 = Gtk.Box()
-            self.page1.set_border_width(10)
-            self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
-            self.notebook.set_current_page(0),
-            self.toolbar()            
-            #self.table12.attach(self.desc_label,0,1,0,1)
-            self.desc_label.set_selectable(True)
-
-            self.scrollView3 = Gtk.ScrolledWindow()
-            self.scrollView3.set_min_content_width(525)
-            self.scrollView3.add_with_viewport(self.desc_label)
-            self.page1.add(self.scrollView3) 
-            self.notebook.show_all()     
+    
+    
             
 
 window = MyWindow()
