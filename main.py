@@ -147,8 +147,6 @@ class MyWindow(Gtk.Window):
         
         action_filemenu = Gtk.Action(name="FileMenu", label="Certificates")
         action_group.add_action(action_filemenu)
-        
-        
 
         action_filenewmenu = Gtk.Action(name="FileNew", label = "My Certificates")
         action_group.add_action(action_filenewmenu)
@@ -189,8 +187,8 @@ class MyWindow(Gtk.Window):
             buttons.connect("button-press-event",self.button_left_click_cert)
             self.cert_listbox.add(buttons) 
         self.cert_listbox.show_all()
-        scrolled_window1.set_min_content_width(150)
-        self.table14.attach(scrolled_window1,0,10,0,20)
+        scrolled_window1.set_min_content_width(200)
+        self.table14.attach(scrolled_window1,0,10,0,10)
         self.page1.add(self.table14)
         
         self.notebook.show_all()
@@ -217,7 +215,6 @@ class MyWindow(Gtk.Window):
         cert_index = self.certificates.index(self.labelmenu_cert)
         self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))  
         self.cert_listbox.show_all()
-
         self.terminal8     = Vte.Terminal()
         self.terminal8.spawn_sync(
             Vte.PtyFlags.DEFAULT,
@@ -234,6 +231,12 @@ class MyWindow(Gtk.Window):
         self.read_certificates()
 
     def button_left_click_cert(self,listbox_widget,event):
+        self.scrolled_window2 = Gtk.ScrolledWindow()
+        self.scrolled_window2.set_border_width(10)
+        self.scrolled_window2.set_policy(
+            Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        desc = str()
+        desc = " "
         self.labelmenu_cert_left = listbox_widget.get_label()
         self.terminal7     = Vte.Terminal()
         self.terminal7.spawn_sync(
@@ -245,21 +248,24 @@ class MyWindow(Gtk.Window):
             None,
             None,)
         self.send_cert = "cd /tmp\ntouch cert_description\n"
-        self.print_cert = "cd " + self.home + "/.ssh\ncat " + self.labelmenu_cert_left + " > /tmp/cert_description\n"
+        a = self.labelmenu_cert_left.rstrip('\n')
+        self.print_cert = "cd " + self.home + "/.ssh\ncat " + a + " > /tmp/cert_description\n"
 
         self.terminal7.feed_child(self.send_cert.encode("utf-8"))
         self.terminal7.feed_child(self.print_cert.encode("utf-8"))
         time.sleep(0.5)
         with open('/tmp/cert_description', 'r') as description:
-            self.table12 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=False)
             desc = str()
             desc = description.read()
             self.desc_label = Gtk.Label(label = desc)
             self.desc_label.set_selectable(True)
 
-            self.scrollView3 = Gtk.ScrolledWindow()
-            self.scrollView3.set_min_content_width(150)
-            self.scrollView3.add_with_viewport(self.desc_label)
+        self.scrolled_window2.set_min_content_width(200)
+        self.scrolled_window2.add_with_viewport(self.desc_label)
+            
+        self.table14.attach(self.scrolled_window2,5,30,0,10)
+        self.notebook.show_all()
+            
         
 
     def write_certificates(self):
