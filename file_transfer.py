@@ -5,6 +5,8 @@ from gi.repository import Gtk
 
 def on_tree_selection_changed(selection):
     model, treeiter = selection.get_selected()
+    global selected_item
+    selected_item=model[treeiter][0]
     if treeiter != None:
         print ("You selected", model[treeiter][0])
 

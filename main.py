@@ -17,7 +17,7 @@ from gi.repository.GdkPixbuf import Pixbuf
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
-
+DRAG_ACTION = Gdk.DragAction.COPY
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
 
@@ -260,7 +260,7 @@ class MyWindow(Gtk.Window):
             self.desc_label = Gtk.Label(label = desc)
             self.desc_label.set_selectable(True)
 
-        self.scrolled_window2.set_min_content_width(200)
+        self.scrolled_window2.set_min_content_width(20)
         self.scrolled_window2.add_with_viewport(self.desc_label)
             
         self.table14.attach(self.scrolled_window2,5,30,0,10)
@@ -1060,13 +1060,25 @@ class MyWindow(Gtk.Window):
         self.number_list.pop()
         self.notebook.show_all()
         self.notebook.set_current_page(-1)
-    
+
+    def on_drag_data_get(self, widget, drag_context, data, info, time):
+        print("girdi")
+        text = "selected_path"
+        data.set_text(text, -1)
+
+
+    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
+        print("girdi")
+        text = data.get_text()
+        print("Received text: %s" % text)
+
+
     def deneme_tree(self):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore(fileSystemTreeStore, '/home')
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
         treeViewCol = Gtk.TreeViewColumn("Ana makina")
-        treeViewCol.set_min_width(5000)
+        
    
         colCellText = Gtk.CellRendererText()
         colCellImg = Gtk.CellRendererPixbuf()
@@ -1080,6 +1092,9 @@ class MyWindow(Gtk.Window):
         select = fileSystemTreeView.get_selection()
         select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
+        fileSystemTreeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [], DRAG_ACTION)
+        fileSystemTreeView.connect("drag-data-get", self.on_drag_data_get)
+
 
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
@@ -1119,6 +1134,8 @@ class MyWindow(Gtk.Window):
         select2 = fileSystemTreeView2.get_selection()
         select2.connect("changed", on_tree_selection_changed2)
         fileSystemTreeView2.columns_autosize()
+        fileSystemTreeView2.enable_model_drag_dest([], DRAG_ACTION)
+        fileSystemTreeView2.connect("drag-data-received", self.on_drag_data_received)
 
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
