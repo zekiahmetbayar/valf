@@ -84,7 +84,7 @@ class MyWindow(Gtk.Window):
         parca2  = """
       </menu>
       <separator />
-      <menuitem action='FileQuit' />
+      <menuitem action='FileNewNew' />
     </menu>
     <menu action='EditMenu'>
       <menuitem action='EditCopy' />
@@ -114,11 +114,7 @@ class MyWindow(Gtk.Window):
         for i in self.certificates:
             parca3 += "\n\t" + "<menuitem action='" + i.rstrip('\n') +"' />" 
         
-        self.UI_INFO = parca1 + parca3 + parca2
-        print(self.UI_INFO)
-            
-
-    
+        self.UI_INFO = parca1 + parca3 + parca2         
 
     def toolbar(self):
 
@@ -127,9 +123,6 @@ class MyWindow(Gtk.Window):
         uimanager.insert_action_group(action_group)
         self.add_file_menu_actions(action_group)
         self.add_edit_menu_actions(action_group)
-
-        
-
         menubar = uimanager.get_widget("/MenuBar")
 
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -141,17 +134,22 @@ class MyWindow(Gtk.Window):
     def add_edit_menu_actions(self, action_group):
         action_group.add_actions(
             [
-                ("EditMenu", None, "Other Menu"),
+                ("EditMenu", Gtk.STOCK_COPY, None, None, None, self.on_menu_others),
+                ("EditCopy", Gtk.STOCK_COPY, None, None, None, self.on_menu_others),
+                ("EditPaste", Gtk.STOCK_PASTE, None, None, None, self.on_menu_others),
                 (
                     "EditSomething",
                     None,
                     "Something",
                     "<control><alt>S",
                     None,
-                    
+                    self.on_menu_others,
                 ),
             ]
         )
+    
+    def on_menu_others(self, widget):
+        print("Menu item " + widget.get_name() + " was selected")
         
     def add_file_menu_actions(self, action_group):
         
@@ -170,15 +168,17 @@ class MyWindow(Gtk.Window):
         action_group.add_action_with_accel(action_new, None)
         deneme_liste = list()
         for i in self.certificates:
-            a = (i.rstrip('\n'),None,i.rstrip('\n'),None) ##############,i.rstrip('\n'),self.func
+            a = (i.rstrip('\n'),None,i.rstrip('\n'),None,i.rstrip('\n'),self.print_certificate) ##############,i.rstrip('\n'),self.func
             deneme_liste.append(a)
-        
         
         action_group.add_actions(
             deneme_liste
-            
         )
-        print(deneme_liste)
+
+        action_filenewnewmenu = Gtk.Action(name="FileNewNew", label = "Create Certficate")
+        action_filenewnewmenu.connect("activate", self.cert_name_window)
+        action_group.add_action(action_filenewnewmenu)
+
     
     def write_certificates(self):
         self.terminal6     = Vte.Terminal()
@@ -240,7 +240,15 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
+        self.write_certificates()
+        time.sleep(0.5)
+        self.read_certificates()
+        self.notebooks(self.get_host_before)
+        self.toolbar()
         self.cert_name_win.hide()
+        
+        
+
 
     def send_certificate(self,event):
         self.terminal4     = Vte.Terminal()
@@ -257,6 +265,7 @@ class MyWindow(Gtk.Window):
         self.terminal4.feed_child(self.send_cert.encode("utf-8"))
         time.sleep(0.5)
 
+
     def cert_name_window(self,event):
         self.cert_name_win = Gtk.Window()
         self.cert_name_win.set_title("Enter cert name")
@@ -270,8 +279,8 @@ class MyWindow(Gtk.Window):
         self.cert_name_button = Gtk.Button("Send")
         self.cert_name_button.connect("clicked",self.create_certificate)
 
-        self.cert_name_entry.set_placeholder_text("Enter cert name")
-        self.cert_pass_entry.set_placeholder_text("Enter pass")
+        self.cert_name_entry.set_placeholder_text("Enter cert name(Optional)")
+        self.cert_pass_entry.set_placeholder_text("Enter pass(Optional)")
 
         self.cert_name_win.add(self.cert_name_button)
         self.table11.attach(self.cert_name_entry,0,1,0,1)
@@ -563,6 +572,9 @@ class MyWindow(Gtk.Window):
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
         self.notebook.set_current_page(0)
+        self.write_certificates()
+        self.read_certificates()
+        self.toolbar()
         
 
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
@@ -1011,6 +1023,45 @@ class MyWindow(Gtk.Window):
         self.table10.attach(auth_except_label,0,1,0,1)
         self.auth_except_win.show_all()
         self.connect_window.hide()
+    
+    def print_certificate(self,widget):
+        self.terminal7     = Vte.Terminal()
+        self.terminal7.spawn_sync(
+            Vte.PtyFlags.DEFAULT,
+            os.environ[HOME],
+            SHELLS,
+            [],
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None,)
+        self.send_cert = "cd /tmp\ntouch cert_description\n"
+        self.print_cert = "cd " + self.home + "/.ssh\ncat " + widget.get_label() + " > /tmp/cert_description\n"
+
+        self.terminal7.feed_child(self.send_cert.encode("utf-8"))
+        self.terminal7.feed_child(self.print_cert.encode("utf-8"))
+        time.sleep(0.5)
+        with open('/tmp/cert_description', 'r') as description:
+            self.table12 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=False)
+            desc = str()
+            desc = description.read()
+            self.desc_label = Gtk.Label(label = desc)
+            self.notebook.remove_page(0)
+            self.page1 = Gtk.Box()
+            self.page1.set_border_width(10)
+            self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
+            self.notebook.set_current_page(0),
+            self.toolbar()            
+            self.table12.attach(self.desc_label,0,1,0,1)
+            self.table12.set_homogeneous(False)
+            self.page1.add(self.table12) 
+            self.page1.set_homogeneous(False)
+             
+            self.notebook.show_all()       
+
+
+        
+
+
 
 window = MyWindow()
 window.show_all()
