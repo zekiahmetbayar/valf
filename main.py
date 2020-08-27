@@ -237,8 +237,12 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.generate_ssh_cert.encode("utf-8"))
         time.sleep(0.5)
         if self.cert_name_entry.get_text() == '':
-            self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
-            time.sleep(0.5)
+            if 'id_rsa.pub\n' in self.certificates:
+                self.cert_yes_no()
+                time.sleep(0.5)
+            else:
+                self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
+                time.sleep(0.5)
         else:
             self.terminal3.feed_child(self.cert_name.encode("utf-8"))
             time.sleep(0.5)
@@ -252,6 +256,39 @@ class MyWindow(Gtk.Window):
         self.notebooks(self.get_host_before)
         self.toolbar()
         self.cert_name_win.hide()
+    
+    def cert_yes_no(self):
+        self.cert_yes_no_win = Gtk.Window()
+        self.cert_yes_no_win.set_title("Are you sure ?")
+        self.cert_yes_no_win.set_border_width(10)
+        self.table13 = Gtk.Table(n_rows=2, n_columns=2, homogeneous=True)
+        self.cert_yes_no_win.add(self.table13)
+
+        self.cert_yes_no_label = Gtk.Label( label = "Zaten idrsa.pub isimli bir sertifikanız var. Oluşturacağınız yeni sertifika üzerine yazılacaktır.\n\t\t\t\t\t\t\t\t\tOnaylıyor musunuz ?")
+        self.cert_yes_button = Gtk.Button("Yes")
+        self.cert_no_button = Gtk.Button("No")
+
+        self.cert_yes_button.connect('clicked',self.cert_yes)
+        self.cert_no_button.connect('clicked',self.cert_no)
+
+        self.cert_yes_no_win.add(self.cert_yes_button)
+        self.cert_yes_no_win.add(self.cert_no_button)
+        self.table13.attach(self.cert_yes_no_label,0,2,0,1)
+        self.table13.attach(self.cert_yes_button,0,1,1,2)
+        self.table13.attach(self.cert_no_button,1,2,1,2)
+
+        self.cert_yes_no_win.present()
+        self.cert_yes_no_win.show_all()
+    
+    def cert_yes(self,clicked):
+        self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
+        time.sleep(0.5)
+        self.cert_yes_no_win.hide()
+    
+    def cert_no(self,clicked):
+        self.cert_yes_no_win.hide()
+
+
         
     def send_certificate(self,event):
         self.terminal4     = Vte.Terminal()
