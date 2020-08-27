@@ -1085,11 +1085,15 @@ class MyWindow(Gtk.Window):
             self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
             self.notebook.set_current_page(0),
             self.toolbar()            
-            self.table12.attach(self.desc_label,0,1,0,1)
-            self.table12.set_homogeneous(False)
-            self.page1.add(self.table12) 
-            self.page1.set_homogeneous(False)
-            self.notebook.show_all()       
+            #self.table12.attach(self.desc_label,0,1,0,1)
+            self.desc_label.set_selectable(True)
+
+            self.scrollView3 = Gtk.ScrolledWindow()
+            self.scrollView3.set_min_content_width(525)
+            self.scrollView3.add_with_viewport(self.desc_label)
+            self.page1.add(self.scrollView3) 
+            self.notebook.show_all()     
+            
 
 window = MyWindow()
 window.show_all()
