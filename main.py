@@ -1028,7 +1028,7 @@ class MyWindow(Gtk.Window):
         model, treeiter = select.get_selected()
         if treeiter != None:
             print ("drag", model[treeiter][2])#2. eleman yol,0.eleman tutulan dosya adı bunu dataya ver drop kısmında dosya yolunu alıpstfp 
-            data.set_text(model[treeiter][2],-1)   
+            data.set_text(model[treeiter][2],-1)
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
         print("girdi")
@@ -1044,10 +1044,7 @@ class MyWindow(Gtk.Window):
             localpath_list = localpath.split('/')
             print("Received text: %s" % localpath)
             print("Received text: %s" % remotepath)
-            #remotepath = remotepath + "/" + localpath_list[-1]
             self.put_dir(localpath,remotepath)
-            #self.ftp.put(localpath,remotepath)
-            #time.sleep(1)
             self.deneme_tree()
 
     def put_dir(self, source, target):
@@ -1066,6 +1063,8 @@ class MyWindow(Gtk.Window):
 
             for filename in filenames:
                 self.ftp.put(os.path.join(dirpath, filename), os.path.join(remote_path, filename))
+    
+
 
     def deneme_tree(self):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
@@ -1082,12 +1081,13 @@ class MyWindow(Gtk.Window):
         fileSystemTreeView.append_column(treeViewCol)
         fileSystemTreeView.connect("row-expanded", onRowExpanded)
         fileSystemTreeView.connect("row-collapsed", onRowCollapsed)
-        #select = fileSystemTreeView.get_selection()
-        #select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
     
         fileSystemTreeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGETS, DRAG_ACTION)
         fileSystemTreeView.connect("drag-data-get", self.on_drag_data_get)
+
+        fileSystemTreeView.enable_model_drag_dest(TARGETS, DRAG_ACTION)
+        fileSystemTreeView.connect("drag-data-received", self.on_drag_data_received)
 
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
@@ -1126,6 +1126,9 @@ class MyWindow(Gtk.Window):
         select2 = fileSystemTreeView2.get_selection()
         select2.connect("changed", on_tree_selection_changed2)
         fileSystemTreeView2.columns_autosize()
+
+        fileSystemTreeView2.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGETS, DRAG_ACTION)
+        fileSystemTreeView2.connect("drag-data-get", self.on_drag_data_get)
 
         fileSystemTreeView2.enable_model_drag_dest(TARGETS, DRAG_ACTION)
         fileSystemTreeView2.connect("drag-data-received", self.on_drag_data_received)
