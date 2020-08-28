@@ -1044,12 +1044,28 @@ class MyWindow(Gtk.Window):
             localpath_list = localpath.split('/')
             print("Received text: %s" % localpath)
             print("Received text: %s" % remotepath)
-            remotepath = remotepath + "/" + localpath_list[-1]
-            self.ftp.put(localpath,remotepath)
-            time.sleep(1)
+            #remotepath = remotepath + "/" + localpath_list[-1]
+            self.put_dir(localpath,remotepath)
+            #self.ftp.put(localpath,remotepath)
+            #time.sleep(1)
             self.deneme_tree()
 
+    def put_dir(self, source, target):
 
+        localpath_list = []
+        localpath_list = source.split('/')
+        self.ftp.mkdir(target+"/"+localpath_list[-1])
+        self.ftp.chdir(target+"/"+localpath_list[-1])
+        target=target+"/"+localpath_list[-1]
+        for dirpath, dirnames, filenames in os.walk(source):
+            remote_path = os.path.join(target, dirpath[len(source)+1:])
+            try:
+                self.ftp.listdir(remote_path)
+            except IOError:
+                self.ftp.mkdir(remote_path)
+
+            for filename in filenames:
+                self.ftp.put(os.path.join(dirpath, filename), os.path.join(remote_path, filename))
 
     def deneme_tree(self):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
