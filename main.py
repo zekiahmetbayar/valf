@@ -1,5 +1,6 @@
 import gi
-import os,stat
+import os
+from stat import S_ISDIR, S_ISREG
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Vte
 gi.require_version('Gdk', '3.0')
@@ -1048,7 +1049,6 @@ class MyWindow(Gtk.Window):
             self.deneme_tree()
 
     def put_dir(self, source, target):
-
         localpath_list = []
         localpath_list = source.split('/')
         self.ftp.mkdir(target+"/"+localpath_list[-1])
@@ -1064,7 +1064,43 @@ class MyWindow(Gtk.Window):
             for filename in filenames:
                 self.ftp.put(os.path.join(dirpath, filename), os.path.join(remote_path, filename))
     
+    def on_drag_data_get_2(self, widget, drag_context, data, info, time):
+        select = widget.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            print ("drag", model[treeiter][2])#2. eleman yol,0.eleman tutulan dosya adı bunu dataya ver drop kısmında dosya yolunu alıpstfp 
+            data.set_text(model[treeiter][2],-1)
 
+    def on_drag_data_received_2(self, widget, drag_context, x, y, data, info, time):
+        print("girdi")
+        model=widget.get_model()
+        drop_info = widget.get_dest_row_at_pos(x, y)
+        if drop_info:
+            path, position = drop_info
+            iter = model.get_iter(path)
+            print(model[iter][2])
+            remotepath=model[iter][2]
+            localpath = data.get_text()
+            localpath_list = []
+            localpath_list = localpath.split('/')
+            print("Received text: %s" % localpath)
+            print("Received text: %s" % remotepath)
+            remotepath=remotepath+"/"+localpath_list[-1]
+            self.download_dir(localpath,remotepath)
+            self.deneme_tree()
+    
+    def download_dir(self,remote_dir, local_dir):
+        os.path.exists(local_dir) or os.makedirs(local_dir)
+        dir_items = self.ftp.listdir_attr(remote_dir)
+        
+        for item in dir_items:
+
+            remote_path = remote_dir + '/' + item.filename         
+            local_path = os.path.join(local_dir, item.filename)
+            if S_ISDIR(item.st_mode):
+                self.download_dir(remote_path, local_path)
+            else:
+                self.ftp.get(remote_path, local_path)
 
     def deneme_tree(self):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
@@ -1087,7 +1123,7 @@ class MyWindow(Gtk.Window):
         fileSystemTreeView.connect("drag-data-get", self.on_drag_data_get)
 
         fileSystemTreeView.enable_model_drag_dest(TARGETS, DRAG_ACTION)
-        fileSystemTreeView.connect("drag-data-received", self.on_drag_data_received)
+        fileSystemTreeView.connect("drag-data-received", self.on_drag_data_received_2)
 
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
@@ -1128,7 +1164,7 @@ class MyWindow(Gtk.Window):
         fileSystemTreeView2.columns_autosize()
 
         fileSystemTreeView2.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGETS, DRAG_ACTION)
-        fileSystemTreeView2.connect("drag-data-get", self.on_drag_data_get)
+        fileSystemTreeView2.connect("drag-data-get", self.on_drag_data_get_2)
 
         fileSystemTreeView2.enable_model_drag_dest(TARGETS, DRAG_ACTION)
         fileSystemTreeView2.connect("drag-data-received", self.on_drag_data_received)
