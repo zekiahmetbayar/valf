@@ -10,6 +10,8 @@ from paramiko import SSHClient
 from scp import SCPClient
 import time
 import paramiko
+import subprocess
+import glob
 from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
 from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
@@ -158,7 +160,7 @@ class MyWindow(Gtk.Window):
     
     def list_certificates(self,event):
         # self.write_certificates()
-        self.read_certificates()
+        self.read_local_certificates()
 
         page = Gtk.ScrolledWindow()
         page.set_border_width(10)
@@ -214,8 +216,8 @@ class MyWindow(Gtk.Window):
 
         self.rm = "cd " + self.home + "\ncd .ssh\nrm -rf " + self.labelmenu_cert + " " + self.labelmenu_cert.rstrip('.pub') + "\n"
         self.terminal8.feed_child(self.rm.encode("utf-8"))
-        self.write_certificates()   
-        self.read_certificates()
+        # self.write_certificates()   
+        # self.read_certificates()
 
     # def button_left_click_cert(self,listbox_widget,event):
     #     self.scrolled_window2 = Gtk.ScrolledWindow()
@@ -243,8 +245,8 @@ class MyWindow(Gtk.Window):
             
     def on_cert_left_clicked(self,listbox_widget,event):
         desc = ""
-        cert_name = listbox_widget.get_label().rstrip('\n')
-        cert_path = self.home + "/.ssh/" + cert_name 
+        cert_path = listbox_widget.get_label().rstrip('\n')
+        cert_name = os.path.basename(cert_path)
 
         with open(cert_path, 'r') as description:
             desc = description.read()
@@ -290,12 +292,12 @@ class MyWindow(Gtk.Window):
                 print(i)
 
     def read_local_certificates(self):
-        self.certificates = "ls .ssh | grep .pub".rsplit()
-    
+        self.certificates =  glob.glob(self.home+"/.ssh/*.pub")
+
     def create_ui_manager(self):
         uimanager = Gtk.UIManager()
-        self.write_certificates()
-        self.read_certificates()
+        # self.write_certificates()
+        # self.read_certificates()
         self.ui_info()
         # Throws exception if something went wrong
         uimanager.add_ui_from_string(self.UI_INFO)
@@ -693,8 +695,8 @@ class MyWindow(Gtk.Window):
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
         self.notebook.set_current_page(0)
-        self.write_certificates()
-        self.read_certificates()
+        # self.write_certificates()
+        # self.# self.write_certificates(rtificates()
         self.toolbar()
         
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
