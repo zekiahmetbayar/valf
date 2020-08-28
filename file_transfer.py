@@ -2,7 +2,6 @@ import os,stat
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk
 
-
 def on_tree_selection_changed(selection):
     model, treeiter = selection.get_selected()
     global selected_item
@@ -55,9 +54,3 @@ def onRowCollapsed(treeView, treeIter, treePath):
         currentChildIter = treeStore.iter_children(treeIter)
     # append dummy node
     treeStore.append(treeIter, [None, None, None])
-
-
-
-
-    
-

@@ -1024,15 +1024,31 @@ class MyWindow(Gtk.Window):
         self.notebook.set_current_page(-1)
     
     def on_drag_data_get(self, widget, drag_context, data, info, time):
-        print("girdi")
-        text = "selected_path"
-        data.set_text(text, -1)
-
+        select = widget.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            print ("drag", model[treeiter][2])#2. eleman yol,0.eleman tutulan dosya adı bunu dataya ver drop kısmında dosya yolunu alıpstfp 
+            data.set_text(model[treeiter][2],-1)   
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
         print("girdi")
-        text = data.get_text()
-        print("Received text: %s" % text)
+        model=widget.get_model()
+        drop_info = widget.get_dest_row_at_pos(x, y)
+        if drop_info:
+            path, position = drop_info
+            iter = model.get_iter(path)
+            print(model[iter][2])
+            remotepath=model[iter][2]
+            localpath = data.get_text()
+            localpath_list = []
+            localpath_list = localpath.split('/')
+            print("Received text: %s" % localpath)
+            print("Received text: %s" % remotepath)
+            remotepath = remotepath + "/" + localpath_list[-1]
+            self.ftp.put(localpath,remotepath)
+            time.sleep(1)
+            self.deneme_tree()
+
 
 
     def deneme_tree(self):
@@ -1050,16 +1066,12 @@ class MyWindow(Gtk.Window):
         fileSystemTreeView.append_column(treeViewCol)
         fileSystemTreeView.connect("row-expanded", onRowExpanded)
         fileSystemTreeView.connect("row-collapsed", onRowCollapsed)
-        select = fileSystemTreeView.get_selection()
-        select.connect("changed", on_tree_selection_changed)
+        #select = fileSystemTreeView.get_selection()
+        #select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
     
         fileSystemTreeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGETS, DRAG_ACTION)
         fileSystemTreeView.connect("drag-data-get", self.on_drag_data_get)
-
-        fileSystemTreeView.enable_model_drag_dest(TARGETS, DRAG_ACTION)
-        fileSystemTreeView.connect("drag-data-received", self.on_drag_data_received)
-
 
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
@@ -1069,9 +1081,8 @@ class MyWindow(Gtk.Window):
         sftpUser  =  self.baglantilar[self.get_host_before]['User']
         sftpPass  =  self.connect_password.get_text()
         ssh = paramiko.SSHClient()
-
-            # automatically add keys without requiring human intervention
         ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )
+        
         try:
             ssh.connect(sftpURL, username=sftpUser, password=sftpPass)
             self.ftp = ssh.open_sftp()
@@ -1085,7 +1096,7 @@ class MyWindow(Gtk.Window):
         populateFileSystemTreeStore2(fileSystemTreeStore2, '/home')
         fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
         treeViewCol2 = Gtk.TreeViewColumn("Bağlanılan makina")
-        treeViewCol2.set_min_width(5000)
+        treeViewCol2.set_min_width(225)
    
         colCellText2 = Gtk.CellRendererText()
         colCellImg2 = Gtk.CellRendererPixbuf()
@@ -1099,18 +1110,13 @@ class MyWindow(Gtk.Window):
         select2 = fileSystemTreeView2.get_selection()
         select2.connect("changed", on_tree_selection_changed2)
         fileSystemTreeView2.columns_autosize()
-        fileSystemTreeView2.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [], DRAG_ACTION)
-        fileSystemTreeView2.connect("drag-data-get", self.on_drag_data_get)
 
         fileSystemTreeView2.enable_model_drag_dest(TARGETS, DRAG_ACTION)
         fileSystemTreeView2.connect("drag-data-received", self.on_drag_data_received)
 
-
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
         self.scrollView2.add_with_viewport(fileSystemTreeView2)
-        self.scrollView2.drag_dest_set(Gtk.DestDefaults.ALL, [], DRAG_ACTION)
-        self.scrollView2.connect("drag-data-received", self.on_drag_data_received)
     
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
@@ -1128,9 +1134,6 @@ class MyWindow(Gtk.Window):
         self.auth_except_win.show_all()
         self.connect_window.hide()
     
-
-
-
 window = MyWindow()
 window.show_all()
 Gtk.main()
