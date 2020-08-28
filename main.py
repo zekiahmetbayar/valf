@@ -23,7 +23,15 @@ DRAG_ACTION = Gdk.DragAction.COPY
 ICONSIZE = Gtk.IconSize.MENU
 get_icon = lambda name: Gtk.Image.new_from_icon_name(name, ICONSIZE)
 
+TARGETS = [('MY_TREE_MODEL_ROW', Gtk.TargetFlags(2) , 0),
+('text/plain', 0, 1),
+('TEXT', 0, 2),('STRING', 0, 3),]
+
+
+
+
 class MyWindow(Gtk.Window):
+
     notebook = Gtk.Notebook()
     home = str(Path.home())
     baglantilar = dict() # Goal 1
@@ -80,35 +88,35 @@ class MyWindow(Gtk.Window):
 
     def ui_info(self):
         self.UI_INFO = """
-<ui>
-  <menubar name='MenuBar'>
-    <menu action='FileMenu'>
-      <menuitem action='FileNew' />
-      <menuitem action='FileNewNew' />
-    </menu>
-    <menu action='EditMenu'>
-      <menuitem action='EditCopy' />
-      <menuitem action='EditPaste' />
-      <menuitem action='EditSomething' />
-    </menu>
-    <menu action='ChoicesMenu'>
-      <menuitem action='ChoiceOne'/>
-      <menuitem action='ChoiceTwo'/>
-      <separator />
-      <menuitem action='ChoiceThree'/>
-    </menu>
-  </menubar>
-  <toolbar name='ToolBar'>
-    <toolitem action='FileNewStandard' />
-    <toolitem action='FileQuit' />
-  </toolbar>
-  <popup name='PopupMenu'>
-    <menuitem action='EditCopy' />
-    <menuitem action='EditPaste' />
-    <menuitem action='EditSomething' />
-  </popup>
-</ui>
-"""      
+    <ui>
+    <menubar name='MenuBar'>
+        <menu action='FileMenu'>
+        <menuitem action='FileNew' />
+        <menuitem action='FileNewNew' />
+        </menu>
+        <menu action='EditMenu'>
+        <menuitem action='EditCopy' />
+        <menuitem action='EditPaste' />
+        <menuitem action='EditSomething' />
+        </menu>
+        <menu action='ChoicesMenu'>
+        <menuitem action='ChoiceOne'/>
+        <menuitem action='ChoiceTwo'/>
+        <separator />
+        <menuitem action='ChoiceThree'/>
+        </menu>
+    </menubar>
+    <toolbar name='ToolBar'>
+        <toolitem action='FileNewStandard' />
+        <toolitem action='FileQuit' />
+    </toolbar>
+    <popup name='PopupMenu'>
+        <menuitem action='EditCopy' />
+        <menuitem action='EditPaste' />
+        <menuitem action='EditSomething' />
+    </popup>
+    </ui>
+    """      
 
     def toolbar(self):
 
@@ -216,33 +224,7 @@ class MyWindow(Gtk.Window):
 
         self.rm = "cd " + self.home + "\ncd .ssh\nrm -rf " + self.labelmenu_cert + " " + self.labelmenu_cert.rstrip('.pub') + "\n"
         self.terminal8.feed_child(self.rm.encode("utf-8"))
-        # self.write_certificates()   
-        # self.read_certificates()
 
-    # def button_left_click_cert(self,listbox_widget,event):
-    #     self.scrolled_window2 = Gtk.ScrolledWindow()
-    #     self.scrolled_window2.set_border_width(10)
-    #     self.scrolled_window2.set_policy(
-    #         Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
-    #     desc = str()
-    #     desc = " "
-    #     self.labelmenu_cert_left = listbox_widget.get_label()
-    #     self.send_cert = "cd /tmp\ntouch cert_description\n"
-    #     a = self.labelmenu_cert_left.rstrip('\n')
-    #     self.print_cert = "cd " + self.home + "/.ssh\ncat " + a + " > /tmp/cert_description\n"
-
-    #     with open('/tmp/cert_description', 'r') as description:
-    #         desc = str()
-    #         desc = description.read()
-    #         self.desc_label = Gtk.Label(label = desc)
-    #         self.desc_label.set_selectable(True)
-
-    #     self.scrolled_window2.set_min_content_width(200)
-    #     self.scrolled_window2.add_with_viewport(self.desc_label)
-            
-    #     self.table14.attach(self.scrolled_window2,5,30,0,10)
-    #     self.notebook.show_all()
-            
     def on_cert_left_clicked(self,listbox_widget,event):
         desc = ""
         cert_path = listbox_widget.get_label().rstrip('\n')
@@ -269,27 +251,6 @@ class MyWindow(Gtk.Window):
             print("WARN dialog closed by clicking OK button")
 
         dialog.destroy()        
-    def write_certificates(self):
-        self.terminal6     = Vte.Terminal()
-        self.terminal6.spawn_sync(
-        Vte.PtyFlags.DEFAULT,
-        os.environ[HOME],
-        SHELLS,
-        [],
-        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-        None,
-        None,)
-
-        self.list_cert = "cd .ssh\n" + "ls | grep .pub >" +  "/tmp/certificates.txt\n"
-        self.terminal6.feed_child(self.list_cert.encode("utf-8"))
-    
-    def read_certificates(self):
-        with open("/tmp/certificates.txt",'r') as cert_file:
-            self.certificates = list()
-            self.certificates = cert_file.readlines()
-            
-            for i in self.certificates:
-                print(i)
 
     def read_local_certificates(self):
         self.certificates =  glob.glob(self.home+"/.ssh/*.pub")
@@ -425,7 +386,7 @@ class MyWindow(Gtk.Window):
         None,)
         
         self.connect_w_cert = "ssh " + self.get_host_before + "\n"
-#        self.connect_w_certpass = 
+    #        self.connect_w_certpass = 
 
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         try : 
@@ -522,9 +483,6 @@ class MyWindow(Gtk.Window):
         baglantilar_index = list(self.baglantilar.keys()).index(self.labelmenu)
         self.listbox.remove(self.listbox.get_row_at_index(baglantilar_index))  
         self.listbox.show_all()
-
-
-
         self.baglantilar.pop(self.labelmenu)
         self.write_config()               
 
@@ -1083,7 +1041,6 @@ class MyWindow(Gtk.Window):
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
         treeViewCol = Gtk.TreeViewColumn("Ana makina")
         
-   
         colCellText = Gtk.CellRendererText()
         colCellImg = Gtk.CellRendererPixbuf()
         treeViewCol.pack_start(colCellImg, False)
@@ -1096,8 +1053,12 @@ class MyWindow(Gtk.Window):
         select = fileSystemTreeView.get_selection()
         select.connect("changed", on_tree_selection_changed)
         fileSystemTreeView.columns_autosize()
-        fileSystemTreeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [], DRAG_ACTION)
+    
+        fileSystemTreeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, TARGETS, DRAG_ACTION)
         fileSystemTreeView.connect("drag-data-get", self.on_drag_data_get)
+
+        fileSystemTreeView.enable_model_drag_dest(TARGETS, DRAG_ACTION)
+        fileSystemTreeView.connect("drag-data-received", self.on_drag_data_received)
 
 
         self.scrollView = Gtk.ScrolledWindow()
@@ -1138,12 +1099,18 @@ class MyWindow(Gtk.Window):
         select2 = fileSystemTreeView2.get_selection()
         select2.connect("changed", on_tree_selection_changed2)
         fileSystemTreeView2.columns_autosize()
-        fileSystemTreeView2.enable_model_drag_dest([], DRAG_ACTION)
+        fileSystemTreeView2.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [], DRAG_ACTION)
+        fileSystemTreeView2.connect("drag-data-get", self.on_drag_data_get)
+
+        fileSystemTreeView2.enable_model_drag_dest(TARGETS, DRAG_ACTION)
         fileSystemTreeView2.connect("drag-data-received", self.on_drag_data_received)
+
 
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
         self.scrollView2.add_with_viewport(fileSystemTreeView2)
+        self.scrollView2.drag_dest_set(Gtk.DestDefaults.ALL, [], DRAG_ACTION)
+        self.scrollView2.connect("drag-data-received", self.on_drag_data_received)
     
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
@@ -1161,9 +1128,8 @@ class MyWindow(Gtk.Window):
         self.auth_except_win.show_all()
         self.connect_window.hide()
     
-    
-    
-            
+
+
 
 window = MyWindow()
 window.show_all()
