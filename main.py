@@ -61,7 +61,7 @@ class MyWindow(Gtk.Window):
         self.add(self.searchentry)
 
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(5)
         scrolled_window.set_policy(
             Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
         
@@ -71,13 +71,13 @@ class MyWindow(Gtk.Window):
         new_window_button = Gtk.Button("Add New Host")
         new_window_button.connect('clicked',self.add_newhost_window)
         self.toolbar()
-        self.table.attach(self.box,0,30,0,1)
+        self.table.attach(self.box,0,10,0,1)
         self.table.attach(new_window_button,5,10,9,10)
         self.table.attach(scrolled_window,0,10,2,9)
         self.table.attach(self.searchentry,0,10,1,2)
 
         self.add(self.notebook)
-        self.table.attach(self.notebook,10,30,1,10)
+        self.table.attach(self.notebook,10,30,0,10)
 
         self.notebook.show_all()
         self.listbox.show_all()
@@ -85,7 +85,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
-        self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
+        self.notebook.append_page(self.page1, Gtk.Label("Main Page"))
 
     def ui_info(self):
         self.UI_INFO = """
@@ -95,27 +95,7 @@ class MyWindow(Gtk.Window):
         <menuitem action='FileNew' />
         <menuitem action='FileNewNew' />
         </menu>
-        <menu action='EditMenu'>
-        <menuitem action='EditCopy' />
-        <menuitem action='EditPaste' />
-        <menuitem action='EditSomething' />
-        </menu>
-        <menu action='ChoicesMenu'>
-        <menuitem action='ChoiceOne'/>
-        <menuitem action='ChoiceTwo'/>
-        <separator />
-        <menuitem action='ChoiceThree'/>
-        </menu>
     </menubar>
-    <toolbar name='ToolBar'>
-        <toolitem action='FileNewStandard' />
-        <toolitem action='FileQuit' />
-    </toolbar>
-    <popup name='PopupMenu'>
-        <menuitem action='EditCopy' />
-        <menuitem action='EditPaste' />
-        <menuitem action='EditSomething' />
-    </popup>
     </ui>
     """      
 
@@ -168,7 +148,6 @@ class MyWindow(Gtk.Window):
         action_group.add_action(action_filenewnewmenu)
     
     def list_certificates(self,event):
-        # self.write_certificates()
         self.read_local_certificates()
 
         page = Gtk.ScrolledWindow()
@@ -176,7 +155,7 @@ class MyWindow(Gtk.Window):
         cert_listbox = Gtk.ListBox()
         self.notebook.remove_page(0)
         self.notebook.set_current_page(0)
-        self.notebook.prepend_page(page, Gtk.Label("Ana Sayfa"))
+        self.notebook.prepend_page(page, Gtk.Label("Main Page"))
         self.toolbar()
         
         for i in self.certificates:
@@ -489,7 +468,7 @@ class MyWindow(Gtk.Window):
 
     def add_newhost_window(self,widget): ## Yeni açılan pencere
         self.input_window = Gtk.Window()
-        self.input_window.set_title("New Window")
+        self.input_window.set_title("Add New Host")
         self.input_window.set_border_width(10)
         self.table2 = Gtk.Table(n_rows=7, n_columns=0, homogeneous=True)
         self.input_window.add(self.table2)
@@ -498,7 +477,7 @@ class MyWindow(Gtk.Window):
         self.host_name = Gtk.Entry()
         self.user = Gtk.Entry()
         self.port = Gtk.Entry()
-        self.submit_button = Gtk.Button("Gönder")
+        self.submit_button = Gtk.Button("Send")
   
         self.host.set_placeholder_text("Host")
         self.host_name.set_placeholder_text("HostName")
@@ -601,7 +580,7 @@ class MyWindow(Gtk.Window):
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
+        self.notebook.prepend_page(self.page1, Gtk.Label("Main Page"))
         self.notebook.set_current_page(0),
         self.toolbar()
         self.get_host_before = labelname
@@ -677,9 +656,10 @@ class MyWindow(Gtk.Window):
 
     def add_attribute(self,widget): # Yeni attribute penceresi
         self.add_attribute_window = Gtk.Window()
+        self.add_attribute_window.set_default_size(10,100)
         self.add_attribute_window.set_title("Add Attribute")
         self.add_attribute_window.set_border_width(10)
-        self.table3 = Gtk.Table(n_rows=5, n_columns=30, homogeneous=True)
+        self.table3 = Gtk.Table(n_rows=3, n_columns=5, homogeneous=True)
         self.add_attribute_window.add(self.table3)
 
         self.attribute_name = Gtk.Entry()
@@ -695,10 +675,10 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.add(self.add_attribute_submit_button)
         self.add_attribute_submit_button.connect('clicked',self.on_click_add_attribute)
 
-        self.table3.attach(self.attribute_name,0,14,0,1)
-        self.table3.attach(self.attribute_value,16,30,0,1)
+        self.table3.attach(self.attribute_name,0,2,0,1)
+        self.table3.attach(self.attribute_value,3,5,0,1)
 
-        self.table3.attach(self.add_attribute_submit_button,10,20,2,3)
+        self.table3.attach(self.add_attribute_submit_button,1,4,2,3)
 
         self.add_attribute_window.present()
         self.add_attribute_window.show_all() 
@@ -717,19 +697,21 @@ class MyWindow(Gtk.Window):
         self.connect_window = Gtk.Window()
         self.connect_window.set_title("Connect")
         self.connect_window.set_border_width(10)
-        self.table4 = Gtk.Table(n_rows=2, n_columns=1, homogeneous=True)
+        self.table4 = Gtk.Table(n_rows=3, n_columns=3, homogeneous=False)
         self.connect_window.add(self.table4)
 
         self.connect_password = Gtk.Entry()
         self.connect_button = Gtk.Button("Connect")
+        connect_label = Gtk.Label("Enter your password.")
 
-        self.connect_password.set_placeholder_text("password")
+        self.connect_password.set_placeholder_text("Password")
         self.connect_password.set_visibility(False)
         self.connect_window.add(self.connect_password)
-
         self.connect_window.add(self.connect_button)
-        self.table4.attach(self.connect_password,0,1,0,1)
-        self.table4.attach(self.connect_button,0,1,1,2)
+        self.table4.attach(connect_label,0,3,0,1)
+        #self.table4.attach(connect_label_2,0,2,1,2)
+        self.table4.attach(self.connect_password,1,3,1,2)
+        self.table4.attach(self.connect_button,1,3,2,3)
 
         self.connect_window.present()
         self.connect_window.show_all()
@@ -743,19 +725,18 @@ class MyWindow(Gtk.Window):
         self.connect_button.connect("clicked",self.sftp_file_transfer)
 
     def wrong_password_win(self): # Şifre yanlış olduğunda gösterilecek pencere
+        self.table5 = Gtk.Table(n_rows=2, n_columns=3, homogeneous=True)
         self.wrong_pass_win = Gtk.Window()
         self.wrong_pass_win.set_title("Wrong")
-        
-        self.wrong_pass_label = Gtk.Label("Wrong pass ! Try Again.")
-        self.table5 = Gtk.Table(n_rows=3, n_columns=3, homogeneous=True)
-        self.wrong_pass_win.add(self.table5)
 
-        self.table5.attach(self.wrong_pass_label,1,2,1,2)
+        self.wrong_pass_label = Gtk.Label("Wrong password ! Try Again.")
+        self.wrong_pass_win.add(self.table5)
+        self.table5.attach(self.wrong_pass_label,0,3,0,1)
 
         try_again_button = Gtk.Button("Try Again")
         try_again_button.connect("clicked",self.hide)
 
-        self.table5.attach(try_again_button,1,2,2,3)
+        self.table5.attach(try_again_button,1,2,1,2)
         self.wrong_pass_win.show_all()
     
     def hide(self,event):
@@ -817,18 +798,22 @@ class MyWindow(Gtk.Window):
                 self.yes_no()
 
     def yes_no(self):
-        self.table8 = Gtk.Table(n_rows=10, n_columns=20, homogeneous=True)
+        self.table8 = Gtk.Table(n_rows=10, n_columns=20, homogeneous=False)
         self.yes_or_no_window = Gtk.Window()
+        self.yes_or_no_window.set_default_size(300, 90)
         self.yes_or_no_window.add(self.table8)
         self.yes_or_no_window.set_title("Yes/No")
 
         self.yes_button = Gtk.Button("YES")
-        self.table8.attach(self.yes_button,0,10,0,10)
+        self.table8.attach(self.yes_button,1,10,4,8)
         self.yes_button.connect("clicked",self.yes_button_clicked)
         
         self.no_button = Gtk.Button("NO")
-        self.table8.attach(self.no_button,10,20,0,10)
+        self.table8.attach(self.no_button,11,19,4,8)
         self.yes_button.connect("clicked",self.no_button_clicked)
+
+        yes_or_no_label = Gtk.Label("     Are you sure you want to continue connecting (yes/no/[fingerprint])?    ")
+        self.table8.attach(yes_or_no_label,0,20,0,2)
 
         self.yes_or_no_window.show_all()   
     
