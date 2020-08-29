@@ -152,7 +152,7 @@ class MyWindow(Gtk.Window):
 
         page = Gtk.ScrolledWindow()
         page.set_border_width(10)
-        cert_listbox = Gtk.ListBox()
+        self.cert_listbox = Gtk.ListBox()
         self.notebook.remove_page(0)
         self.notebook.set_current_page(0)
         self.notebook.prepend_page(page, Gtk.Label("Main Page"))
@@ -163,10 +163,10 @@ class MyWindow(Gtk.Window):
             buttons = Gtk.Button.new_with_label(i)
             buttons.connect("button-press-event",self.button_clicked_cert)
             buttons.connect("button-press-event",self.on_cert_left_clicked)
-            cert_listbox.add(buttons) 
+            self.cert_listbox.add(buttons) 
         
-        page.add_with_viewport(cert_listbox)
-        cert_listbox.show_all()
+        page.add_with_viewport(self.cert_listbox)
+        self.cert_listbox.show_all()
 
         self.notebook.show_all()
     
@@ -190,20 +190,12 @@ class MyWindow(Gtk.Window):
     
     def delete_cert(self,action):
         cert_index = self.certificates.index(self.labelmenu_cert)
-        self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))  
+        self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))
         self.cert_listbox.show_all()
-        self.terminal8     = Vte.Terminal()
-        self.terminal8.spawn_sync(
-            Vte.PtyFlags.DEFAULT,
-            os.environ[HOME],
-            SHELLS,
-            [],
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            None,
-            None,)
-
-        self.rm = "cd " + self.home + "\ncd .ssh\nrm -rf " + self.labelmenu_cert + " " + self.labelmenu_cert.rstrip('.pub') + "\n"
-        self.terminal8.feed_child(self.rm.encode("utf-8"))
+        priv  = self.labelmenu_cert.rstrip('.pub')
+        os.remove(self.labelmenu_cert)   
+        os.remove(priv)    
+       
 
     def on_cert_left_clicked(self,listbox_widget,event):
         desc = ""
@@ -282,7 +274,11 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
+        time.sleep(0.5)
+        self.list_certificates('clicked')
+        
         self.cert_name_win.hide()
+
     
     def cert_yes_no(self):
         self.cert_yes_no_win = Gtk.Window()
@@ -633,8 +629,6 @@ class MyWindow(Gtk.Window):
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
         self.notebook.set_current_page(0)
-        # self.write_certificates()
-        # self.# self.write_certificates(rtificates()
         self.toolbar()
         
     def on_click_change(self,listbox_widget): # Change attribute butonu görevi
