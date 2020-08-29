@@ -85,7 +85,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
-        self.notebook.append_page(self.page1, Gtk.Label("Main Page"))
+        self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
 
     def ui_info(self):
         self.UI_INFO = """
@@ -136,14 +136,14 @@ class MyWindow(Gtk.Window):
         
     def add_file_menu_actions(self, action_group):
         
-        action_filemenu = Gtk.Action(name="FileMenu", label="Certificates")
+        action_filemenu = Gtk.Action(name="FileMenu", label="Sertifikalar")
         action_group.add_action(action_filemenu)
 
-        action_filenewmenu = Gtk.Action(name="FileNew", label = "My Certificates")
+        action_filenewmenu = Gtk.Action(name="FileNew", label = "Sertifikalarım")
         action_group.add_action(action_filenewmenu)
         action_filenewmenu.connect("activate", self.list_certificates)
 
-        action_filenewnewmenu = Gtk.Action(name="FileNewNew", label = "Create Certficate")
+        action_filenewnewmenu = Gtk.Action(name="FileNewNew", label = "Sertifika Oluştur")
         action_filenewnewmenu.connect("activate", self.cert_name_window)
         action_group.add_action(action_filenewnewmenu)
     
@@ -155,7 +155,7 @@ class MyWindow(Gtk.Window):
         self.cert_listbox = Gtk.ListBox()
         self.notebook.remove_page(0)
         self.notebook.set_current_page(0)
-        self.notebook.prepend_page(page, Gtk.Label("Main Page"))
+        self.notebook.prepend_page(page, Gtk.Label("Ana Sayfa"))
         self.toolbar()
         
         for i in self.certificates:
@@ -229,13 +229,8 @@ class MyWindow(Gtk.Window):
 
     def create_ui_manager(self):
         uimanager = Gtk.UIManager()
-        # self.write_certificates()
-        # self.read_certificates()
         self.ui_info()
-        # Throws exception if something went wrong
         uimanager.add_ui_from_string(self.UI_INFO)
-
-        # Add the accelerator group to the toplevel window
         accelgroup = uimanager.get_accel_group()
         self.add_accel_group(accelgroup)
         return uimanager
@@ -244,6 +239,7 @@ class MyWindow(Gtk.Window):
         Gtk.main_quit()
     
     def create_certificate(self,event):
+        self.read_local_certificates()
         self.terminal3     = Vte.Terminal()
         self.terminal3.spawn_sync(
         Vte.PtyFlags.DEFAULT,
@@ -276,7 +272,6 @@ class MyWindow(Gtk.Window):
         self.terminal3.feed_child(self.passphrase.encode("utf-8"))
         time.sleep(0.5)
         self.list_certificates('clicked')
-        
         self.cert_name_win.hide()
 
     
@@ -328,7 +323,8 @@ class MyWindow(Gtk.Window):
 
     def cert_name_window(self,event):
         self.cert_name_win = Gtk.Window()
-        self.cert_name_win.set_title("Enter cert name")
+        self.cert_name_win.set_title("Yeni Sertifika")
+
         self.cert_name_win.set_border_width(10)
         self.table11 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
         self.cert_name_win.add(self.table11)
@@ -336,11 +332,11 @@ class MyWindow(Gtk.Window):
         self.cert_name_entry = Gtk.Entry()
         self.cert_pass_entry = Gtk.Entry()
         self.cert_pass_entry.set_visibility(False)
-        self.cert_name_button = Gtk.Button("Send")
+        self.cert_name_button = Gtk.Button("Gönder")
         self.cert_name_button.connect("clicked",self.create_certificate)
 
-        self.cert_name_entry.set_placeholder_text("Enter cert name(Optional)")
-        self.cert_pass_entry.set_placeholder_text("Enter pass(Optional)")
+        self.cert_name_entry.set_placeholder_text("Sertifika Adı (İsteğe Bağlı)")
+        self.cert_pass_entry.set_placeholder_text("Sertifika Parolası (İsteğe Bağlı)")
 
         self.cert_name_win.add(self.cert_name_button)
         self.table11.attach(self.cert_name_entry,0,1,0,1)
@@ -362,8 +358,7 @@ class MyWindow(Gtk.Window):
         None,)
         
         self.connect_w_cert = "ssh " + self.get_host_before + "\n"
-    #        self.connect_w_certpass = 
-
+        
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
         try : 
             self.baglantilar.clear()
@@ -410,19 +405,19 @@ class MyWindow(Gtk.Window):
                 
     def context_menu(self): # Buton sağ tıkında açılan menü 
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("Create New Notebook")
-        menu.append(menu_item)
-        menu_item.connect("activate", self.on_click_popup)
+        #menu_item = Gtk.MenuItem("Create New Notebook")
+        #menu.append(menu_item)
+        #menu_item.connect("activate", self.on_click_popup)
 
-        menu_item_del = Gtk.MenuItem("Delete Host Configuration")
+        menu_item_del = Gtk.MenuItem("Bağlantıyı Sil")
         menu.append(menu_item_del)
         menu_item_del.connect("activate",self.on_click_delete)
 
-        menu_item_connect = Gtk.MenuItem("Connect Host")
+        menu_item_connect = Gtk.MenuItem("Bağlan")
         menu.append(menu_item_connect)
         menu_item_connect.connect("activate",self.on_click_connect)
 
-        menu_item_scp = Gtk.MenuItem("Send File (Scp)")
+        menu_item_scp = Gtk.MenuItem("Scp ile Dosya Gönder")
         menu.append(menu_item_scp)
         menu_item_scp.connect("activate",self.scp_transfer)
 
@@ -576,7 +571,7 @@ class MyWindow(Gtk.Window):
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.notebook.prepend_page(self.page1, Gtk.Label("Main Page"))
+        self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
         self.notebook.set_current_page(0),
         self.toolbar()
         self.get_host_before = labelname
@@ -587,7 +582,7 @@ class MyWindow(Gtk.Window):
         self.entries_dict={}
         grid_count=2
         grid_count_2=2
-        self.header = Gtk.Label(labelname+" Attributes")
+        self.header = Gtk.Label(labelname+" Nitelikleri")
         grid.attach(self.header,0,1,1,1)
 
         for p_id, p_info in self.baglantilar.items():
@@ -610,13 +605,13 @@ class MyWindow(Gtk.Window):
                         grid.attach(self.temp,5,grid_count_2,2,1)
                         grid_count_2 += 1
 
-        self.add_attribute_button = Gtk.Button("Add New Attribute")
+        self.add_attribute_button = Gtk.Button("Yeni Nitelik Ekle")
         self.add_attribute_button.connect("clicked",self.add_attribute)
 
-        self.notebook_change_button = Gtk.Button("Change Configuration")
+        self.notebook_change_button = Gtk.Button("Niteliği Değiştir")
         self.notebook_change_button.connect('clicked',self.on_click_change)
 
-        self.start_sftp_button = Gtk.Button("Start Secure File Transfer")
+        self.start_sftp_button = Gtk.Button("SFTP ile Bağlan")
         self.start_sftp_button.connect("clicked",self.on_click_sftp)
 
         grid.attach(self.add_attribute_button,0,19,2,1)   # Add Attribute button
@@ -651,17 +646,17 @@ class MyWindow(Gtk.Window):
     def add_attribute(self,widget): # Yeni attribute penceresi
         self.add_attribute_window = Gtk.Window()
         self.add_attribute_window.set_default_size(10,100)
-        self.add_attribute_window.set_title("Add Attribute")
+        self.add_attribute_window.set_title("Nitelik Ekle")
         self.add_attribute_window.set_border_width(10)
         self.table3 = Gtk.Table(n_rows=3, n_columns=5, homogeneous=True)
         self.add_attribute_window.add(self.table3)
 
         self.attribute_name = Gtk.Entry()
         self.attribute_value = Gtk.Entry()
-        self.add_attribute_submit_button = Gtk.Button("Add")
+        self.add_attribute_submit_button = Gtk.Button("Ekle")
   
-        self.attribute_name.set_placeholder_text("Attribute Name")
-        self.attribute_value.set_placeholder_text("Value")
+        self.attribute_name.set_placeholder_text("Nitelik İsmi")
+        self.attribute_value.set_placeholder_text("Nitelik Değeri")
 
         self.add_attribute_window.add(self.attribute_name)
         self.add_attribute_window.add(self.attribute_value)
@@ -689,16 +684,16 @@ class MyWindow(Gtk.Window):
 
     def enter_password(self):
         self.connect_window = Gtk.Window()
-        self.connect_window.set_title("Connect")
+        self.connect_window.set_title("Parola Giriş Ekranı")
         self.connect_window.set_border_width(10)
         self.table4 = Gtk.Table(n_rows=3, n_columns=3, homogeneous=False)
         self.connect_window.add(self.table4)
 
         self.connect_password = Gtk.Entry()
-        self.connect_button = Gtk.Button("Connect")
-        connect_label = Gtk.Label("Enter your password.")
+        self.connect_button = Gtk.Button("Bağlan")
+        connect_label = Gtk.Label("Sunucu parolanızı girin.")
 
-        self.connect_password.set_placeholder_text("Password")
+        self.connect_password.set_placeholder_text("Parola")
         self.connect_password.set_visibility(False)
         self.connect_window.add(self.connect_password)
         self.connect_window.add(self.connect_button)
@@ -796,17 +791,17 @@ class MyWindow(Gtk.Window):
         self.yes_or_no_window = Gtk.Window()
         self.yes_or_no_window.set_default_size(300, 90)
         self.yes_or_no_window.add(self.table8)
-        self.yes_or_no_window.set_title("Yes/No")
+        self.yes_or_no_window.set_title("Emin misiniz ? ")
 
-        self.yes_button = Gtk.Button("YES")
+        self.yes_button = Gtk.Button("Devam Et")
         self.table8.attach(self.yes_button,1,10,4,8)
         self.yes_button.connect("clicked",self.yes_button_clicked)
         
-        self.no_button = Gtk.Button("NO")
+        self.no_button = Gtk.Button("Ayrıl")
         self.table8.attach(self.no_button,11,19,4,8)
-        self.yes_button.connect("clicked",self.no_button_clicked)
+        self.no_button.connect("clicked",self.no_button_clicked)
 
-        yes_or_no_label = Gtk.Label("     Are you sure you want to continue connecting (yes/no/[fingerprint])?    ")
+        yes_or_no_label = Gtk.Label("     Bu sunucuya ilk kez bağlanıyorsunuz. Devam etmek istediğinize emin misiniz ?  (evet/hayır/[fingerprint])?    ")
         self.table8.attach(yes_or_no_label,0,20,0,2)
 
         self.yes_or_no_window.show_all()   
@@ -828,8 +823,8 @@ class MyWindow(Gtk.Window):
         self.yes_or_no_window.hide()
     
     def no_button_clicked(self,event):
-        self.connect_window.hide()
         self.yes_or_no_window.hide()
+        self.connect_window.hide()
     
     def c_check(self):
         
@@ -890,11 +885,11 @@ class MyWindow(Gtk.Window):
     
     def file_choose(self,event):
         name_list = []
-        filechooserdialog = Gtk.FileChooserDialog(title="Select the file to send.",
+        filechooserdialog = Gtk.FileChooserDialog(title="Göndermek istediğiniz dosyayı seçin.",
              parent=None,
              action=Gtk.FileChooserAction.OPEN)
-        filechooserdialog.add_buttons("_Open", Gtk.ResponseType.OK)
-        filechooserdialog.add_buttons("_Close", Gtk.ResponseType.CANCEL)
+        filechooserdialog.add_buttons("_Gönder", Gtk.ResponseType.OK)
+        filechooserdialog.add_buttons("_Ayrıl", Gtk.ResponseType.CANCEL)
         filechooserdialog.set_default_response(Gtk.ResponseType.OK)
 
         response = filechooserdialog.run()
@@ -949,14 +944,14 @@ class MyWindow(Gtk.Window):
         
     def choose_file_btn2(self):
         self.choose_file_winbtn = Gtk.Window()
-        self.choose_file_winbtn.set_title("Choose File")
+        self.choose_file_winbtn.set_title("Dosya Seç")
         self.choose_file_winbtn.set_default_size(200, 200)
         self.choose_file_winbtn.set_border_width(20)
 
         self.table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
         self.choose_file_winbtn.add(self.table6)
         
-        choose_file_btn_ = Gtk.Button("Choose File")
+        choose_file_btn_ = Gtk.Button("Dosya Seç")
         self.choose_file_winbtn.add(choose_file_btn_) 
         choose_file_btn_.connect("clicked",self.file_choose)      
 
