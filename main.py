@@ -68,7 +68,7 @@ class MyWindow(Gtk.Window):
         scrolled_window.add_with_viewport(self.listbox)
         self.add(scrolled_window)
 
-        new_window_button = Gtk.Button("Add New Host")
+        new_window_button = Gtk.Button("Yeni Bağlantı")
         new_window_button.connect('clicked',self.add_newhost_window)
         self.toolbar()
         self.table.attach(self.box,0,10,0,1)
@@ -459,7 +459,7 @@ class MyWindow(Gtk.Window):
 
     def add_newhost_window(self,widget): ## Yeni açılan pencere
         self.input_window = Gtk.Window()
-        self.input_window.set_title("Add New Host")
+        self.input_window.set_title("Yeni Bağlantı Ekle")
         self.input_window.set_border_width(10)
         self.table2 = Gtk.Table(n_rows=7, n_columns=0, homogeneous=True)
         self.input_window.add(self.table2)
@@ -468,7 +468,7 @@ class MyWindow(Gtk.Window):
         self.host_name = Gtk.Entry()
         self.user = Gtk.Entry()
         self.port = Gtk.Entry()
-        self.submit_button = Gtk.Button("Send")
+        self.submit_button = Gtk.Button("Gönder")
   
         self.host.set_placeholder_text("Host")
         self.host_name.set_placeholder_text("HostName")
@@ -1019,12 +1019,21 @@ class MyWindow(Gtk.Window):
             localpath_list = localpath.split('/')
             print("Received text: %s" % localpath)
             print("Received text: %s" % remotepath)
-            self.put_dir(localpath,remotepath)
+
+
+            if os.path.isdir(localpath):  
+                self.put_dir(localpath,remotepath) 
+            elif os.path.isfile(localpath):  
+                remotepathfile=remotepath+"/"+localpath_list[-1]
+                self.ftp.put(localpath, remotepathfile) 
+
+
             self.deneme_tree()
 
     def put_dir(self, source, target):
         localpath_list = []
         localpath_list = source.split('/')
+
         self.ftp.mkdir(target+"/"+localpath_list[-1])
         self.ftp.chdir(target+"/"+localpath_list[-1])
         target=target+"/"+localpath_list[-1]
@@ -1060,12 +1069,19 @@ class MyWindow(Gtk.Window):
             print("Received text: %s" % localpath)
             print("Received text: %s" % remotepath)
             remotepath=remotepath+"/"+localpath_list[-1]
-            self.download_dir(localpath,remotepath)
+
+            fileattr = self.ftp.lstat(localpath)
+            if S_ISDIR(fileattr.st_mode):
+                self.download_dir(localpath,remotepath)
+            if S_ISREG(fileattr.st_mode):
+                self.ftp.get(localpath,remotepath)
+
             self.deneme_tree()
     
     def download_dir(self,remote_dir, local_dir):
+        
         os.path.exists(local_dir) or os.makedirs(local_dir)
-        dir_items = self.ftp.listdir_attr(remote_dir)
+        dir_items = self.ftp.listdir_attr(remote_dir) ##
         
         for item in dir_items:
 
