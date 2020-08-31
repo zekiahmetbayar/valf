@@ -447,6 +447,7 @@ class MyWindow(Gtk.Window):
 
         self.cert_name_win.present()
         self.cert_name_win.show_all()
+        
 
     def create_certificate(self,event): # Sertifika oluşturma görevi
         self.read_local_certificates
