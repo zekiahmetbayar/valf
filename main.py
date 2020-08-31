@@ -115,6 +115,7 @@ class MyWindow(Gtk.Window):
 
             files_list = ['/config','/known_hosts','/authorized_keys']
             for i in files_list:
+
                 Path(ssh_path+ i).touch()
 
     def write_config(self): # RAM'de tutulan dictionary değerlerini dosyaya yazar.
@@ -267,6 +268,7 @@ class MyWindow(Gtk.Window):
         <menu action='FileMenu'>
         <menuitem action='FileNew' />
         <menuitem action='FileNewNew' />
+        <menuitem action='SendCertificate' />
         </menu>
     </menubar>
     </ui>
@@ -336,9 +338,13 @@ class MyWindow(Gtk.Window):
     
     def context_menu_cert(self): # Sertifika butonuna sağ tıklanınca açılan menü
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("Delete Certificates")
+        menu_item = Gtk.MenuItem("Sertifikayı Sil")
         menu.append(menu_item)
         menu_item.connect("activate", self.delete_cert)
+
+        menu_item = Gtk.MenuItem("Sertifikayı Gönder")
+        menu.append(menu_item)
+        menu_item.connect("activate", self.send_cert)
         menu.show_all()
 
         return menu
@@ -349,8 +355,40 @@ class MyWindow(Gtk.Window):
         self.cert_listbox.show_all()
         priv  = self.labelmenu_cert.rstrip('.pub')
         os.remove(self.labelmenu_cert)   
-        os.remove(priv)           
+        os.remove(priv)   
+
+    def send_cert(self,action):
+        send_cert_window = Gtk.Window()
+        send_cert_window.set_title("Sertifikayı Gönder")
+
+        send_cert_window.set_border_width(10)
+        table12 = Gtk.Table(n_rows=2, n_columns=1, homogeneous=True)
+        send_cert_window.add(table12)
+
+        certificate_combo = Gtk.ComboBoxText()
+        certificate_combo.set_entry_text_column(0)
+        certificate_combo.connect("changed", self.on_combo_changed)
+        for currency in self.baglantilar.keys():
+            certificate_combo.append_text(currency)
+
+        send_cert_button = Gtk.Button("Gönder")
+        table12.attach(certificate_combo,0,1,0,1)
+        table12.attach(send_cert_button,0,1,1,2)
+
+
+        send_cert_window.present()
+        send_cert_window.show_all()
     
+    def on_combo_changed(self, combo):
+        self.text = combo.get_active_text()
+        if self.text is not None:
+            print("Selected: currency=%s" % self.text)
+    
+    def on_click_send_cert(self,action):
+        #subprocess('')
+        ssh_flag = True
+
+
     def on_cert_left_clicked(self,listbox_widget,event): # Sertifikalara sol tıklanma görevi
         desc = ""
         cert_path = listbox_widget.get_label().rstrip('\n')
@@ -390,22 +428,22 @@ class MyWindow(Gtk.Window):
         self.cert_name_win.set_title("Yeni Sertifika")
 
         self.cert_name_win.set_border_width(10)
-        self.table11 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
-        self.cert_name_win.add(self.table11)
+        table11 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
+        self.cert_name_win.add(table11)
 
         self.cert_name_entry = Gtk.Entry()
         self.cert_pass_entry = Gtk.Entry()
         self.cert_pass_entry.set_visibility(False)
-        self.cert_name_button = Gtk.Button("Gönder")
-        self.cert_name_button.connect("clicked",self.create_certificate)
+        cert_name_button = Gtk.Button("Gönder")
+        cert_name_button.connect("clicked",self.create_certificate)
 
         self.cert_name_entry.set_placeholder_text("Sertifika Adı (İsteğe Bağlı)")
         self.cert_pass_entry.set_placeholder_text("Sertifika Parolası (İsteğe Bağlı)")
 
-        self.cert_name_win.add(self.cert_name_button)
-        self.table11.attach(self.cert_name_entry,0,1,0,1)
-        self.table11.attach(self.cert_pass_entry,0,1,1,2)
-        self.table11.attach(self.cert_name_button,0,1,2,3)
+        self.cert_name_win.add(cert_name_button)
+        table11.attach(self.cert_name_entry,0,1,0,1)
+        table11.attach(self.cert_pass_entry,0,1,1,2)
+        table11.attach(cert_name_button,0,1,2,3)
 
         self.cert_name_win.present()
         self.cert_name_win.show_all()
