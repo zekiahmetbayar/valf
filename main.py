@@ -624,7 +624,15 @@ class MyWindow(Gtk.Window):
 
         add_attribute_submit_button.connect('clicked',self.on_click_add_attribute)
 
-        table3.attac    def on_search_activated(self,searchentry):
+        table3.attach(self.attribute_name,0,2,0,1)
+        table3.attach(self.attribute_value,3,5,0,1)
+
+        table3.attach(add_attribute_submit_button,1,4,2,3)
+
+        self.add_attribute_window.present()
+        self.add_attribute_window.show_all()    
+    
+    def on_search_activated(self,searchentry):
         self.baglantilar.clear()
         self.read_config()
         search_text = searchentry.get_text()
@@ -639,13 +647,7 @@ class MyWindow(Gtk.Window):
                 deneme_button.connect("button-press-event",self.button_left_click)
                 self.listbox.add(deneme_button)
                 
-                self.listbox.show_all()h(self.attribute_name,0,2,0,1)
-        table3.attach(self.attribute_value,3,5,0,1)
-
-        table3.attach(add_attribute_submit_button,1,4,2,3)
-
-        self.add_attribute_window.present()
-        self.add_attribute_window.show_all() 
+                self.listbox.show_all() 
 
         self.notebook.set_current_page(0)
 
@@ -676,6 +678,8 @@ class MyWindow(Gtk.Window):
         self.connect_password.set_placeholder_text("Parola")
         self.connect_password.set_visibility(False)
 
+        self.connect_window.add(table4)
+
         table4.attach(connect_label,0,3,0,1)
         table4.attach(self.connect_password,1,3,1,2)
         table4.attach(self.connect_button,1,3,2,3)
@@ -687,6 +691,7 @@ class MyWindow(Gtk.Window):
         table5 = Gtk.Table(n_rows=2, n_columns=3, homogeneous=True)
         self.wrong_pass_win = Gtk.Window()
         self.wrong_pass_win.set_title("Hata !")
+        self.wrong_pass_win.add(table5)
 
         wrong_pass_label = Gtk.Label("Hatalı Parola")
         table5.attach(wrong_pass_label,0,3,0,1)
@@ -915,21 +920,21 @@ class MyWindow(Gtk.Window):
         self.connect_button.connect('clicked',self.send_file)
         
     def select_file(self): # Dosya seçme ara penceresi
-        self.choose_file_winbtn = Gtk.Window()
-        self.choose_file_winbtn.set_title("Dosya Seç")
-        self.choose_file_winbtn.set_default_size(200, 200)
-        self.choose_file_winbtn.set_border_width(20)
+        choose_file_winbtn = Gtk.Window()
+        choose_file_winbtn.set_title("Dosya Seç")
+        choose_file_winbtn.set_default_size(200, 200)
+        choose_file_winbtn.set_border_width(20)
 
-        self.table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
-        self.choose_file_winbtn.add(self.table6)
+        table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
+        choose_file_winbtn.add(table6)
         
         choose_file_btn_ = Gtk.Button("Dosya Seç")
-        self.choose_file_winbtn.add(choose_file_btn_) 
+        choose_file_winbtn.add(choose_file_btn_) 
         choose_file_btn_.connect("clicked",self.file_choose)      
 
-        self.table6.attach(choose_file_btn_,0,1,0,1)
-        self.choose_file_winbtn.show_all()
-        self.connect_window.hide()
+        table6.attach(choose_file_btn_,0,1,0,1)
+        choose_file_winbtn.show_all()
+        connect_window.hide()
     
     ########################## SFTP İşlemleri #####################################
         
@@ -937,7 +942,7 @@ class MyWindow(Gtk.Window):
         table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.page1.add(self.table7)
+        self.page1.add(table7)
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
 
