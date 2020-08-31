@@ -11,7 +11,7 @@ from paramiko import SSHClient
 from scp import SCPClient
 import time
 import paramiko
-import subprocess
+from subprocess import run, PIPE
 import glob
 from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
 from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
@@ -449,40 +449,18 @@ class MyWindow(Gtk.Window):
         self.cert_name_win.show_all()
 
     def create_certificate(self,event): # Sertifika oluşturma görevi
-        self.read_local_certificates()
-        self.terminal3     = Vte.Terminal()
-        self.terminal3.spawn_sync(
-        Vte.PtyFlags.DEFAULT,
-        os.environ[HOME],
-        SHELLS,
-        [],
-        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-        None,
-        None,)
+        self.read_local_certificates
+        cert_input = self.home + '/.ssh/' + self.cert_name_entry.get_text() + self.cert_pass_entry.get_text() + '\n'
 
-        self.generate_ssh_cert = "ssh-keygen\n"
-        self.cert_name = self.home + "/.ssh/" + self.cert_name_entry.get_text() + "\n"
-        self.cert_name_none = "\n"
-        self.passphrase = self.cert_pass_entry.get_text()+ "\n"
-
-        self.terminal3.feed_child(self.generate_ssh_cert.encode("utf-8"))
-        time.sleep(0.5)
         if self.cert_name_entry.get_text() == '':
             if self.home + '/.ssh/id_rsa.pub' in self.certificates:
                 self.write_on_certificate()
                 time.sleep(0.5)
             else:
-                self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
-                time.sleep(0.5)
+                no_name_cert_input = '\n' + self.cert_pass_entry.get_text() + '\n'
+                create_cert = run('ssh-keygen', stdout=PIPE, input=no_name_cert_input, encoding='utf-8')
         else:
-            self.terminal3.feed_child(self.cert_name.encode("utf-8"))
-            time.sleep(0.5)
-
-        self.terminal3.feed_child(self.passphrase.encode("utf-8"))
-        time.sleep(0.5)
-
-        self.terminal3.feed_child(self.passphrase.encode("utf-8"))
-        time.sleep(0.5)
+            create_cert = run('ssh-keygen', stdout=PIPE, input=cert_input, encoding='utf-8')
 
         self.list_certificates('clicked')
         self.cert_name_win.hide()
@@ -510,7 +488,8 @@ class MyWindow(Gtk.Window):
         self.write_on_certificate_window.show_all()
 
     def on_click_write_on_yes_btn(self,clicked): # Üzerine yazılma kabul edildiyse
-        self.terminal3.feed_child(self.cert_name_none.encode("utf-8"))
+        no_name_cert_input = '\n' + self.cert_pass_entry.get_text() + '\n'
+        create_cert = run('ssh-keygen', stdout=PIPE, input=no_name_cert_input, encoding='utf-8')
         time.sleep(0.5)
         self.write_on_certificate_window.hide()
     
