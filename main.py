@@ -110,18 +110,12 @@ class MyWindow(Gtk.Window):
                             continue
         
         except:
-            terminal     = Vte.Terminal()
-            terminal.spawn_sync(
-            Vte.PtyFlags.DEFAULT,
-            os.environ[HOME],
-            SHELLS,
-            [],
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            None,
-            None,)
-            create_ssh_files = "mkdir .ssh\n" + "cd .ssh\n"  + "touch config known_hosts authorized_keys\n"
-            terminal.feed_child(create_ssh_files.encode("utf-8"))
-            time.sleep(0.5)
+            ssh_path = self.home + '/.ssh'
+            os.mkdir(ssh_path)
+
+            files_list = ['/config','/known_hosts','/authorized_keys']
+            for i in files_list:
+                Path(ssh_path+ i).touch()
 
     def write_config(self): # RAM'de tutulan dictionary değerlerini dosyaya yazar.
         with open(self.home+'/.ssh/config','w') as f:
