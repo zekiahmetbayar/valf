@@ -856,7 +856,7 @@ class MyWindow(Gtk.Window):
 
     ########################## SCP İşlemleri #####################################
     
-    def file_choose(self,event):
+    def file_choose(self,event): # File choose dialog
         name_list = []
         filechooserdialog = Gtk.FileChooserDialog(title="Göndermek istediğiniz dosyayı seçin.",
              parent=None,
@@ -881,7 +881,7 @@ class MyWindow(Gtk.Window):
         filechooserdialog.destroy()
         self.connect_window.hide()
         
-    def send_file(self,event):
+    def send_file(self,event): # SCP Bağlantısı
         ssh = SSHClient()
         ssh.load_system_host_keys()
 
@@ -910,11 +910,11 @@ class MyWindow(Gtk.Window):
         scp.put(self.send_file_path, self.file_name)
         scp.close()   
     
-    def scp_transfer(self,event):
+    def scp_transfer(self,event): # Ara yönlendirme fonksiyonu
         self.enter_password()
         self.connect_button.connect('clicked',self.send_file)
         
-    def select_file(self):
+    def select_file(self): # Dosya seçme ara penceresi
         self.choose_file_winbtn = Gtk.Window()
         self.choose_file_winbtn.set_title("Dosya Seç")
         self.choose_file_winbtn.set_default_size(200, 200)
@@ -934,9 +934,9 @@ class MyWindow(Gtk.Window):
     ########################## SFTP İşlemleri #####################################
         
     def sftp_file_transfer(self,event):
+        table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.page1.add(self.table7)
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
@@ -945,8 +945,8 @@ class MyWindow(Gtk.Window):
         self.deneme_tree()
         self.toolbar()        
  
-        self.table7.attach(self.scrollView,0,15,0,10)       
-        self.table7.attach(self.scrollView2,16,30,0,10) 
+        table7.attach(self.scrollView,0,15,0,10)       
+        table7.attach(self.scrollView2,16,30,0,10) 
         self.notebook.append_page(self.page1, self._button_box)
 
         self.number = self.notebook.page_num(self.page1)
@@ -976,7 +976,6 @@ class MyWindow(Gtk.Window):
             localpath_list = localpath.split('/')
             print("Received text: %s" % localpath)
             print("Received text: %s" % remotepath)
-
 
             if os.path.isdir(localpath):  
                 self.put_dir(localpath,remotepath) 
