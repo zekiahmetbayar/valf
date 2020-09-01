@@ -183,6 +183,11 @@ class MyWindow(Gtk.Window):
 
                 self.notebook.show_all()
                 self.notebook.set_current_page(-1)
+
+                com = 'ssh ' + self.labelmenu + '\n'
+
+                self.terminal.feed_child(com.encode("utf-8"))
+                time.sleep(0.5) 
             
         except:
             self.enter_password()
