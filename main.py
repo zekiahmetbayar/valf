@@ -17,6 +17,7 @@ from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeSto
 from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
 import pexpect
+import subprocess
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
@@ -150,8 +151,42 @@ class MyWindow(Gtk.Window):
         return menu
 
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
-        self.enter_password()
-        self.connect_button.connect('clicked',self.send_password)
+        try:
+            sshProcess = subprocess.Popen(['ssh', self.labelmenu,''],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            out, err = sshProcess.communicate(timeout=2)
+
+            key_word = b'WARRANTY'
+            if key_word in out:
+                self.terminal     = Vte.Terminal()
+                self.terminal.spawn_sync(
+                Vte.PtyFlags.DEFAULT,
+                os.environ[HOME],
+                SHELLS,
+                [],
+                GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                None,
+                None,)
+
+                self.new_page = Gtk.Box()
+                self.new_page.set_border_width(10)
+
+                self._button_box = Gtk.HBox()
+                self._button_box.get_style_context().add_class("right")
+
+                self.close_button()
+                self.new_page.add(self.terminal)
+                self.notebook.append_page(self.new_page, self._button_box)
+
+                self.number = self.notebook.page_num(self.new_page)
+                self.number_list.append(self.number)
+                self.number_list.pop()
+
+                self.notebook.show_all()
+                self.notebook.set_current_page(-1)
+            
+        except:
+            self.enter_password()
+            self.connect_button.connect('clicked',self.send_password)
 
     def button_left_click(self,listbox_widget,event): # Buton sol click fonksiyonu
         self.notebooks(listbox_widget.get_label())
