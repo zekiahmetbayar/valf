@@ -19,6 +19,7 @@ from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemT
 from gi.repository.GdkPixbuf import Pixbuf
 import pexpect
 import subprocess
+import signal
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
@@ -157,8 +158,8 @@ class MyWindow(Gtk.Window):
 
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         try:
-            sshProcess = subprocess.Popen(['ssh', self.labelmenu,''],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            out, err = sshProcess.communicate(timeout=1)
+            sshProcess = subprocess.Popen(['ssh', self.labelmenu],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            out, err = sshProcess.communicate(timeout=0.5)
 
             key_word = b'WARRANTY'
             if key_word in out:
@@ -195,6 +196,7 @@ class MyWindow(Gtk.Window):
                 time.sleep(0.5) 
             
         except:
+            sshProcess.send_signal(signal.SIGINT)
             self.enter_password()
             self.connect_button.connect('clicked',self.send_password)
 
@@ -579,7 +581,15 @@ class MyWindow(Gtk.Window):
         self.write_on_certificate_window.hide()
 
     def _close_cb(self, button): # Kapatma butonu görevi.
-        self.notebook.remove_page(self.number_list[-1])
+        exit_command = 'exit\n'
+        try:
+            self.terminal2.feed_child(exit_command.encode("utf-8"))
+            time.sleep(0.5)
+            self.notebook.remove_page(self.number_list[-1])
+        except:
+            self.terminal.feed_child(exit_command.encode("utf-8"))
+            time.sleep(0.5)
+            self.notebook.remove_page(self.number_list[-1])
     
     def delete_defined_certificate(self,event):
         try:
@@ -607,6 +617,7 @@ class MyWindow(Gtk.Window):
         
         self._button_box.pack_start(label1, False, False, 3)
         self._button_box.pack_start(_close_btn, False, False, 3)
+
     
     def close_button_2(self): # SFTP sayfasındaki close button.
         self._button_box = Gtk.HBox()
