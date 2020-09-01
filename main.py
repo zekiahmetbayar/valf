@@ -376,6 +376,7 @@ class MyWindow(Gtk.Window):
         page.add_with_viewport(self.cert_listbox)
         self.cert_listbox.show_all()
         self.notebook.show_all()
+        self.notebook.set_current_page(0)
     
     def context_menu_cert(self): # Sertifika butonuna sağ tıklanınca açılan menü
         menu = Gtk.Menu()
