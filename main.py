@@ -16,6 +16,7 @@ import glob
 from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
 from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
+import pexpect
 
 HOME = "HOME"
 SHELLS = [ "/bin/bash" ]
@@ -372,6 +373,7 @@ class MyWindow(Gtk.Window):
             certificate_combo.append_text(currency)
 
         send_cert_button = Gtk.Button("Gönder")
+        send_cert_button.connect('clicked',self.on_click_send_cert)
         table12.attach(certificate_combo,0,1,0,1)
         table12.attach(send_cert_button,0,1,1,2)
 
@@ -385,10 +387,20 @@ class MyWindow(Gtk.Window):
             print("Selected: currency=%s" % self.text)
     
     def on_click_send_cert(self,action):
-        #subprocess('')
-        ssh_flag = True
+        self.enter_password()
+        self.connect_button.connect('clicked',self.send_cert_action)
+    
+    def send_cert_action(self,event):
+        self.read_local_certificates()
+        send_pass = self.connect_password.get_text() + '\n'
+        send_cert = 'ssh-copy-id -i ' + self.labelmenu_cert + ' ' + self.text
 
-
+        child = pexpect.spawn(send_cert,encoding='utf-8')
+        child.expect('password:')
+        child.sendline(send_pass)
+        time.sleep(2)
+        self.connect_window.hide()
+        
     def on_cert_left_clicked(self,listbox_widget,event): # Sertifikalara sol tıklanma görevi
         desc = ""
         cert_path = listbox_widget.get_label().rstrip('\n')
@@ -447,11 +459,10 @@ class MyWindow(Gtk.Window):
 
         self.cert_name_win.present()
         self.cert_name_win.show_all()
-        
 
     def create_certificate(self,event): # Sertifika oluşturma görevi
-        self.read_local_certificates
-        cert_input = self.home + '/.ssh/' + self.cert_name_entry.get_text() + self.cert_pass_entry.get_text() + '\n'
+        self.read_local_certificates()
+        cert_input = self.home + '/.ssh/' + self.cert_name_entry.get_text() + '\n' + self.cert_pass_entry.get_text() + '\n' + self.cert_pass_entry.get_text() + '\n'
 
         if self.cert_name_entry.get_text() == '':
             if self.home + '/.ssh/id_rsa.pub' in self.certificates:
