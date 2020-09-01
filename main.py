@@ -1,5 +1,6 @@
 import gi
 import os
+import getpass
 from stat import S_ISDIR, S_ISREG
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Vte
@@ -459,8 +460,8 @@ class MyWindow(Gtk.Window):
         self.fail_cert_window.add(table14)
 
         fail_cert_label = Gtk.Label("Sunucu şifrenizi yanlış girmiş olabilirsiniz veya sertifika göndermek istediğiniz sunucuda\nzaten bir sertifikanız kayıtlı olabilir.Devam etmek için önceki sertifikanızı silmeniz\ngerekmektedir.")
-        fail_cert_button = Gtk.Button("Kapat")
-        fail_cert_button.connect('clicked',self.fail_cert_hide)
+        fail_cert_button = Gtk.Button("Sil")
+        fail_cert_button.connect('clicked',self.delete_defined_certificate)
         table14.attach(fail_cert_label,0,1,0,2)
         table14.attach(fail_cert_button,0,1,2,3)
 
@@ -582,8 +583,8 @@ class MyWindow(Gtk.Window):
     
     def delete_defined_certificate(self,event):
 
-        command = 'sed -i /zeki/d ~/.ssh/authorized_keys'
-        delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=path, encoding='utf-8')
+        command = 'sed -i /' + getpass.getuser() +'/d ~/.ssh/authorized_keys'
+        delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=command, encoding='utf-8')
 
     ########################## Notebook İşlemleri #####################################
        
