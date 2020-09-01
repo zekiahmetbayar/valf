@@ -146,6 +146,10 @@ class MyWindow(Gtk.Window):
         menu.append(menu_item_scp)
         menu_item_scp.connect("activate",self.scp_transfer)
 
+        menu_item_scp = Gtk.MenuItem("Tanımlı Sertifikayı Sil")
+        menu.append(menu_item_scp)
+        menu_item_scp.connect("activate",self.delete_defined_certificate)
+
         menu.show_all()
 
         return menu
@@ -575,6 +579,11 @@ class MyWindow(Gtk.Window):
 
     def _close_cb(self, button): # Kapatma butonu görevi.
         self.notebook.remove_page(self.number_list[-1])
+    
+    def delete_defined_certificate(self,event):
+
+        command = 'sed -i /zeki/d ~/.ssh/authorized_keys'
+        delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=path, encoding='utf-8')
 
     ########################## Notebook İşlemleri #####################################
        
