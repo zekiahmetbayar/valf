@@ -582,9 +582,12 @@ class MyWindow(Gtk.Window):
         self.notebook.remove_page(self.number_list[-1])
     
     def delete_defined_certificate(self,event):
-
-        command = 'sed -i /' + getpass.getuser() +'/d ~/.ssh/authorized_keys'
-        delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=command, encoding='utf-8')
+        try:
+            command = 'sed -i /' + getpass.getuser() +'/d ~/.ssh/authorized_keys'
+            delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=command, encoding='utf-8',timeout=1)
+        
+        except subprocess.TimeoutExpired:
+            print('Hata ! Bu sunucuya tanımlı bir sertifika yok.')
 
     ########################## Notebook İşlemleri #####################################
        
