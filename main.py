@@ -153,7 +153,7 @@ class MyWindow(Gtk.Window):
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         try:
             sshProcess = subprocess.Popen(['ssh', self.labelmenu,''],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            out, err = sshProcess.communicate(timeout=2)
+            out, err = sshProcess.communicate(timeout=1)
 
             key_word = b'WARRANTY'
             if key_word in out:
@@ -400,12 +400,12 @@ class MyWindow(Gtk.Window):
         os.remove(priv)   
 
     def send_cert(self,action):
-        send_cert_window = Gtk.Window()
-        send_cert_window.set_title("Sertifikayı Gönder")
+        self.send_cert_window = Gtk.Window()
+        self.send_cert_window.set_title("Sertifikayı Gönder")
 
-        send_cert_window.set_border_width(10)
+        self.send_cert_window.set_border_width(10)
         table12 = Gtk.Table(n_rows=2, n_columns=1, homogeneous=True)
-        send_cert_window.add(table12)
+        self.send_cert_window.add(table12)
 
         certificate_combo = Gtk.ComboBoxText()
         certificate_combo.set_entry_text_column(0)
@@ -418,30 +418,54 @@ class MyWindow(Gtk.Window):
         table12.attach(certificate_combo,0,1,0,1)
         table12.attach(send_cert_button,0,1,1,2)
 
-
-        send_cert_window.present()
-        send_cert_window.show_all()
+        self.send_cert_window.present()
+        self.send_cert_window.show_all()
     
     def on_combo_changed(self, combo):
         self.text = combo.get_active_text()
-        if self.text is not None:
-            print("Selected: currency=%s" % self.text)
     
     def on_click_send_cert(self,action):
         self.enter_password()
         self.connect_button.connect('clicked',self.send_cert_action)
     
     def send_cert_action(self,event):
-        self.read_local_certificates()
-        send_pass = self.connect_password.get_text() + '\n'
-        send_cert = 'ssh-copy-id -i ' + self.labelmenu_cert + ' ' + self.text
+        try:
+            self.read_local_certificates()
+            send_pass = self.connect_password.get_text() + '\n'
+            send_cert = 'ssh-copy-id -i ' + self.labelmenu_cert + ' ' + self.text
 
-        child = pexpect.spawn(send_cert,encoding='utf-8')
-        child.expect('password:')
-        child.sendline(send_pass)
-        time.sleep(2)
-        self.connect_window.hide()
+            child = pexpect.spawn(send_cert,encoding='utf-8')
+            child.expect('password:')
+            child.sendline(send_pass)
+            time.sleep(2)
+            self.connect_window.hide()
+            self.send_cert_window.hide()
         
+        except:
+            self.fail_cert()
+            self.connect_window.hide()
+            self.send_cert_window.hide()
+    
+    def fail_cert(self):
+        self.fail_cert_window = Gtk.Window()
+        self.fail_cert_window.set_title("Hata Mesajı")
+
+        self.fail_cert_window.set_border_width(10)
+        table14 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
+        self.fail_cert_window.add(table14)
+
+        fail_cert_label = Gtk.Label("Sunucu şifrenizi yanlış girmiş olabilirsiniz veya sertifika göndermek istediğiniz sunucuda\nzaten bir sertifikanız kayıtlı olabilir.Devam etmek için önceki sertifikanızı silmeniz\ngerekmektedir.")
+        fail_cert_button = Gtk.Button("Kapat")
+        fail_cert_button.connect('clicked',self.fail_cert_hide)
+        table14.attach(fail_cert_label,0,1,0,2)
+        table14.attach(fail_cert_button,0,1,2,3)
+
+        self.fail_cert_window.present()
+        self.fail_cert_window.show_all()
+    
+    def fail_cert_hide(self,event):
+        self.fail_cert_window.hide()
+    
     def on_cert_left_clicked(self,listbox_widget,event): # Sertifikalara sol tıklanma görevi
         desc = ""
         cert_path = listbox_widget.get_label().rstrip('\n')
@@ -998,7 +1022,7 @@ class MyWindow(Gtk.Window):
 
         table6.attach(choose_file_btn_,0,1,0,1)
         choose_file_winbtn.show_all()
-        connect_window.hide()
+        self.connect_window.hide()
     
     ########################## SFTP İşlemleri #####################################
         
