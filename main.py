@@ -3,9 +3,12 @@ import os
 import getpass
 from stat import S_ISDIR, S_ISREG
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Vte
+from gi.repository import Gtk
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, GLib
+gi.require_version('Vte', '2.91')
+from gi.repository import Vte
+
 from gi.repository import GObject
 from pathlib import Path
 from paramiko import SSHClient
@@ -37,7 +40,7 @@ class MyWindow(Gtk.Window):
     home = str(Path.home())
     baglantilar = dict() # Goal 1
     __gsignals__ = {
-        "close-tab": (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE, [GObject.TYPE_PYOBJECT]),
+        "close-tab": (GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, [GObject.TYPE_PYOBJECT]),
     }
 
     def __init__(self):
@@ -52,25 +55,20 @@ class MyWindow(Gtk.Window):
         table = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True) # Main table tanımlanması
         self.add(table)
         self.listbox = Gtk.ListBox() # Bağlantıların listelendiği listbox tanımlanması
-        self.add(self.listbox)
         self.listbox_add_items()
 
         searchentry = Gtk.SearchEntry() # Searchbox tanımlanması
         searchentry.connect("activate",self.on_search_activated)
-        self.add(searchentry)
 
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_border_width(5)
         scrolled_window.set_policy(
             Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
-        scrolled_window.add_with_viewport(self.listbox) # Bağlantı listbox'ına scrollview eklenmesi
-        self.add(scrolled_window)
+        scrolled_window.add(self.listbox) # Bağlantı listbox'ına scrollview eklenmesi
 
-        new_window_button = Gtk.Button("Yeni Bağlantı")
+        new_window_button = Gtk.Button(label ="Yeni Bağlantı")
         new_window_button.connect('clicked',self.add_new_host_window)
-
         self.toolbar()
-        self.add(self.notebook)
         
         table.attach(self.box,0,10,0,1)
         table.attach(new_window_button,5,10,9,10)
@@ -85,7 +83,7 @@ class MyWindow(Gtk.Window):
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
-        self.notebook.append_page(self.page1, Gtk.Label("Ana Sayfa"))
+        self.notebook.append_page(self.page1, Gtk.Label(label = "Ana Sayfa"))
 
     ########################## Config Dosyası İşlemleri #####################################
 
@@ -132,23 +130,23 @@ class MyWindow(Gtk.Window):
                 
     def context_menu(self): # Buton sağ tıkında açılan menü 
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("Create New Notebook")
+        menu_item = Gtk.MenuItem(label = "Create New Notebook")
         menu.append(menu_item)
         menu_item.connect("activate", self.on_click_popup)
 
-        menu_item_del = Gtk.MenuItem("Bağlantıyı Sil")
+        menu_item_del = Gtk.MenuItem(label = "Bağlantıyı Sil")
         menu.append(menu_item_del)
         menu_item_del.connect("activate",self.on_click_delete)
 
-        menu_item_connect = Gtk.MenuItem("Bağlan")
+        menu_item_connect = Gtk.MenuItem(label = "Bağlan")
         menu.append(menu_item_connect)
         menu_item_connect.connect("activate",self.on_click_connect)
 
-        menu_item_scp = Gtk.MenuItem("Scp ile Dosya Gönder")
+        menu_item_scp = Gtk.MenuItem(label = "Scp ile Dosya Gönder")
         menu.append(menu_item_scp)
         menu_item_scp.connect("activate",self.scp_transfer)
 
-        menu_item_scp = Gtk.MenuItem("Tanımlı Sertifikayı Sil")
+        menu_item_scp = Gtk.MenuItem(label = "Tanımlı Sertifikayı Sil")
         menu.append(menu_item_scp)
         menu_item_scp.connect("activate",self.delete_defined_certificate)
 
@@ -247,7 +245,7 @@ class MyWindow(Gtk.Window):
         self.host_name = Gtk.Entry()
         self.user = Gtk.Entry()
         self.port = Gtk.Entry()
-        self.submit_button = Gtk.Button("Gönder")
+        self.submit_button = Gtk.Button(label ="Gönder")
         self.submit_button.connect('clicked',self.on_click_add_new_host)
   
         self.host.set_placeholder_text("Host")
@@ -369,7 +367,7 @@ class MyWindow(Gtk.Window):
         self.cert_listbox = Gtk.ListBox()
         self.notebook.remove_page(0)
         self.notebook.set_current_page(0)
-        self.notebook.prepend_page(page, Gtk.Label("Ana Sayfa"))
+        self.notebook.prepend_page(page, Gtk.Label(label = "Ana Sayfa"))
         self.toolbar()
         
         for i in self.certificates:
@@ -379,7 +377,7 @@ class MyWindow(Gtk.Window):
             buttons.connect("button-press-event",self.on_cert_left_clicked)
             self.cert_listbox.add(buttons) 
         
-        page.add_with_viewport(self.cert_listbox)
+        page.add(self.cert_listbox)
         self.cert_listbox.show_all()
         self.notebook.show_all()
         self.notebook.set_current_page(0)
@@ -517,13 +515,12 @@ class MyWindow(Gtk.Window):
         self.cert_name_entry = Gtk.Entry()
         self.cert_pass_entry = Gtk.Entry()
         self.cert_pass_entry.set_visibility(False)
-        cert_name_button = Gtk.Button("Gönder")
+        cert_name_button = Gtk.Button(label = "Gönder")
         cert_name_button.connect("clicked",self.create_certificate)
 
         self.cert_name_entry.set_placeholder_text("Sertifika Adı (İsteğe Bağlı)")
         self.cert_pass_entry.set_placeholder_text("Sertifika Parolası (İsteğe Bağlı)")
 
-        self.cert_name_win.add(cert_name_button)
         table11.attach(self.cert_name_entry,0,1,0,1)
         table11.attach(self.cert_pass_entry,0,1,1,2)
         table11.attach(cert_name_button,0,1,2,3)
@@ -642,7 +639,7 @@ class MyWindow(Gtk.Window):
         self.notebook.remove_page(0)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
-        self.notebook.prepend_page(self.page1, Gtk.Label("Ana Sayfa"))
+        self.notebook.prepend_page(self.page1, Gtk.Label(label = "Ana Sayfa"))
         self.notebook.set_current_page(0),
         self.toolbar()
         self.get_host_before = labelname
@@ -653,7 +650,7 @@ class MyWindow(Gtk.Window):
         self.entries_dict={}
         grid_count=2
         grid_count_2=2
-        header = Gtk.Label(labelname+" Nitelikleri")
+        header = Gtk.Label( label = labelname+" Nitelikleri")
         grid.attach(header,0,1,1,1)
 
         for p_id, p_info in self.baglantilar.items():
@@ -661,7 +658,7 @@ class MyWindow(Gtk.Window):
                     if(p_info['Host']==labelname):
                         labeltemp = "left_label_"+str(key)
                         oldlabel = labeltemp
-                        labeltemp = Gtk.Label(key) 
+                        labeltemp = Gtk.Label(label = key) 
                         self.label_dict[oldlabel] = labeltemp
 
                         grid.attach(labeltemp,0,grid_count,2,1)
@@ -676,13 +673,13 @@ class MyWindow(Gtk.Window):
                         grid.attach(temp,5,grid_count_2,2,1)
                         grid_count_2 += 1
 
-        add_attribute_button = Gtk.Button("Yeni Nitelik Ekle")
+        add_attribute_button = Gtk.Button(label = "Yeni Nitelik Ekle")
         add_attribute_button.connect("clicked",self.add_attribute)
 
-        notebook_change_button = Gtk.Button("Niteliği Değiştir")
+        notebook_change_button = Gtk.Button(label ="Niteliği Değiştir")
         notebook_change_button.connect('clicked',self.on_click_change)
 
-        start_sftp_button = Gtk.Button("SFTP ile Bağlan")
+        start_sftp_button = Gtk.Button(label ="SFTP ile Bağlan")
         start_sftp_button.connect("clicked",self.on_click_sftp)
 
         grid.attach(add_attribute_button,0,19,2,1)   # Add Attribute button
@@ -720,7 +717,7 @@ class MyWindow(Gtk.Window):
 
         self.attribute_name = Gtk.Entry()
         self.attribute_value = Gtk.Entry()
-        add_attribute_submit_button = Gtk.Button("Ekle")
+        add_attribute_submit_button = Gtk.Button(label ="Ekle")
   
         self.attribute_name.set_placeholder_text("Nitelik İsmi")
         self.attribute_value.set_placeholder_text("Nitelik Değeri")
@@ -767,8 +764,6 @@ class MyWindow(Gtk.Window):
                     os.system(' ')
                     i = i.rstrip('\n')
                     d = run(['cat',i],stdout=PIPE)
-                    print(d.stdout.decode('ascii'))
-
                     if d.stdout.decode('ascii') ==  b[c] + '\n':
                         e = i  
                         break      
@@ -819,8 +814,8 @@ class MyWindow(Gtk.Window):
         table4 = Gtk.Table(n_rows=3, n_columns=3, homogeneous=False)
 
         self.connect_password = Gtk.Entry()
-        self.connect_button = Gtk.Button("Bağlan")
-        connect_label = Gtk.Label("Sunucu parolanızı girin.")
+        self.connect_button = Gtk.Button(label = "Bağlan")
+        connect_label = Gtk.Label(label = "Sunucu parolanızı girin.")
 
         self.connect_password.set_placeholder_text("Parola")
         self.connect_password.set_visibility(False)
@@ -840,10 +835,10 @@ class MyWindow(Gtk.Window):
         self.wrong_pass_win.set_title("Hata !")
         self.wrong_pass_win.add(table5)
 
-        wrong_pass_label = Gtk.Label("Hatalı Parola")
+        wrong_pass_label = Gtk.Label(label = "Hatalı Parola")
         table5.attach(wrong_pass_label,0,3,0,1)
 
-        try_again_button = Gtk.Button("Tekrar Deneyin")
+        try_again_button = Gtk.Button(label = "Tekrar Deneyin")
         try_again_button.connect("clicked",self.hide)
 
         table5.attach(try_again_button,1,2,1,2)
@@ -1075,7 +1070,7 @@ class MyWindow(Gtk.Window):
         table6 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
         choose_file_winbtn.add(table6)
         
-        choose_file_btn_ = Gtk.Button("Dosya Seç")
+        choose_file_btn_ = Gtk.Button(label ="Dosya Seç")
         choose_file_winbtn.add(choose_file_btn_) 
         choose_file_btn_.connect("clicked",self.file_choose)      
 
@@ -1089,7 +1084,6 @@ class MyWindow(Gtk.Window):
         if self.notebook.get_current_page() != 0:
             degisken = self.notebook.get_current_page()
             self.notebook.remove_page(degisken)
-            print('aAAAAAAAAAAAAAAAAA')
             
         table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.page1 = Gtk.Box()
@@ -1125,7 +1119,6 @@ class MyWindow(Gtk.Window):
             data.set_text(model[treeiter][2],-1)
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
-        print("girdi")
         model=widget.get_model()
         drop_info = widget.get_dest_row_at_pos(x, y)
         if drop_info:
@@ -1171,7 +1164,6 @@ class MyWindow(Gtk.Window):
             data.set_text(model[treeiter][2],-1)
 
     def on_drag_data_received_2(self, widget, drag_context, x, y, data, info, time):
-        print("girdi")
         model=widget.get_model()
         drop_info = widget.get_dest_row_at_pos(x, y)
         if drop_info:
@@ -1211,7 +1203,7 @@ class MyWindow(Gtk.Window):
         
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore(fileSystemTreeStore, localroot)
-        fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
+        fileSystemTreeView = Gtk.TreeView(model = fileSystemTreeStore)
         treeViewCol = Gtk.TreeViewColumn("Ana makina")
         
         colCellText = Gtk.CellRendererText()
@@ -1233,13 +1225,13 @@ class MyWindow(Gtk.Window):
 
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
-        self.scrollView.add_with_viewport(fileSystemTreeView)
+        self.scrollView.add(fileSystemTreeView)
 
     def remoteTree(self,remoteroot):
         ssh_connect(self.ftp)  
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore2(fileSystemTreeStore2, remoteroot)
-        fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
+        fileSystemTreeView2 = Gtk.TreeView(model = fileSystemTreeStore2)
         treeViewCol2 = Gtk.TreeViewColumn("Bağlanılan makina")
         treeViewCol2.set_min_width(225)
    
@@ -1264,7 +1256,7 @@ class MyWindow(Gtk.Window):
 
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
-        self.scrollView2.add_with_viewport(fileSystemTreeView2)
+        self.scrollView2.add(fileSystemTreeView2)
 
         self.local_search = Gtk.SearchEntry() # Searchbox tanımlanması
         self.local_search.connect("activate",self.on_local_search_activated)
