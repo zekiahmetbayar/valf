@@ -316,7 +316,6 @@ class MyWindow(Gtk.Window):
         <menu action='FileMenu'>
         <menuitem action='FileNew' />
         <menuitem action='FileNewNew' />
-        <menuitem action='SendCertificate' />
         </menu>
     </menubar>
     </ui>
