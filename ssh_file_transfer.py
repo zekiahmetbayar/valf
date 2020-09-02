@@ -36,7 +36,7 @@ def populateFileSystemTreeStore2(treeStore, path, parent=None):
         #increment the item counter
         itemCounter += 1
     # add the dummy node back if nothing was inserted before
-    if itemCounter < 1: treeStore.append(parent, [None, None, None])
+    #if itemCounter < 1: treeStore.append(parent, [None, None, None])
 
 def onRowExpanded2(treeView, treeIter, treePath):
     # get the associated model

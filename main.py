@@ -1144,8 +1144,7 @@ class MyWindow(Gtk.Window):
             elif os.path.isfile(localpath):  
                 remotepathfile=remotepath+"/"+localpath_list[-1]
                 self.ftp.put(localpath, remotepathfile) 
-
-            
+        
 
     def put_dir(self, source, target):
         localpath_list = []
@@ -1192,6 +1191,7 @@ class MyWindow(Gtk.Window):
                 self.download_dir(localpath,remotepath)
             if S_ISREG(fileattr.st_mode):
                 self.ftp.get(localpath,remotepath)
+        
 
     def download_dir(self,remote_dir, local_dir):
         
@@ -1292,8 +1292,6 @@ class MyWindow(Gtk.Window):
             self.remotepath=self.degiskenrem
             self.sftp_file_transfer('clicked')
     
-            
-  
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
         self.auth_except_win.set_title("Fail")
