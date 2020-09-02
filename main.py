@@ -580,14 +580,6 @@ class MyWindow(Gtk.Window):
         self.write_on_certificate_window.hide()
 
     def _close_cb(self, button): # Kapatma butonu görevi.
-        exit_command = 'exit\n'
-        try:
-            self.terminal2.feed_child(exit_command.encode("utf-8"))
-            time.sleep(0.5)
-            self.notebook.remove_page(self.number_list[-1])
-        except:
-            self.terminal.feed_child(exit_command.encode("utf-8"))
-            time.sleep(0.5)
             self.notebook.remove_page(self.number_list[-1])
     
     def delete_defined_certificate(self,event):
@@ -771,8 +763,38 @@ class MyWindow(Gtk.Window):
         self.notebook.set_current_page(0)
     
     def on_click_sftp(self,widget):
-        self.enter_password()
-        self.connect_button.connect("clicked",self.sftp_file_transfer)
+        try:
+            sftpURL   =  self.baglantilar[self.get_host_before]['Hostname']
+            sftpUser  =  self.baglantilar[self.get_host_before]['User']
+                #sftpPass  =  self.connect_password.get_text()
+
+            mySSHK   = '/home/zeki/.ssh/1.pub'
+            sshcon   = paramiko.SSHClient()  # will create the object
+            sshcon.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # no known_hosts error
+            sshcon.connect(sftpURL, username=sftpUser, key_filename=mySSHK)
+
+            self.ftp = sshcon.open_sftp()
+            self.sftp_file_transfer('clicked')
+
+        except paramiko.ssh_exception.AuthenticationException:
+            self.enter_password()
+            self.connect_button.connect('clicked',self.normal_auth) 
+            
+    def normal_auth(self,clicked):
+        try:
+            sftpURL   =  self.baglantilar[self.get_host_before]['Hostname']
+            sftpUser  =  self.baglantilar[self.get_host_before]['User']
+            sftpPass  =  self.connect_password.get_text()
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )  
+
+            ssh.connect(sftpURL, username=sftpUser, password=sftpPass )
+            self.ftp = ssh.open_sftp()  
+            self.sftp_file_transfer('clicked') 
+            self.connect_window.hide()    
+
+        except paramiko.ssh_exception.AuthenticationException:
+            self.sftp_fail() 
 
     ########################## Parola Penceresi İşlemleri #####################################
 
@@ -1189,20 +1211,6 @@ class MyWindow(Gtk.Window):
         self.scrollView = Gtk.ScrolledWindow()
         self.scrollView.set_min_content_width(225)
         self.scrollView.add_with_viewport(fileSystemTreeView)
-
-        sftpURL   =  self.baglantilar[self.get_host_before]['Hostname']
-        sftpUser  =  self.baglantilar[self.get_host_before]['User']
-        sftpPass  =  self.connect_password.get_text()
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )
-        
-        try:
-            ssh.connect(sftpURL, username=sftpUser, password=sftpPass)
-            self.ftp = ssh.open_sftp()
-            self.connect_window.hide()
-
-        except :
-            self.sftp_fail()
 
         ssh_connect(self.ftp)  
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
