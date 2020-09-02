@@ -754,7 +754,7 @@ class MyWindow(Gtk.Window):
             for i in b:
                 if getpass.getuser() in i:
                     c = b.index(i)
-                    
+
                     
             os.chdir(self.home+'/.ssh')
             os.system('ls -d "$PWD"/* > /tmp/listOfFiles.list')
@@ -784,6 +784,8 @@ class MyWindow(Gtk.Window):
             sshcon.connect(sftpURL, username=sftpUser, key_filename=mySSHK)
 
             self.ftp = sshcon.open_sftp()
+            self.localpath='/home'
+            self.remotepath='/home' 
             self.sftp_file_transfer('clicked')
         except:
             self.enter_password()
@@ -799,7 +801,9 @@ class MyWindow(Gtk.Window):
             ssh.set_missing_host_key_policy( paramiko.AutoAddPolicy() )  
 
             ssh.connect(sftpURL, username=sftpUser, password=sftpPass )
-            self.ftp = ssh.open_sftp()  
+            self.ftp = ssh.open_sftp()
+            self.localpath='/home'
+            self.remotepath='/home'   
             self.sftp_file_transfer('clicked') 
             self.connect_window.hide()    
 
@@ -1082,24 +1086,34 @@ class MyWindow(Gtk.Window):
     ########################## SFTP İşlemleri #####################################
         
     def sftp_file_transfer(self,event):
+        if self.notebook.get_current_page() != 0:
+            degisken = self.notebook.get_current_page()
+            self.notebook.remove_page(degisken)
+            print('aAAAAAAAAAAAAAAAAA')
+            
         table7 = Gtk.Table(n_rows=10, n_columns=30, homogeneous=True)
         self.page1 = Gtk.Box()
         self.page1.set_border_width(10)
         self.page1.add(table7)
         self._button_box = Gtk.HBox()
         self._button_box.get_style_context().add_class("right")
-
+        
         self.close_button_2()
-        self.deneme_tree()
+
+        self.localTree(self.localpath)
+        self.remoteTree(self.remotepath)
         self.toolbar()        
  
-        table7.attach(self.scrollView,0,15,0,10)       
-        table7.attach(self.scrollView2,16,30,0,10) 
+        table7.attach(self.scrollView,0,15,1,10)       
+        table7.attach(self.scrollView2,16,30,1,10)
+        table7.attach(self.local_search,0,15,0,1)
+        table7.attach(self.remote_search,16,30,0,1)
         self.notebook.append_page(self.page1, self._button_box)
 
         self.number = self.notebook.page_num(self.page1)
         self.number_list.append(self.number)
         self.number_list.pop()
+        
         self.notebook.show_all()
         self.notebook.set_current_page(-1)
     
@@ -1131,7 +1145,8 @@ class MyWindow(Gtk.Window):
                 remotepathfile=remotepath+"/"+localpath_list[-1]
                 self.ftp.put(localpath, remotepathfile) 
 
-            self.deneme_tree()
+            self.localTree('/home')
+            self.remoteTree('/home')
 
     def put_dir(self, source, target):
         localpath_list = []
@@ -1179,7 +1194,8 @@ class MyWindow(Gtk.Window):
             if S_ISREG(fileattr.st_mode):
                 self.ftp.get(localpath,remotepath)
 
-            self.deneme_tree()
+            self.localTree('/home')
+            self.remoteTree('/home')
     
     def download_dir(self,remote_dir, local_dir):
         
@@ -1195,9 +1211,9 @@ class MyWindow(Gtk.Window):
             else:
                 self.ftp.get(remote_path, local_path)
 
-    def deneme_tree(self):
+    def localTree(self,localroot):
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
-        populateFileSystemTreeStore(fileSystemTreeStore, '/home')
+        populateFileSystemTreeStore(fileSystemTreeStore, localroot)
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
         treeViewCol = Gtk.TreeViewColumn("Ana makina")
         
@@ -1222,19 +1238,20 @@ class MyWindow(Gtk.Window):
         self.scrollView.set_min_content_width(225)
         self.scrollView.add_with_viewport(fileSystemTreeView)
 
+    def remoteTree(self,remoteroot):
         ssh_connect(self.ftp)  
         fileSystemTreeStore2 = Gtk.TreeStore(str, Pixbuf, str)
-        populateFileSystemTreeStore2(fileSystemTreeStore2, '/home')
+        populateFileSystemTreeStore2(fileSystemTreeStore2, remoteroot)
         fileSystemTreeView2 = Gtk.TreeView(fileSystemTreeStore2)
         treeViewCol2 = Gtk.TreeViewColumn("Bağlanılan makina")
         treeViewCol2.set_min_width(225)
    
         colCellText2 = Gtk.CellRendererText()
         colCellImg2 = Gtk.CellRendererPixbuf()
-        treeViewCol2.pack_start(colCellImg, False)
-        treeViewCol2.pack_start(colCellText, True)
-        treeViewCol2.add_attribute(colCellText, "text", 0)
-        treeViewCol2.add_attribute(colCellImg, "pixbuf", 1)
+        treeViewCol2.pack_start(colCellImg2, False)
+        treeViewCol2.pack_start(colCellText2, True)
+        treeViewCol2.add_attribute(colCellText2, "text", 0)
+        treeViewCol2.add_attribute(colCellImg2, "pixbuf", 1)
         fileSystemTreeView2.append_column(treeViewCol2)
         fileSystemTreeView2.connect("row-expanded", onRowExpanded2)
         fileSystemTreeView2.connect("row-collapsed", onRowCollapsed2)
@@ -1251,6 +1268,25 @@ class MyWindow(Gtk.Window):
         self.scrollView2 = Gtk.ScrolledWindow()
         self.scrollView2.set_min_content_width(225)
         self.scrollView2.add_with_viewport(fileSystemTreeView2)
+
+        self.local_search = Gtk.SearchEntry() # Searchbox tanımlanması
+        self.local_search.connect("activate",self.on_local_search_activated)
+
+        self.remote_search = Gtk.SearchEntry() # Searchbox tanımlanması
+        self.remote_search.connect("activate",self.on_remote_search_activated)
+        
+    
+    def on_local_search_activated(self,clicked):
+        print(self.local_search.get_text())
+        self.localpath=self.local_search.get_text()
+        self.sftp_file_transfer('clicked')
+        
+
+    def on_remote_search_activated(self,clicked):
+        print(self.remote_search.get_text())
+        self.remotepath=self.remote_search.get_text()
+        self.sftp_file_transfer('clicked')
+  
     
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
