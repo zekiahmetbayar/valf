@@ -755,6 +755,7 @@ class MyWindow(Gtk.Window):
                 if getpass.getuser() in i:
                     c = b.index(i)
                     
+                    
             os.chdir(self.home+'/.ssh')
             os.system('ls -d "$PWD"/* > /tmp/listOfFiles.list')
 
