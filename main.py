@@ -734,25 +734,6 @@ class MyWindow(Gtk.Window):
 
         self.add_attribute_window.present()
         self.add_attribute_window.show_all()    
-    
-    def on_search_activated(self,searchentry):
-        self.baglantilar.clear()
-        self.read_config()
-        search_text = searchentry.get_text()
-        keys = self.baglantilar.keys()
-        for row in self.listbox.get_children():
-            self.listbox.remove(row)
-        for i in keys:
-
-            if search_text in i:
-                deneme_button=Gtk.Button.new_with_label(i)
-                deneme_button.connect("button-press-event",self.button_clicked)
-                deneme_button.connect("button-press-event",self.button_left_click)
-                self.listbox.add(deneme_button)
-                
-                self.listbox.show_all() 
-
-        self.notebook.set_current_page(0)
 
     def on_click_add_attribute(self,widget): # Yeni attribute ekleme butonu görevi
         self.add_attribute_window.hide()
@@ -764,21 +745,49 @@ class MyWindow(Gtk.Window):
     
     def on_click_sftp(self,widget):
         try:
+            control_command = 'grep -F ' + getpass.getuser() +' ~/.ssh/authorized_keys'
+            control_auth = run(['ssh',self.get_host_before], stdout=PIPE, input=control_command, encoding='utf-8',timeout=1)
+            a = control_auth.stdout
+            b = list()
+
+            b = a.split('\n')
+            for i in b:
+                if getpass.getuser() in i:
+                    c = b.index(i)
+                    
+            os.chdir(self.home+'/.ssh')
+            os.system('ls -d "$PWD"/* > /tmp/listOfFiles.list')
+
+            with open('/tmp/listOfFiles.list') as y:
+                s = list()
+                s = y.readlines()
+
+                for i in s:
+                    os.system(' ')
+                    i = i.rstrip('\n')
+                    d = run(['cat',i],stdout=PIPE)
+                    print(d.stdout.decode('ascii'))
+
+                    if d.stdout.decode('ascii') ==  b[c] + '\n':
+                        e = i  
+                        break      
+
             sftpURL   =  self.baglantilar[self.get_host_before]['Hostname']
             sftpUser  =  self.baglantilar[self.get_host_before]['User']
-                #sftpPass  =  self.connect_password.get_text()
+                    #sftpPass  =  self.connect_password.get_text()
 
-            mySSHK   = '/home/zeki/.ssh/1.pub'
+
+            mySSHK   = e
             sshcon   = paramiko.SSHClient()  # will create the object
             sshcon.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # no known_hosts error
             sshcon.connect(sftpURL, username=sftpUser, key_filename=mySSHK)
 
             self.ftp = sshcon.open_sftp()
             self.sftp_file_transfer('clicked')
-
-        except paramiko.ssh_exception.AuthenticationException:
+        except:
             self.enter_password()
-            self.connect_button.connect('clicked',self.normal_auth) 
+            self.connect_button.connect('clicked',self.normal_auth)
+
             
     def normal_auth(self,clicked):
         try:
