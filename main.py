@@ -1145,8 +1145,7 @@ class MyWindow(Gtk.Window):
                 remotepathfile=remotepath+"/"+localpath_list[-1]
                 self.ftp.put(localpath, remotepathfile) 
 
-            self.localTree('/home')
-            self.remoteTree('/home')
+            
 
     def put_dir(self, source, target):
         localpath_list = []
@@ -1194,9 +1193,6 @@ class MyWindow(Gtk.Window):
             if S_ISREG(fileattr.st_mode):
                 self.ftp.get(localpath,remotepath)
 
-            self.localTree('/home')
-            self.remoteTree('/home')
-    
     def download_dir(self,remote_dir, local_dir):
         
         os.path.exists(local_dir) or os.makedirs(local_dir)
@@ -1212,6 +1208,7 @@ class MyWindow(Gtk.Window):
                 self.ftp.get(remote_path, local_path)
 
     def localTree(self,localroot):
+        
         fileSystemTreeStore = Gtk.TreeStore(str, Pixbuf, str)
         populateFileSystemTreeStore(fileSystemTreeStore, localroot)
         fileSystemTreeView = Gtk.TreeView(fileSystemTreeStore)
@@ -1275,19 +1272,28 @@ class MyWindow(Gtk.Window):
         self.remote_search = Gtk.SearchEntry() # Searchbox tanımlanması
         self.remote_search.connect("activate",self.on_remote_search_activated)
         
-    
     def on_local_search_activated(self,clicked):
         print(self.local_search.get_text())
-        self.localpath=self.local_search.get_text()
-        self.sftp_file_transfer('clicked')
+        self.degisken=self.localpath
+        try:
+            self.localpath=self.local_search.get_text()
+            self.sftp_file_transfer('clicked')
+        except:
+            self.localpath=self.degisken
+            self.sftp_file_transfer('clicked')
         
-
     def on_remote_search_activated(self,clicked):
         print(self.remote_search.get_text())
-        self.remotepath=self.remote_search.get_text()
-        self.sftp_file_transfer('clicked')
-  
+        self.degiskenrem=self.remotepath
+        try:
+            self.remotepath=self.remote_search.get_text()
+            self.sftp_file_transfer('clicked')
+        except:
+            self.remotepath=self.degiskenrem
+            self.sftp_file_transfer('clicked')
     
+            
+  
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
         self.auth_except_win.set_title("Fail")
