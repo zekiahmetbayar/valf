@@ -451,14 +451,13 @@ class MyWindow(Gtk.Window):
         return menu
     
     def delete_cert(self,action): # Sertifika silme görevi 
-        
+        self.read_local_certificates()
         cert_index = self.certificates.index(self.labelmenu_cert)
         self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))
         self.cert_listbox.show_all()
         priv  = self.labelmenu_cert.rstrip('.pub')
         os.remove(self.labelmenu_cert)   
         os.remove(priv)   
-        print(cert_index)
 
     def send_cert(self,action):
         self.send_cert_window = Gtk.Window()
@@ -543,7 +542,7 @@ class MyWindow(Gtk.Window):
         label.set_line_wrap(True)
         label.set_selectable(True)
         scrollableWindow = Gtk.ScrolledWindow()
-        scrollableWindow.add_with_viewport(label)
+        scrollableWindow.add(label)
         scrollableWindow.set_min_content_width(750)
         scrollableWindow.set_min_content_height(100)
         content = dialog.get_content_area()
