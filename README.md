@@ -1,5 +1,5 @@
 ## [TR](#Valf) [EN](#Valf-|-EN)
-# VALF 
+# VALF
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
 Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasarlanmış bir uzaktan yönetim aracıdır.
@@ -61,7 +61,7 @@ Valf yapısı ve amacı gereği birden fazla alanda Sistem Yöneticilerine kolay
 * [Test edilen dağıtımlar](#Test-edilen-dağıtımlar)
 * [Lisans](#Lisans)
 
-# Fonksiyonların Kullanımı ve Detaylı Açıklamaları
+## Fonksiyonların Kullanımı ve Detaylı Açıklamaları
 ## Bağlantı Fonksiyonları
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 ## Bağlantıları ve Özelliklerini Arayüzde Görmek
