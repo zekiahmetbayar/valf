@@ -1,5 +1,5 @@
 
-## [TR](#TR) [EN](#EN)
+## [TR](#TR) | [EN](#EN)
 ###### TR
 # VALF ![](./img/icon.png)
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
@@ -334,7 +334,7 @@ Did you mistype your server IP? Wait, you don't desperately need to open the ter
 
 ![](https://raw.githubusercontent.com/zekiahmetbayar/zekiahmetbayar.github.io/master/Valf_GIFS/sert_g%C3%B6ster.gif)
 
-Sertifikalarım menüsüne tıklayarak mevcut sertifikalarınızı görebilir, üstlerine sol tıklayarak açık anahtarlarını görüntüleyebilir, kopyalayabilirsiniz.
+You can view your existing certificates by clicking on the My Certificates menu, view and copy their public keys by left clicking on them.
 
 ## Adding a New Certificate
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/vintage.png)
