@@ -56,6 +56,7 @@ class MyWindow(Gtk.Window):
         self.add(table)
         self.listbox = Gtk.ListBox() # Bağlantıların listelendiği listbox tanımlanması
         self.listbox_add_items()
+        self.set_icon_from_file(os.getcwd() + '/img/icon.png')
 
         searchentry = Gtk.SearchEntry() # Searchbox tanımlanması
         searchentry.connect("activate",self.on_search_activated)
@@ -84,7 +85,7 @@ class MyWindow(Gtk.Window):
         self.page1.set_border_width(10)
         self.page1.add(Gtk.Label(label = "İstediğiniz bağlantıya sol tıkladığınızda,\nbağlantı detaylarınız burada listelenecek."))
         self.notebook.append_page(self.page1, Gtk.Label(label = "Ana Sayfa"))
-
+    
     ########################## Config Dosyası İşlemleri #####################################
 
     def read_config(self): # Conf dosyasını gezer, değerleri okur, dictionary'e atar.
@@ -130,9 +131,6 @@ class MyWindow(Gtk.Window):
                 
     def context_menu(self): # Buton sağ tıkında açılan menü 
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem(label = "Create New Notebook")
-        menu.append(menu_item)
-        menu_item.connect("activate", self.on_click_popup)
 
         menu_item_del = Gtk.MenuItem(label = "Bağlantıyı Sil")
         menu.append(menu_item_del)
@@ -156,7 +154,7 @@ class MyWindow(Gtk.Window):
 
     def on_click_connect(self,widget): # Sağ tık menüsündeki Connect Host seçeneği ile açılan pencere
         try:
-            sshProcess = subprocess.Popen(['ssh', self.labelmenu],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            sshProcess = subprocess.Popen(['ssh', '-T',self.labelmenu],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             out, err = sshProcess.communicate(timeout=0.5)
 
             key_word = b'Linux'
@@ -441,11 +439,11 @@ class MyWindow(Gtk.Window):
     
     def context_menu_cert(self): # Sertifika butonuna sağ tıklanınca açılan menü
         menu = Gtk.Menu()
-        menu_item = Gtk.MenuItem("Sertifikayı Sil")
+        menu_item = Gtk.MenuItem(label = "Sertifikayı Sil")
         menu.append(menu_item)
         menu_item.connect("activate", self.delete_cert)
 
-        menu_item = Gtk.MenuItem("Sertifikayı Gönder")
+        menu_item = Gtk.MenuItem(label ="Sertifikayı Gönder")
         menu.append(menu_item)
         menu_item.connect("activate", self.send_cert)
         menu.show_all()
@@ -486,6 +484,7 @@ class MyWindow(Gtk.Window):
         self.text = combo.get_active_text()
     
     def on_click_send_cert(self,action):
+        self.send_cert_window.hide()
         self.enter_password()
         self.connect_button.connect('clicked',self.send_cert_action)
     
@@ -516,16 +515,17 @@ class MyWindow(Gtk.Window):
         self.fail_cert_window.add(table14)
 
         fail_cert_label = Gtk.Label(label = "Sunucu şifrenizi yanlış girmiş olabilirsiniz veya sertifika göndermek istediğiniz sunucuda\nzaten bir sertifikanız kayıtlı olabilir.Devam etmek için önceki sertifikanızı silmeniz\ngerekmektedir.")
-        fail_cert_button = Gtk.Button(label = "Sil")
-        fail_cert_button.connect('clicked',self.delete_defined_certificate)
+        fail_cert_button = Gtk.Button(label = "Tamam")
+        fail_cert_button.connect('clicked',self.fail_cert_hide)
         table14.attach(fail_cert_label,0,1,0,2)
         table14.attach(fail_cert_button,0,1,2,3)
 
         self.fail_cert_window.present()
         self.fail_cert_window.show_all()
     
-    def fail_cert_hide(self,event):
+    def fail_cert_hide(self,clicked):
         self.fail_cert_window.hide()
+    
     
     def on_cert_left_clicked(self,listbox_widget,event): # Sertifikalara sol tıklanma görevi
         desc = ""
@@ -637,7 +637,7 @@ class MyWindow(Gtk.Window):
     def delete_defined_certificate(self,event):
         try:
             command = 'sed -i /' + getpass.getuser() +'/d ~/.ssh/authorized_keys'
-            delete_def_cert = run(['ssh',self.labelmenu], stdout=PIPE, input=command, encoding='utf-8',timeout=1)
+            delete_def_cert = run(['ssh','-T',self.labelmenu], stdout=PIPE, input=command, encoding='utf-8',timeout=1)
         
         except subprocess.TimeoutExpired:
             print('Hata ! Bu sunucuya tanımlı bir sertifika yok.')
@@ -803,16 +803,14 @@ class MyWindow(Gtk.Window):
     def on_click_sftp(self,widget):
         try:
             control_command = 'grep -F ' + getpass.getuser() +' ~/.ssh/authorized_keys'
-            control_auth = run(['ssh',self.get_host_before], stdout=PIPE, input=control_command, encoding='utf-8',timeout=1)
+            control_auth = run(['ssh','-T',self.get_host_before], stdout=PIPE, input=control_command, encoding='utf-8',timeout=1)
             a = control_auth.stdout
             b = list()
-
             b = a.split('\n')
             for i in b:
                 if getpass.getuser() in i:
                     c = b.index(i)
-
-                    
+      
             os.chdir(self.home+'/.ssh')
             os.system('ls -d "$PWD"/* > /tmp/listOfFiles.list')
 
@@ -1119,6 +1117,8 @@ class MyWindow(Gtk.Window):
         scp.close()   
     
     def scp_transfer(self,event): # Ara yönlendirme fonksiyonu
+
+
         self.enter_password()
         self.connect_button.connect('clicked',self.send_file)
         

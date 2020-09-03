@@ -1,5 +1,5 @@
 ## [TR](#Valf) [EN](#Valf-|-EN)
-# VALF
+# VALF ![](./img/icon.png)
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
 Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasarlanmış bir uzaktan yönetim aracıdır.
