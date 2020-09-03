@@ -246,37 +246,37 @@ Valf has separate functions in more than one area as it provides convenience to 
 
 ## Host Functions
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
-* [Viewing hosts and properties on the interface]()
-* [Adding a new host]()
-* [Delete host]()
-* [Adding new attributes to the host]()
-* [Deleting host attributes]()
-* [Editing host attributes]()
+* [Viewing hosts and properties on the interface](#Viewing-Hosts-and-Their-Properties-on-the-Interface)
+* [Adding new host](#Adding-new-host)
+* [Deleting a host](#Deleting-a-host)
+* [Adding new attribute to a host](#Adding-new-attribute-to-a-host)
+* [Deleting host attributes](#Deleting-host-attributes)
+* [Editing host attributes](#Editing-host-attributes)
 ## Certificate Functions
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
-* [Viewing certificates and public keys]()
-* [Adding a new certificate]()
-* [Deleting a certificate]()
-* [Defining certificates to servers]()
-* [Deleting defined certificates]()
+* [Viewing certificates and their public keys](#Viewing-certificates-and-their-public-keys)
+* [Adding a new certificate](#Adding-a-new-certificate)
+* [Deleting a certificate](#Deleting-a-certificate)
+* [Defining certificates to servers](#Defining-certificates-to-servers)
+* [Deleting defined certificates](#Deleting-defined-certificates)
 ## Establishing Connection and File Transfer Functions
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
-* [Making an SSH connection]()
-* [Transferring files with SCP]()
-* [Navigating local machine / remote server file systems with SFTP]()
-* [Transferring files / directories with SFTP]()
+* [Establishing an SSH connection](#Establishing-an-SSH-connection)
+* [Transferring files with SCP](#Transferring-files-with-SCP)
+* [Navigating local machine / remote server file systems with SFTP](#Navigating-local-machine-/-remote-server-file-systems-with-SFTP)
+* [Transferring files / directories with SFTP](#Transferring-files-/-directories-with-SFTP)
 
 ## Additional Topics
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
-* [For contributers]()
-* [Tested distributions]()
-* [License]()
+* [For contributers](#For-contributers)
+* [Tested distributions](#Tested-distributions)
+* [License](#License)
 
 ## Usage of Functions and Detailed Explanations
 ## Host Functions
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
-## Viewing Links and Their Properties on the Interface
+## Viewing Hosts and Their Properties on the Interface
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/vintage.png)
 
 ![](./img/valf.png)
@@ -410,7 +410,7 @@ The most important and easiest feature of Valf is to transfer files or directori
 
 Among the features explained throughout the README file, there are some features that we want in the Valve but cannot be added for various reasons. Open Source Volunteers who want to contribute can primarily support Valve from these points.
 
-# Tested Deployments
+# Tested Distributions
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
 * Pardus 19.03 XFCE
@@ -418,7 +418,9 @@ Among the features explained throughout the README file, there are some features
 
 *Note: Please let us know if you can use Valve without problems on a version not mentioned here.*
 
-# Lisans
+# Licence
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
 This repository is licensed under the MIT license.
+
+*Not: Dosyanın İngilizceye çevirisi Etem Yürek tarafından gönüllü olarak katkı sağlamak amacı ile yapılmıştır.*
