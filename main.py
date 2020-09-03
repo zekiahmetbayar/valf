@@ -451,12 +451,14 @@ class MyWindow(Gtk.Window):
         return menu
     
     def delete_cert(self,action): # Sertifika silme görevi 
+        
         cert_index = self.certificates.index(self.labelmenu_cert)
         self.cert_listbox.remove(self.cert_listbox.get_row_at_index(cert_index))
         self.cert_listbox.show_all()
         priv  = self.labelmenu_cert.rstrip('.pub')
         os.remove(self.labelmenu_cert)   
         os.remove(priv)   
+        print(cert_index)
 
     def send_cert(self,action):
         self.send_cert_window = Gtk.Window()
@@ -564,7 +566,7 @@ class MyWindow(Gtk.Window):
         self.cert_name_win.set_title("Yeni Sertifika")
 
         self.cert_name_win.set_border_width(10)
-        table11 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
+        table11 = Gtk.Table(n_rows=2, n_columns=1, homogeneous=True)
         self.cert_name_win.add(table11)
 
         self.cert_name_entry = Gtk.Entry()
@@ -574,18 +576,16 @@ class MyWindow(Gtk.Window):
         cert_name_button.connect("clicked",self.create_certificate)
 
         self.cert_name_entry.set_placeholder_text("Sertifika Adı (İsteğe Bağlı)")
-        self.cert_pass_entry.set_placeholder_text("Sertifika Parolası (İsteğe Bağlı)")
 
         table11.attach(self.cert_name_entry,0,1,0,1)
-        table11.attach(self.cert_pass_entry,0,1,1,2)
-        table11.attach(cert_name_button,0,1,2,3)
+        table11.attach(cert_name_button,0,1,1,2)
 
         self.cert_name_win.present()
         self.cert_name_win.show_all()
 
     def create_certificate(self,event): # Sertifika oluşturma görevi
         self.read_local_certificates()
-        cert_input = self.home + '/.ssh/' + self.cert_name_entry.get_text() + '\n' + self.cert_pass_entry.get_text() + '\n' + self.cert_pass_entry.get_text() + '\n'
+        cert_input = self.home + '/.ssh/' + self.cert_name_entry.get_text() + '\n'
 
         if self.cert_name_entry.get_text() == '':
             if self.home + '/.ssh/id_rsa.pub' in self.certificates:
