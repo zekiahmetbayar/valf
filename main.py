@@ -234,7 +234,7 @@ class MyWindow(Gtk.Window):
         self.baglantilar.pop(self.labelmenu)
         self.write_config()   
 
-    def add_new_host_window(self,widget): # Yeni host ekleme penceresi
+    def add_new_host_window(self,event): # Yeni host ekleme penceresi
         self.input_window = Gtk.Window()
         self.input_window.set_title("Yeni Bağlantı Ekle")
         self.input_window.set_border_width(10)
@@ -275,18 +275,75 @@ class MyWindow(Gtk.Window):
         self.listbox.show_all()
     
     def on_click_add_new_host(self,widget): ## Açılır penceredeki gönder butonu fonksiyonu
-        self.read_config()
-        new_host = self.host.get_text()
-        new_hostname = self.host_name.get_text()
-        new_user = self.user.get_text()
-        default_port = '22'
+        if self.host.get_text() == '':
+            self.blank_entry_from_new_host()
+        
+        elif self.host_name.get_text() == '':
+            self.blank_entry_from_new_host()
+        
+        elif self.user.get_text() == '':
+            self.blank_entry_from_new_host()
 
-        self.baglantilar[new_host] = {'Host' : new_host, 'Hostname' : new_hostname , 'User' : new_user, 'Port' : default_port}
-        self.write_config()
+        elif self.host.get_text() == self.user.get_text():
+            self.same_name_from_new_host()
 
-        self.listbox_add_items()
-        self.listbox.show_all()
-        self.input_window.hide()
+        else:
+            self.read_config()
+            new_host = self.host.get_text()
+            new_hostname = self.host_name.get_text()
+            new_user = self.user.get_text()
+            default_port = '22'
+
+            self.baglantilar[new_host] = {'Host' : new_host, 'Hostname' : new_hostname , 'User' : new_user, 'Port' : default_port}
+            self.write_config()
+
+            self.listbox_add_items()
+            self.listbox.show_all()
+            self.input_window.hide()
+    
+    def same_name_from_new_host(self):
+        self.same_name_from_new_host_window= Gtk.Window()
+        self.same_name_from_new_host_window.set_title("Yeni Bağlantı Ekle")
+        self.same_name_from_new_host_window.set_border_width(10)
+        table15 = Gtk.Table(n_rows=2, n_columns=3, homogeneous=True)
+        self.same_name_from_new_host_window.add(table15)
+        self.same_name_from_new_host_window.set_size_request(200,100)
+
+        same_name_from_new_host_label = Gtk.Label(label = 'Host ve User değişkenleri aynı isme sahip olamaz !')
+        same_name_from_new_host_button = Gtk.Button(label = 'Tamam')
+
+        table15.attach(same_name_from_new_host_label,0,3,0,1)
+        table15.attach(same_name_from_new_host_button,2,3,1,2)
+
+        same_name_from_new_host_button.connect('clicked',self.same_name_hide)
+
+        self.same_name_from_new_host_window.present()
+        self.same_name_from_new_host_window.show_all()
+
+    def same_name_hide(self,clicked):
+        self.same_name_from_new_host_window.hide()
+
+    def blank_entry_from_new_host(self):
+        self.blank_entry_from_new_host_window= Gtk.Window()
+        self.blank_entry_from_new_host_window.set_title("Yeni Bağlantı Ekle")
+        self.blank_entry_from_new_host_window.set_border_width(10)
+        table16 = Gtk.Table(n_rows=2, n_columns=0, homogeneous=True)
+        self.blank_entry_from_new_host_window.add(table16)
+        self.blank_entry_from_new_host_window.set_size_request(200,100)
+
+        blank_entry_from_new_host_label = Gtk.Label(label = 'Boş değer bırakılamaz !')
+        blank_entry_from_new_host_button = Gtk.Button(label = 'Tamam')
+
+        table16.attach(blank_entry_from_new_host_label,0,2,0,1)
+        table16.attach(blank_entry_from_new_host_button,1,2,1,2)
+
+        blank_entry_from_new_host_button.connect('clicked',self.blank_entry_hide)
+
+        self.blank_entry_from_new_host_window.present()
+        self.blank_entry_from_new_host_window.show_all()
+    
+    def blank_entry_hide(self,clicked):
+        self.blank_entry_from_new_host_window.hide()
 
     def on_search_activated(self,searchentry):
         self.baglantilar.clear()
@@ -733,12 +790,17 @@ class MyWindow(Gtk.Window):
         self.add_attribute_window.show_all()    
 
     def on_click_add_attribute(self,widget): # Yeni attribute ekleme butonu görevi
-        self.add_attribute_window.hide()
-        self.read_config()
-        self.baglantilar[self.get_host_before][self.attribute_name.get_text()] = self.attribute_value.get_text()
-        self.write_config()
-        self.notebooks(self.get_host_before)
-        self.notebook.set_current_page(0)
+        if self.attribute_name.get_text() == '':
+            self.blank_entry_from_new_host()
+        elif self.attribute_value.get_text() == '':
+            self.blank_entry_from_new_host()
+        else:
+            self.add_attribute_window.hide()
+            self.read_config()
+            self.baglantilar[self.get_host_before][self.attribute_name.get_text()] = self.attribute_value.get_text()
+            self.write_config()
+            self.notebooks(self.get_host_before)
+            self.notebook.set_current_page(0)
     
     def on_click_sftp(self,widget):
         try:
