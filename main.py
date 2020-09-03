@@ -474,7 +474,7 @@ class MyWindow(Gtk.Window):
         for currency in self.baglantilar.keys():
             certificate_combo.append_text(currency)
 
-        send_cert_button = Gtk.Button("Gönder")
+        send_cert_button = Gtk.Button(label = "Gönder")
         send_cert_button.connect('clicked',self.on_click_send_cert)
         table12.attach(certificate_combo,0,1,0,1)
         table12.attach(send_cert_button,0,1,1,2)
@@ -515,8 +515,8 @@ class MyWindow(Gtk.Window):
         table14 = Gtk.Table(n_rows=3, n_columns=1, homogeneous=True)
         self.fail_cert_window.add(table14)
 
-        fail_cert_label = Gtk.Label("Sunucu şifrenizi yanlış girmiş olabilirsiniz veya sertifika göndermek istediğiniz sunucuda\nzaten bir sertifikanız kayıtlı olabilir.Devam etmek için önceki sertifikanızı silmeniz\ngerekmektedir.")
-        fail_cert_button = Gtk.Button("Sil")
+        fail_cert_label = Gtk.Label(label = "Sunucu şifrenizi yanlış girmiş olabilirsiniz veya sertifika göndermek istediğiniz sunucuda\nzaten bir sertifikanız kayıtlı olabilir.Devam etmek için önceki sertifikanızı silmeniz\ngerekmektedir.")
+        fail_cert_button = Gtk.Button(label = "Sil")
         fail_cert_button.connect('clicked',self.delete_defined_certificate)
         table14.attach(fail_cert_label,0,1,0,2)
         table14.attach(fail_cert_button,0,1,2,3)
@@ -549,8 +549,6 @@ class MyWindow(Gtk.Window):
         dialog.show_all()
 
         response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            print("WARN dialog closed by clicking OK button")
 
         dialog.destroy() 
 
@@ -611,8 +609,8 @@ class MyWindow(Gtk.Window):
         self.write_on_certificate_window.add(table13)
 
         write_on_certificate_label = Gtk.Label( label = "Zaten idrsa.pub isimli bir sertifikanız var. Oluşturacağınız yeni sertifika üzerine yazılacaktır.\n\t\t\t\t\t\t\t\t\tOnaylıyor musunuz ?")
-        write_on_certificate_yes_btn = Gtk.Button("Yes")
-        write_on_certificate_no_btn = Gtk.Button("No")
+        write_on_certificate_yes_btn = Gtk.Button(label = "Evet")
+        write_on_certificate_no_btn = Gtk.Button(label = "Hayır")
 
         write_on_certificate_yes_btn.connect('clicked',self.on_click_write_on_yes_btn)
         write_on_certificate_no_btn.connect('clicked',self.on_click_write_on_no_btn)
@@ -973,15 +971,15 @@ class MyWindow(Gtk.Window):
         self.first_connection_window.add(table8)
         self.first_connection_window.set_title("Emin misiniz ? ")
 
-        first_connection_yes_btn = Gtk.Button("Devam Et")
+        first_connection_yes_btn = Gtk.Button(label = "Devam Et")
         table8.attach(first_connection_yes_btn,1,10,4,8)
         first_connection_yes_btn.connect("clicked",self.yes_button_clicked)
         
-        first_connection_no_btn = Gtk.Button("Ayrıl")
+        first_connection_no_btn = Gtk.Button(label = "Ayrıl")
         table8.attach(first_connection_no_btn,11,19,4,8)
         first_connection_no_btn.connect("clicked",self.no_button_clicked)
 
-        first_connection_label = Gtk.Label("     Bu sunucuya ilk kez bağlanıyorsunuz. Devam etmek istediğinize emin misiniz ?  (evet/hayır/[fingerprint])?    ")
+        first_connection_label = Gtk.Label(label = "     Bu sunucuya ilk kez bağlanıyorsunuz. Devam etmek istediğinize emin misiniz ?  (evet/hayır/[fingerprint])?    ")
         table8.attach(first_connection_label,0,20,0,2)
 
         self.first_connection_window.show_all()   
@@ -1028,11 +1026,11 @@ class MyWindow(Gtk.Window):
         self.host_change_entry = Gtk.Entry()
         self.host_change_entry.set_placeholder_text("Evet değişiklik yap.")
 
-        host_change_label = Gtk.Label("Bağlanmak istediğiniz sunucu ip'si başka bir sunucu tarafından alınmış olabilir.\nKnown değişimini onaylıyorsanız --  Evet değişiklik yap  -- yazın")
+        host_change_label = Gtk.Label(label = "Bağlanmak istediğiniz sunucu ip'si başka bir sunucu tarafından alınmış olabilir.\nKnown değişimini onaylıyorsanız --  Evet değişiklik yap  -- yazın")
         table9.attach(host_change_label,0,3,0,1)
         table9.attach(self.host_change_entry,1,2,1,2)
 
-        host_change_button = Gtk.Button("Send")
+        host_change_button = Gtk.Button(label = "Send")
         host_change_button.connect("clicked",self.on_click_host_change)
 
         table9.attach(host_change_button,1,2,2,3)
@@ -1066,6 +1064,7 @@ class MyWindow(Gtk.Window):
     ########################## SCP İşlemleri #####################################
     
     def file_choose(self,event): # File choose dialog
+        
         name_list = []
         filechooserdialog = Gtk.FileChooserDialog(title="Göndermek istediğiniz dosyayı seçin.",
              parent=None,
@@ -1104,7 +1103,7 @@ class MyWindow(Gtk.Window):
             self.select_file()
             
         except paramiko.SSHException:
-            print("Hata ! ")
+            print("Hatalı giriş bilgileri !")
             self.connect_window.hide()
             self.scp_transfer("clicked")
     
@@ -1177,7 +1176,6 @@ class MyWindow(Gtk.Window):
         select = widget.get_selection()
         model, treeiter = select.get_selected()
         if treeiter != None:
-            print ("drag", model[treeiter][2])#2. eleman yol,0.eleman tutulan dosya adı bunu dataya ver drop kısmında dosya yolunu alıpstfp 
             data.set_text(model[treeiter][2],-1)
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
@@ -1186,7 +1184,6 @@ class MyWindow(Gtk.Window):
         if drop_info:
             path, position = drop_info
             iter = model.get_iter(path)
-            print(model[iter][2])
             remotepath=model[iter][2]
             localpath = data.get_text()
             localpath_list = []
@@ -1222,7 +1219,6 @@ class MyWindow(Gtk.Window):
         select = widget.get_selection()
         model, treeiter = select.get_selected()
         if treeiter != None:
-            print ("drag", model[treeiter][2])#2. eleman yol,0.eleman tutulan dosya adı bunu dataya ver drop kısmında dosya yolunu alıpstfp 
             data.set_text(model[treeiter][2],-1)
 
     def on_drag_data_received_2(self, widget, drag_context, x, y, data, info, time):
@@ -1231,7 +1227,6 @@ class MyWindow(Gtk.Window):
         if drop_info:
             path, position = drop_info
             iter = model.get_iter(path)
-            print(model[iter][2])
             remotepath=model[iter][2]
             localpath = data.get_text()
             localpath_list = []
@@ -1327,7 +1322,6 @@ class MyWindow(Gtk.Window):
         self.remote_search.connect("activate",self.on_remote_search_activated)
         
     def on_local_search_activated(self,clicked):
-        print(self.local_search.get_text())
         self.degisken=self.localpath
         try:
             self.localpath=self.local_search.get_text()
@@ -1337,7 +1331,6 @@ class MyWindow(Gtk.Window):
             self.sftp_file_transfer('clicked')
         
     def on_remote_search_activated(self,clicked):
-        print(self.remote_search.get_text())
         self.degiskenrem=self.remotepath
         try:
             self.remotepath=self.remote_search.get_text()
@@ -1348,14 +1341,14 @@ class MyWindow(Gtk.Window):
     
     def sftp_fail(self):
         self.auth_except_win = Gtk.Window()
-        self.auth_except_win.set_title("Fail")
+        self.auth_except_win.set_title("Hata mesajı")
         self.auth_except_win.set_default_size(200, 200)
         self.auth_except_win.set_border_width(20)
 
         self.table10 = Gtk.Table(n_rows=1, n_columns=1, homogeneous=True)
         self.auth_except_win.add(self.table10)
             
-        auth_except_label = Gtk.Label("Auth Failed. Check login informations.")
+        auth_except_label = Gtk.Label(label = "Giriş başarısız. Giriş bilgilerini kontrol edin.")
         self.auth_except_win.add(auth_except_label)       
 
         self.table10.attach(auth_except_label,0,1,0,1)
