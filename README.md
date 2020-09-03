@@ -1,7 +1,6 @@
-# VALF
+## [TR](#Valf) [EN](#Valf-|-EN)
+# VALF 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
-
-[TR](#Valf) [EN]()
 
 Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasarlanmış bir uzaktan yönetim aracıdır.
 
@@ -26,7 +25,7 @@ Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasa
 * SSH bağlantısı kurarken,
 * SFTP protokolü ile dosya aktarırken parola girmenizi beklemez.
 
-# Fonksiyonlar
+## Fonksiyonlar
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
 Valf yapısı ve amacı gereği birden fazla alanda Sistem Yöneticilerine kolaylık sağladığından birden fazla alanda ayrı fonksiyonlara sahiptir. 
@@ -55,9 +54,10 @@ Valf yapısı ve amacı gereği birden fazla alanda Sistem Yöneticilerine kolay
 * [SFTP ile yerel makine/uzak sunucu dosya sistemlerinde gezmek](#SFTP-ile-yerel-makine/uzak-sunucu-dosya-sistemlerinde-gezmek)
 * [SFTP ile dosya/dizin transferi yapmak](#SFTP-ile-dosya/dizin-transferi-yapmak)
 
-## Ek
+## Ek Başlıklar
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
+* [Katkıda bulunmak isteyenler için](#Katkıda-bulunmak-isteyenler-için)
 * [Test edilen dağıtımlar](#Test-edilen-dağıtımlar)
 * [Lisans](#Lisans)
 
@@ -166,6 +166,11 @@ Valf'in en önemli ve en kolaylık sağlayan özelliği, SFTP ile dosya veya diz
 
 * Eğer SSH sertifikası tanımlamamışsanız, sunucunuza sol tıklayıp, sağ tarafta yer alan SFTP ile bağlan butonuna basın, gelen parola penceresine parolanızı girin. Karşınızda iki sunucunun da /home/user dizinlerinden başlayan dosya sistemlerini bulacaksınız. Bu dosya ağaçları isterseniz yukarıdaki başlıkta anlatıldığı üzere istediğiniz noktadan başlatın, istediğiniz dosya/dizini karşı makinedeki istediğiniz yola **sürükleyip bırakın**. İşte bu kadar, siz ne olduğunu anlamadan gönderikleriniz çoktan karşı tarafta belirmiş olacak !
 
+# Katkıda Bulunmak İsteyenler İçin
+![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
+
+README dosyası boyunca anlatılan özellikler içerisinde Valf'de olmasını istediğimiz ancak çeşitli faktörler sebebi ile eklenemeyen bazı özelliklere yer verilmiştir. Katkıda bulunmak isteyen Açık Kaynak Gönüllüleri Valf'e öncelikle bu noktalardan destek verebilirler.
+
 # Test Edilen Dağıtımlar
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
@@ -178,3 +183,5 @@ Valf'in en önemli ve en kolaylık sağlayan özelliği, SFTP ile dosya veya diz
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
 Bu depo MIT lisansı ile lisanslanmıştır.
+
+# VALF | EN
