@@ -1,7 +1,7 @@
 # VALF
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
-[TR]() [EN]()
+[TR](#Valf) [EN]()
 
 Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasarlanmış bir uzaktan yönetim aracıdır.
 
@@ -53,8 +53,13 @@ Valf yapısı ve amacı gereği birden fazla alanda Sistem Yöneticilerine kolay
 * [SSH bağlantısı kurmak](#SSH-bağlantısı-kurmak)
 * [SCP ile dosya transferi yapmak](#SCP-ile-dosya-transferi-yapmak)
 * [SFTP ile yerel makine/uzak sunucu dosya sistemlerinde gezmek](#SFTP-ile-yerel-makine/uzak-sunucu-dosya-sistemlerinde-gezmek)
-* [SFTP ile yerel makineden uzak sunucuya dosya/dizin transferi yapmak](#SFTP-ile-yerel-makineden-uzak-sunucuya-dosya/dizin-transferi-yapmak)
-* [SFTP ile uzak sunucudan yerek makineye dosya/dizin transferi yapmak]()
+* [SFTP ile dosya/dizin transferi yapmak](#SFTP-ile-dosya/dizin-transferi-yapmak)
+
+## Ek
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
+* [Test edilen dağıtımlar](#Test-edilen-dağıtımlar)
+* [Lisans](#Lisans)
 
 # Fonksiyonların Kullanımı ve Detaylı Açıklamaları
 ## Bağlantı Fonksiyonları
@@ -152,7 +157,7 @@ SCP ile SFTP yeni sunucular açtığınızda en büyük destekçileriniz, bunun 
 
 * Eğer SSH sertifikası tanımlamamışsanız, sunucunuza sol tıklayıp, sağ tarafta yer alan SFTP ile bağlan butonuna basın, gelen parola penceresine parolanızı girin. Karşınızda iki sunucunun da /home/user dizinlerinden başlayan dosya sistemlerini bulacaksınız. Üstlerinde yer alan arama kısımları işte bu başlığın olayı. Eğer daha üst veya alt dizinleri ağaç yapısında aramadan direk geçiş yapmak istiyorsanız buraya istediğiniz dizini yazın. Dizinleme işlemi verdiğiniz noktadan başlayacaktır. 
 
-## SFTP ile Yerel Makineden Uzak Sunucuya Dosya/Dizin Transferi Yapmak
+## SFTP ile Dosya/Dizin Transferi Yapmak
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/vintage.png)
 
 Valf'in en önemli ve en kolaylık sağlayan özelliği, SFTP ile dosya veya dizin transferi yapmak. Bu büyülü özellik sayesinde artık sancılı dosya transferi yapma süreçlerine son verebilirsiniz. Çünkü Valf sizin için en kolay hale getiriyor.
@@ -160,6 +165,14 @@ Valf'in en önemli ve en kolaylık sağlayan özelliği, SFTP ile dosya veya diz
 * Eğer SSH sertifikası tanımlamışsanız, sunucunuza sol tıklayıp, sağ tarafta yer alan SFTP ile bağlan butonuna basın. Karşınızda iki sunucunun da /home/user dizinlerinden başlayan dosya sistemlerini bulacaksınız. Bu dosya ağaçları isterseniz yukarıdaki başlıkta anlatıldığı üzere istediğiniz noktadan başlatın, istediğiniz dosya/dizini karşı makinedeki istediğiniz yola **sürükleyip bırakın**. İşte bu kadar, siz ne olduğunu anlamadan gönderikleriniz çoktan karşı tarafta belirmiş olacak !
 
 * Eğer SSH sertifikası tanımlamamışsanız, sunucunuza sol tıklayıp, sağ tarafta yer alan SFTP ile bağlan butonuna basın, gelen parola penceresine parolanızı girin. Karşınızda iki sunucunun da /home/user dizinlerinden başlayan dosya sistemlerini bulacaksınız. Bu dosya ağaçları isterseniz yukarıdaki başlıkta anlatıldığı üzere istediğiniz noktadan başlatın, istediğiniz dosya/dizini karşı makinedeki istediğiniz yola **sürükleyip bırakın**. İşte bu kadar, siz ne olduğunu anlamadan gönderikleriniz çoktan karşı tarafta belirmiş olacak !
+
+# Test Edilen Dağıtımlar
+![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
+
+* Pardus 19.03 XFCE
+* Ubuntu 20.04
+
+*Not: Burada yer almayan bir sürümde Valf'i sorunsuz kullanabiliyorsanız lütfen bize bildirin.*
 
 # Lisans
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
