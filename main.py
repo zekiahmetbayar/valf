@@ -159,7 +159,7 @@ class MyWindow(Gtk.Window):
             sshProcess = subprocess.Popen(['ssh', self.labelmenu],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             out, err = sshProcess.communicate(timeout=0.5)
 
-            key_word = b'WARRANTY'
+            key_word = b'Linux'
             if key_word in out:
                 self.terminal     = Vte.Terminal()
                 self.terminal.spawn_sync(
