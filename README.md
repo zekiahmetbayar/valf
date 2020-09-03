@@ -1,4 +1,6 @@
-## [TR](#Valf) [EN](#EN)
+
+## [TR](#TR) [EN](#EN)
+###### TR
 # VALF ![](./img/icon.png)
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
