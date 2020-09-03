@@ -161,7 +161,7 @@ Valf'in en önemli ve en kolaylık sağlayan özelliği, SFTP ile dosya veya diz
 
 * Eğer SSH sertifikası tanımlamamışsanız, sunucunuza sol tıklayıp, sağ tarafta yer alan SFTP ile bağlan butonuna basın, gelen parola penceresine parolanızı girin. Karşınızda iki sunucunun da /home/user dizinlerinden başlayan dosya sistemlerini bulacaksınız. Bu dosya ağaçları isterseniz yukarıdaki başlıkta anlatıldığı üzere istediğiniz noktadan başlatın, istediğiniz dosya/dizini karşı makinedeki istediğiniz yola **sürükleyip bırakın**. İşte bu kadar, siz ne olduğunu anlamadan gönderikleriniz çoktan karşı tarafta belirmiş olacak !
 
-# LICENSE
+# Lisans
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
-Bu proje MIT lisansı ile lisanslanmıştır.
+Bu depo MIT lisansı ile lisanslanmıştır.
