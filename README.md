@@ -1,4 +1,11 @@
 
+![](https://img.shields.io/github/downloads/zekiahmetbayar/Valf/total?color=brightgreen)
+![](https://img.shields.io/github/languages/code-size/zekiahmetbayar/Valf?color=brightgreen)
+![](https://img.shields.io/github/last-commit/zekiahmetbayar/Valf?color=blue)
+![](https://img.shields.io/github/license/zekiahmetbayar/Valf?color=blue)
+
+
+
 ## [TR](#TR) | [EN](#EN)
 ###### TR
 # VALF ![](./img/icon.png)
