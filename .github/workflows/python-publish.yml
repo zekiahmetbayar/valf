@@ -32,10 +32,10 @@ jobs:
           touch src/DEBIAN/md5sums
           touch src/DEBIAN/postinst
           
-          echo"""Package: diyorki
+          echo """Package: Valf
           Version: ${{steps.date.outputs.date}}
           Installed-Size: echo $(du -s src/ | cut -f 1)
-          Maintainer: Duygu Ölmez <xxx@yyy.com>
+          Maintainer: Duygu Ölmez, Zeki Ahmet Bayar <zekiahmetbayar1@gmail.com>
           Date : $(date)
           Depends: python3-scp, python3-paramiko
           Architecture: amd64
