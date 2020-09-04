@@ -33,27 +33,26 @@ jobs:
           touch src/DEBIAN/postinst
           
           echo"""Package: diyorki
-Version: ${{steps.date.outputs.date}}
-Installed-Size: echo $(du -s src/ | cut -f 1)
-Maintainer: Duygu Ölmez <xxx@yyy.com>
-Date : $(date)
-Depends: python3-scp, python3-paramiko
-Architecture: amd64
-Description: Valf
-   Uzaktan SSH bağlantısı ve dosya transferi aracı.
+          Version: ${{steps.date.outputs.date}}
+          Installed-Size: echo $(du -s src/ | cut -f 1)
+          Maintainer: Duygu Ölmez <xxx@yyy.com>
+          Date : $(date)
+          Depends: python3-scp, python3-paramiko
+          Architecture: amd64
+          Description: Valf
+            Uzaktan SSH bağlantısı ve dosya transferi aracı.
+          """ > src/DEBIAN/control
+        
+          find ./src -type f ! -regex '.*?DEBIAN.*' -exec md5sum {} \; > src/DEBIAN/md5sums
+          echo """"chmod +x /usr/local/bin/main.py
+          chmod +x /usr/local/bin/ssh_file_transfer.py
+          chmod +x /usr/local/bin/file_transfer.py""" > src/DEBIAN/postinst
+          chmod +x src/DEBIAN/postinst
 
-        """
-        
-        find ./src -type f ! -regex '.*?DEBIAN.*' -exec md5sum {} \; > src/DEBIAN/md5sums
-        echo """"chmod +x /usr/local/bin/main.py
-        chmod +x /usr/local/bin/ssh_file_transfer.py
-        chmod +x /usr/local/bin/file_transfer.py""" > src/DEBIAN/postinst
-        chmod +x src/DEBIAN/postinst
-        
-        mv src valf-${{steps.date.outputs.date}}
-        dpkg-deb -Zgzip --build valf-${{steps.date.outputs.date}}
-        
-        ls -la  
+          mv src valf-${{steps.date.outputs.date}}
+          dpkg-deb -Zgzip --build valf-${{steps.date.outputs.date}}
+
+          ls -la  
         
         
         
