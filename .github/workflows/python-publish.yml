@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    branches: ["master"]
+
+jobs:
+  build:
+    # Ensure test job passes before pushing image.
+
+    name: Publish binaries
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Get current date
+        id: date
+        run: | 
+          echo "::set-output name=date::$(date +'%Y%m%d-%H%M%S')"
+      - name: Build Debian Package
+        id: build_package
+        run: |
+          ls
+          pwd
+          
