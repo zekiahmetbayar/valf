@@ -2,6 +2,5 @@
 Name=valf
 Exec=/usr/local/bin/valf.py
 Comment=
-Terminal=true
-Icon=/home/zeki/Valf/src/usr/local/bin/img/icon.png
+Icon=/usr/share/icons/valf/icon.png
 Type=Application
