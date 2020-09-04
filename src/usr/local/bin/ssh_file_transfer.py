@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os, stat
 import paramiko
 from gi.repository import Gtk

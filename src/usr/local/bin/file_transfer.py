@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os,stat
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk
