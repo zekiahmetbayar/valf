@@ -57,7 +57,7 @@ class MyWindow(Gtk.Window):
         self.add(table)
         self.listbox = Gtk.ListBox() # Bağlantıların listelendiği listbox tanımlanması
         self.listbox_add_items()
-        self.set_icon_from_file('/usr/share/icons/Valf/icon.png')
+        self.set_icon_from_file('/usr/share/icons/valf/icon.png')
 
         searchentry = Gtk.SearchEntry() # Searchbox tanımlanması
         searchentry.connect("activate",self.on_search_activated)
