@@ -17,8 +17,8 @@ import time
 import paramiko
 from subprocess import run, PIPE
 import glob
-from file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
-from ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
+from /usr/local/bin/file_transfer import onRowCollapsed,onRowExpanded,populateFileSystemTreeStore,on_tree_selection_changed 
+from /usr/local/bin/ssh_file_transfer import onRowCollapsed2,onRowExpanded2,populateFileSystemTreeStore2,on_tree_selection_changed2,ssh_connect
 from gi.repository.GdkPixbuf import Pixbuf
 import pexpect
 import subprocess
@@ -56,7 +56,7 @@ class MyWindow(Gtk.Window):
         self.add(table)
         self.listbox = Gtk.ListBox() # Bağlantıların listelendiği listbox tanımlanması
         self.listbox_add_items()
-        self.set_icon_from_file(os.getcwd() + '/img/icon.png')
+        self.set_icon_from_file(os.getcwd() + '/usr/share/icons/Valf/icon.png')
 
         searchentry = Gtk.SearchEntry() # Searchbox tanımlanması
         searchentry.connect("activate",self.on_search_activated)

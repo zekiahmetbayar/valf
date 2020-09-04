@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=valf
+Exec=/usr/local/bin/valf.py
+Comment=
+Terminal=true
+Icon=/home/zeki/Valf/src/usr/local/bin/img/icon.png
+Type=Application
