@@ -44,7 +44,7 @@ jobs:
           """ > src/DEBIAN/control
         
           find ./src -type f ! -regex '.*?DEBIAN.*' -exec md5sum {} \; > src/DEBIAN/md5sums
-          echo """chmod +x /usr/local/bin/main.py
+          echo """chmod +x /usr/local/bin/valf.py
           chmod +x /usr/local/bin/ssh_file_transfer.py
           chmod +x /usr/local/bin/file_transfer.py""" > src/DEBIAN/postinst
           chmod +x src/DEBIAN/postinst
