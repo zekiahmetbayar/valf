@@ -26,4 +26,5 @@ jobs:
         run: |
           ls
           pwd
+          echo ${{steps.date.outputs.date}}
           
