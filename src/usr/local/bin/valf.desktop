@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=valf
+Exec=/usr/local/bin/valf.py
+StartupNotify=true
+Terminal=false
+Type=Application
+Icon=/usr/local/bin/img/icon.py
