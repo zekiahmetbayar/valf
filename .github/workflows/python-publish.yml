@@ -53,7 +53,7 @@ jobs:
           chmod +x /usr/share/valf/bin/ssh_file_transfer.py
           chmod +x /usr/share/applications/valf.desktop
           chmod +x /usr/share/valf/bin/file_transfer.py
-          chmod +x /usr/local/bin/valf""" > src/DEBIAN/postinst
+          chmod +x /usr/share/valf/bin/valf""" > src/DEBIAN/postinst
           chmod +x src/DEBIAN/postinst
           
           mv src valf-${{steps.date.outputs.date}}
