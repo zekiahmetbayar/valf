@@ -46,7 +46,7 @@ jobs:
           echo """
           #!/bin/bash
           python3 /usr/share/valf/bin/valf.py
-          """ > /usr/local/bin/valf
+          """ > src/usr/local/bin/valf
         
           find ./src -type f ! -regex '.*?DEBIAN.*' -exec md5sum {} \; > src/DEBIAN/md5sums
           echo "chmod +x /usr/local/bin/valf" > src/DEBIAN/postinst
