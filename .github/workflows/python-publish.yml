@@ -35,9 +35,9 @@ jobs:
           echo """Package: Valf
           Version: ${{steps.date.outputs.date}}
           Installed-Size: echo $(du -s src/ | cut -f 1)
-          Maintainer: Duygu Ölmez, Zeki Ahmet Bayar <zekiahmetbayar1@gmail.com>
+          Maintainer: Duygu Ölmez, Zeki Ahmet Bayar <bayar.zeki@std.izu.edu.tr>
           Date : $(date)
-          Depends: python3-scp, python3-paramiko
+          Depends: python3-scp, python3-paramiko,python3-pexpect
           Architecture: amd64
           Description: Valf
             Uzaktan SSH bağlantısı ve dosya transferi aracı.
