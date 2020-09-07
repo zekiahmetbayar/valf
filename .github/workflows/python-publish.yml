@@ -42,13 +42,21 @@ jobs:
           Description: Valf
             Uzaktan SSH bağlantısı ve dosya transferi aracı.
           """ > src/DEBIAN/control
+
+          echo """
+          #!/bin/bash
+          python3 /usr/share/valf/bin/valf.py
+          """ > /usr/share/valf/bin/valf
         
           find ./src -type f ! -regex '.*?DEBIAN.*' -exec md5sum {} \; > src/DEBIAN/md5sums
-          echo """chmod +x /usr/local/bin/valf.py
-          chmod +x /usr/local/bin/ssh_file_transfer.py
+          echo """chmod +x /usr/share/valf/bin/valf.py
+          chmod +x /usr/share/valf/bin/ssh_file_transfer.py
           chmod +x /usr/share/applications/valf.desktop
-          chmod +x /usr/local/bin/file_transfer.py""" > src/DEBIAN/postinst
+          chmod +x /usr/share/valf/bin/file_transfer.py
+          chmod +x /usr/share/valf/bin/valf""" > src/DEBIAN/postinst
           chmod +x src/DEBIAN/postinst
+
+
           
 
           mv src valf-${{steps.date.outputs.date}}

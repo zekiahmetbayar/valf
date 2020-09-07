@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=valf
-Exec=/usr/local/bin/valf.py
+Exec=valf
 Comment=
 Icon=/usr/share/icons/valf/icon.png
 Type=Application
