@@ -193,6 +193,9 @@ class MyWindow(Gtk.Window):
                 self.terminal.feed_child(com.encode("utf-8"))
                 time.sleep(0.5) 
             
+            else:
+                self.sftp_fail()
+            
         except:
             sshProcess.send_signal(signal.SIGINT)
             self.enter_password()
