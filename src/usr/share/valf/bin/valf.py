@@ -160,6 +160,7 @@ class MyWindow(Gtk.Window):
             out, err = sshProcess.communicate(timeout=0.5)
 
             key_word = b'Linux'
+
             if key_word in out:
                 self.terminal     = Vte.Terminal()
                 self.terminal.spawn_sync(
@@ -194,7 +195,8 @@ class MyWindow(Gtk.Window):
                 time.sleep(0.5) 
             
             else:
-                print('Hata ! ')
+                self.enter_password()
+                self.connect_button.connect('clicked',self.send_password)
             
         except:
             sshProcess.send_signal(signal.SIGINT)
