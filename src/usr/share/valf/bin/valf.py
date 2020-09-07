@@ -194,7 +194,7 @@ class MyWindow(Gtk.Window):
                 time.sleep(0.5) 
             
             else:
-                pass
+                print('Hata ! ')
             
         except:
             sshProcess.send_signal(signal.SIGINT)
