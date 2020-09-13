@@ -37,25 +37,14 @@ Valf, tamamen açık kaynaklı olarak, Sistem Yöneticileri düşünülerek tasa
 ## Kurulum
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
 
-Valf'ı kişisel bilgisayarınıza kurmak için 2 seçeneğe sahipsiniz.
-
-* 1 ➤  .deb paketi ile kurulum.
 
     * Valf'in deposunun sağ kısmında bulunan 'Releases' kısmından .deb uzantılı paketi indirebilirsiniz. İndirdiğiniz bu paket tıpkı klon yönteminde olacağı gibi Valf'ın en güncel sürümü olacaktır.
 
     * Paketi indirdikten sonra bulunduğu dizinde
         
         * sudo apt install ./valf-[lastcommitdate].deb 
-        * Daha sonra mevcut dağıtımınızın arama kısmından Valf'e tıklayarak ya da terminalinize valf.py yazarak çalıştırabilirsiniz.
-
-
-* 2  ➤  Klon yöntemi ile kurulum.
-    
-    * git clone https://github.com/zekiahmetbayar/Valf.git
-    * cd  Valf/src/usr/local/bin
-    * python3 valf.py
-
-
+        * Daha sonra mevcut dağıtımınızın arama kısmından Valf'e tıklayarak ya da terminalinize valf yazarak çalıştırabilirsiniz.
+ 
 
 ## Fonksiyonlar
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)]()
