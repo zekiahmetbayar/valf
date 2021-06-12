@@ -1,16 +1,34 @@
-name: Publish
+name: Docker
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
-    branches: ["master"]
+    branches: ["main"]
+
+    tags:
+      - deb*
+      - all*
+
 
 jobs:
-  build:
-    # Ensure test job passes before pushing image.
-
-    name: Publish binaries
+  # Run tests.
+  prepare:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Run tests
+        run: |
+          if ! [ -f Dockerfile ]; then
+            docker 
+          fi
+    
+  build:
+    needs: prepare
+
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
 
     steps:
 
